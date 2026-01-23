@@ -12,9 +12,9 @@ if [ ! -f .env ] && [ -f env_config.txt ]; then
 fi
 
 # Verifica e compila biblioteca se necessário
-if [ ! -f sfp-interface/libsfp.so ]; then
+if [ ! -f interface/libsfp.so ]; then
     echo "Compilando biblioteca..."
-    cd sfp-interface
+    cd interface
     make clean && make lib
     cd ..
 fi
@@ -28,13 +28,13 @@ if [ ! -d .venv ]; then
 fi
 
 # Verifica e configura frontend se necessário
-if [ ! -d client/node_modules ]; then
+if [ ! -d view/node_modules ]; then
     echo "Configurando frontend..."
     if ! command -v pnpm &> /dev/null; then
         echo "Instalando pnpm..."
         sudo npm install -g pnpm
     fi
-    cd client
+    cd view
     pnpm install --frozen-lockfile
     cd ..
 fi
@@ -51,7 +51,7 @@ BACKEND_PID=$!
 sleep 2
 
 echo "Iniciando frontend..."
-cd client
+cd view
 pnpm dev --host 0.0.0.0 --port 3000 &
 FRONTEND_PID=$!
 

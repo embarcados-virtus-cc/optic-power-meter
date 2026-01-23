@@ -35,10 +35,10 @@ settings = Settings()
 
 
 def _resolve_lib_path() -> str:
-    # libsfp.so atualmente está dentro do diretório `sfp-interface/`
+    # libsfp.so atualmente está dentro do diretório `interface/`
     here = os.path.dirname(__file__)
     candidates = [
-        os.path.join(here, "sfp-interface", "libsfp.so"),
+        os.path.join(here, "interface", "libsfp.so"),
         os.path.join(here, "libsfp.so"),
     ]
     for p in candidates:
@@ -47,7 +47,7 @@ def _resolve_lib_path() -> str:
             return ap
     raise RuntimeError(
         "Não encontrei a biblioteca compartilhada `libsfp.so`. "
-        "Compile em `sfp-interface/` (make) e garanta que `sfp-interface/libsfp.so` exista."
+        "Compile em `interface/` (make) e garanta que `interface/libsfp.so` exista."
     )
 
 

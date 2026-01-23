@@ -53,7 +53,7 @@ O script irá:
    .venv/bin/uvicorn sfp_api:app --host 0.0.0.0 --port 8000
 
    # Terminal 2 - Frontend
-   cd client && pnpm dev --host 0.0.0.0 --port 3000
+   cd view && pnpm dev --host 0.0.0.0 --port 3000
    ```
 
 4. **Acesse a dashboard**:
@@ -97,7 +97,7 @@ sudo reboot
 ### 3. Compilar Biblioteca C
 
 ```bash
-cd sfp-interface
+cd interface
 make clean
 make lib
 cd ..
@@ -122,7 +122,7 @@ sudo apt install -y nodejs
 sudo npm install -g pnpm
 
 # Instalar dependências
-cd client
+cd view
 pnpm install --frozen-lockfile
 cd ..
 ```
@@ -183,7 +183,7 @@ sudo systemctl status optic-power-meter
 
 2. Verifique erros de compilação:
    ```bash
-   cd sfp-interface
+   cd interface
    make clean
    make lib 2>&1 | tee build.log
    ```
@@ -192,12 +192,12 @@ sudo systemctl status optic-power-meter
 
 1. Verifique se a biblioteca existe:
    ```bash
-   ls -lh sfp-interface/libsfp.so
+   ls -lh interface/libsfp.so
    ```
 
 2. Verifique se está compilada para a arquitetura correta:
    ```bash
-   file sfp-interface/libsfp.so
+   file interface/libsfp.so
    # Deve mostrar: ELF 64-bit LSB shared object, ARM aarch64
    ```
 
@@ -210,7 +210,7 @@ sudo systemctl status optic-power-meter
 
 2. Reinstale dependências:
    ```bash
-   cd client
+   cd view
    rm -rf node_modules pnpm-lock.yaml
    pnpm install
    ```
@@ -224,12 +224,12 @@ optic-power-meter/
 ├── .env                  # Variáveis de ambiente (criar)
 ├── requirements.txt      # Dependências Python
 ├── sfp_api.py           # Backend FastAPI
-├── sfp-interface/        # Biblioteca C
+├── interface/            # Biblioteca C
 │   ├── sfp_8472_a0h.*   # Página A0h (Base ID)
 │   ├── sfp_8472_a2h.*   # Página A2h (Diagnósticos)
 │   ├── i2c.*            # Interface I2C
 │   └── libsfp.so        # Biblioteca compilada
-└── client/               # Frontend React
+└── view/                 # Frontend React
     ├── package.json
     └── src/
 ```

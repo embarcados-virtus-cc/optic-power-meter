@@ -43,7 +43,7 @@ O banco de dados será criado automaticamente quando o backend iniciar.
 
 ## Estrutura
 
-- `sfp-interface/` - Biblioteca C (A0h e A2h)
+- `interface/` - Biblioteca C (A0h e A2h)
 - `sfp_api.py` - Backend FastAPI
-- `client/` - Frontend React
+- `view/` - Frontend React
 - `env_config.txt` - Configuração com URL do Supabase (senha já codificada)

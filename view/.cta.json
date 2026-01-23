@@ -1,0 +1,12 @@
+{
+  "projectName": "optic-power-meter-gui",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "npm",
+  "addOnOptions": {},
+  "git": true,
+  "version": 1.1,
+  "framework": "react-cra",
+  "chosenAddOns": ["eslint", "shadcn"]
+}
