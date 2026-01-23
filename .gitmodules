@@ -1,0 +1,6 @@
+[submodule "sfp-interface-pi"]
+	path = sfp-interface-pi
+	url = git@github.com:embarcados-virtus-cc/sfp-interface-pi
+[submodule "optic-power-meter-gui"]
+	path = optic-power-meter-gui
+	url = git@github.com:embarcados-virtus-cc/optic-power-meter-gui
