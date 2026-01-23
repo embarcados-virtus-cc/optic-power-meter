@@ -368,14 +368,6 @@ int main(int argc, char *argv[])
     }
 
 #ifdef DEBUG
-    /* Dump (opcional) para inspeção manual */
-    printf("\nDump EEPROM A0h:");
-    for (int i = 0; i < SFP_A0_BASE_SIZE; i++) {
-        if (i % 16 == 0)
-            printf("\n%02X: ", i);
-        printf("%02X ", a0_base_data[i]);
-    }
-    printf("\n");
 #endif
 
     /* =====================================================
@@ -403,6 +395,25 @@ int main(int argc, char *argv[])
         
         sfp_print_a2h_diagnostics(&diag);
     }
+
+  /* Dump (opcional) para inspeção manual */
+    printf("\nDump EEPROM A0h:");
+    for (int i = 0; i < SFP_A0_BASE_SIZE; i++) {
+        if (i % 16 == 0)
+            printf("\n%02X: ", i);
+        printf("%02X ", a0_base_data[i]);
+    }
+    printf("\n");
+  
+    printf("===================================================");
+
+    printf("\nDump EEPROM A2h:");
+    for (int i = 0; i < SFP_A2_DIAG_SIZE; i++) {
+        if (i % 16 == 0)
+            printf("\n%02X: ", i);
+        printf("%02X ", a2_diag_data[i]);
+    }
+    printf("\n");
 
     printf("\nTeste concluído.\n");
 

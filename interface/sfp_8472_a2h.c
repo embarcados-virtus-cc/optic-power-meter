@@ -14,7 +14,7 @@ void sfp_parse_a2h_diagnostics(const uint8_t *a2_data, sfp_a2h_diagnostics_t *di
 
     memset(diag, 0, sizeof(*diag));
 
-    /* Bytes 96-97: Temperature (signed 16-bit, big-endian, units of 1/256°C) */
+    /* Bytes 96-97: Temperature */
     diag->temperature_raw = ((int16_t)a2_data[96] << 8) | a2_data[97];
     if (diag->temperature_raw != 0 && diag->temperature_raw != (int16_t)0x8000) {
         diag->temperature_c = (float)diag->temperature_raw / 256.0f;
@@ -23,7 +23,7 @@ void sfp_parse_a2h_diagnostics(const uint8_t *a2_data, sfp_a2h_diagnostics_t *di
         diag->temperature_valid = false;
     }
 
-    /* Bytes 98-99: Voltage (unsigned 16-bit, big-endian, units of 100 µV = 0.1 mV) */
+    /* Bytes 98-99: Voltage */
     diag->voltage_raw = ((uint16_t)a2_data[98] << 8) | a2_data[99];
     if (diag->voltage_raw != 0 && diag->voltage_raw != 0xFFFF) {
         diag->voltage_v = (float)diag->voltage_raw * 0.0001f; /* 100 µV = 0.0001 V */
@@ -32,7 +32,7 @@ void sfp_parse_a2h_diagnostics(const uint8_t *a2_data, sfp_a2h_diagnostics_t *di
         diag->voltage_valid = false;
     }
 
-    /* Bytes 100-101: Bias Current (unsigned 16-bit, big-endian, units of 2 µA) */
+    /* Bytes 100-101: Bias Current */
     diag->bias_current_raw = ((uint16_t)a2_data[100] << 8) | a2_data[101];
     if (diag->bias_current_raw != 0 && diag->bias_current_raw != 0xFFFF) {
         diag->bias_current_ma = (float)diag->bias_current_raw * 0.002f; /* 2 µA = 0.002 mA */
@@ -41,7 +41,7 @@ void sfp_parse_a2h_diagnostics(const uint8_t *a2_data, sfp_a2h_diagnostics_t *di
         diag->bias_current_valid = false;
     }
 
-    /* Bytes 102-103: TX Power (unsigned 16-bit, big-endian, units of 0.1 µW) */
+    /* Bytes 102-103: TX Power */
     diag->tx_power_raw = ((uint16_t)a2_data[102] << 8) | a2_data[103];
     if (diag->tx_power_raw != 0 && diag->tx_power_raw != 0xFFFF) {
         /* 0.1 µW = 0.1 * 10^-6 W = 0.1 * 10^-3 mW = 0.0001 mW */
@@ -49,14 +49,14 @@ void sfp_parse_a2h_diagnostics(const uint8_t *a2_data, sfp_a2h_diagnostics_t *di
         if (diag->tx_power_mw > 0.0f) {
             diag->tx_power_dbm = 10.0f * log10f(diag->tx_power_mw);
         } else {
-            diag->tx_power_dbm = -40.0f; /* Minimum readable value */
-        }
+            diag->tx_power_dbm = -40.0f;
+    }
         diag->tx_power_valid = true;
     } else {
         diag->tx_power_valid = false;
     }
 
-    /* Bytes 104-105: RX Power (unsigned 16-bit, big-endian, units of 0.1 µW) */
+    /* Bytes 104-105: RX Power */
     diag->rx_power_raw = ((uint16_t)a2_data[104] << 8) | a2_data[105];
     if (diag->rx_power_raw != 0 && diag->rx_power_raw != 0xFFFF) {
         /* 0.1 µW = 0.1 * 10^-6 W = 0.1 * 10^-3 mW = 0.0001 mW */
@@ -94,8 +94,8 @@ void sfp_parse_a2h_diagnostics(const uint8_t *a2_data, sfp_a2h_diagnostics_t *di
     diag->alarms.voltage_warning_low    = (warning_byte & (1 << 2)) != 0;
     diag->alarms.bias_warning_high      = (warning_byte & (1 << 1)) != 0;
     diag->alarms.bias_warning_low       = (warning_byte & (1 << 0)) != 0;
-    diag->alarms.tx_power_warning_high  = (alarm_byte & (1 << 1)) != 0; /* Reuse from alarm byte if needed */
-    diag->alarms.tx_power_warning_low   = (alarm_byte & (1 << 0)) != 0; /* Reuse from alarm byte if needed */
+    diag->alarms.tx_power_warning_high  = (alarm_byte & (1 << 1)) != 0;
+    diag->alarms.tx_power_warning_low   = (alarm_byte & (1 << 0)) != 0;
     diag->alarms.rx_power_warning_high  = (warning_byte & (1 << 7)) != 0;
     diag->alarms.rx_power_warning_low   = (warning_byte & (1 << 6)) != 0;
 }
