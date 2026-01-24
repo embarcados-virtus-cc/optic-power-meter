@@ -811,6 +811,8 @@ void sfp_parse_a0_fc_speed_2(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
  * ============================================ */
 bool sfp_get_a0_fc_speed_2(const sfp_a0h_base_t *a0, const sfp_compliance_decoded_t *comp)
 {
+    uint8_t b = a0->fc_speed2;
+
     if (!a0 || !comp)
         return false;
 
@@ -818,7 +820,9 @@ bool sfp_get_a0_fc_speed_2(const sfp_a0h_base_t *a0, const sfp_compliance_decode
         return false;
     }
 
-    return a0->fc_speed2;
+    uint8_t speed = b & (1 << 0);
+
+    return speed;
 }
 
 /* ============================================
