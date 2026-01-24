@@ -1,0 +1,18 @@
+{
+    "timestamp": "2026-01-24T02:30:00Z",
+    "rx_power_dbm": -12.5,
+    "temperature_c": 45.2,
+    "voltage_v": 3.3,
+    "bias_ma": 6.8,
+    "signal_quality": "OK",
+    "module": {
+        "identifier": 3,
+        "ext_identifier": 4,
+        "connector": 7,
+        "encoding": 1,
+        "vendor_name": "MOCK_VENDOR",
+        "vendor_pn": "MOCK-PN-001",
+        "vendor_rev": "A1",
+        "cc_base_valid": true
+    }
+}
