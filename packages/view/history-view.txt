@@ -1,0 +1,104 @@
+* 065ed13 | Miguel Ryan Dantas de Freitas | 2026-01-18 | fix: atualizando o uso da store na chamada do componente de forma correta
+* 7eab638 | Miguel Ryan Dantas de Freitas | 2026-01-18 | feat: adicionando os skeletons do card de coeficientes de calibração externa do módulo
+* 8ef17c5 | Miguel Ryan Dantas de Freitas | 2026-01-18 | feat: skeletons para o card de escolha de modo de calibração
+* 28aea1f | Miguel Ryan Dantas de Freitas | 2026-01-18 | feat: adicionando os skeletons para os cards de informação sobre calibração externa e interna
+* bf1fa87 | Miguel Ryan Dantas de Freitas | 2026-01-18 | fix: resolvendo um bug de imports do projeto
+* 2115f84 | Miguel Ryan Dantas de Freitas | 2026-01-18 | refactor: formatando todos os arquivos para o padrão de design de código estabelecido
+*   d14766e | Miguel Ryan Dantas de Freitas | 2026-01-17 | Merge pull request #23 from embarcados-virtus-cc/docs
+|\  
+| * 0a80568 | Miguel Ryan Dantas de Freitas | 2026-01-17 | chore: atualizando toda a build do projeto para suportar o storybook corretamente
+| * 82d911d | Miguel Ryan Dantas de Freitas | 2026-01-17 | docs: adicionando os stories da tela de sidebar do "sobre o projeto"
+| * 48e6e4a | Miguel Ryan Dantas de Freitas | 2026-01-17 | test: adicionando os testes da sidebar na página de about
+| * a250535 | Miguel Ryan Dantas de Freitas | 2026-01-17 | docs: adicionando os stories da tela de alarmes e avisos
+| * 386559b | Miguel Ryan Dantas de Freitas | 2026-01-17 | tests: adicionando os testes da tela de alarmes e avisos
+| * 7dd483c | Miguel Ryan Dantas de Freitas | 2026-01-17 | docs: adicionando todos os stories da tela de dashboard inicial de monitoramento
+| * c6754a1 | Miguel Ryan Dantas de Freitas | 2026-01-17 | tests: adicionando os testes da página inicial ou dashboard de monitoramento
+| * 5dc03d5 | Miguel Ryan Dantas de Freitas | 2026-01-17 | docs: adicionando os stories do Header
+| * 9b728ea | Miguel Ryan Dantas de Freitas | 2026-01-17 | test: adicionando os testes do Header e do Footer
+| * b1ddf48 | Miguel Ryan Dantas de Freitas | 2026-01-17 | docs: colocando todos os stories do storybook da tela de calibração
+| * f2880f0 | Miguel Ryan Dantas de Freitas | 2026-01-17 | feat: colocando todos os tests da tela de calibração
+| * ff1b0e5 | Miguel Ryan Dantas de Freitas | 2026-01-17 | fix: corrigindo alguns imports que esqueci
+| * 800f76e | Miguel Ryan Dantas de Freitas | 2026-01-17 | feat: preparando o projeto para receber os tests e stories, através da criação da pasta page em cada um dos componentes
+| * d5b30a6 | Miguel Ryan Dantas de Freitas | 2026-01-17 | fix: apagando um package-lock.json que rodei com o npm sem querer
+* | d6cf732 | Miguel Ryan Dantas de Freitas | 2026-01-17 | Merge pull request #22 from embarcados-virtus-cc/feature/tuning
+|\| 
+| * 176815b | Miguel Ryan Dantas de Freitas | 2026-01-17 | feat: adicionando todos os ícones do lucide-react para a tela de calibração, deixando ela completa
+| * 6c1c919 | Miguel Ryan Dantas de Freitas | 2026-01-17 | fix: removendo outro arquivo desnecessário que a IA criou
+| * afd2f06 | Miguel Ryan Dantas de Freitas | 2026-01-17 | fix: apagando outro arquivo desnecessário que foi criado com o auxílio da IA
+| * 29c704d | Miguel Ryan Dantas de Freitas | 2026-01-17 | fix: organizando um arquivo que tinha sido criado para nada e corrigindo o nome do arquivo correto
+| * a8c254b | Miguel Ryan Dantas de Freitas | 2026-01-17 | feat: fazendo a funcionalidade de editar funcionar corretamente
+| * ad04e6c | Miguel Ryan Dantas de Freitas | 2026-01-17 | docs: adicionando as telas prototipadas no penpot
+| * 1cea964 | Miguel Ryan Dantas de Freitas | 2026-01-17 | refactor: organizando os imports da forma que o ESLint pediu
+| * aed97e0 | Miguel Ryan Dantas de Freitas | 2026-01-17 | refactor: formatando o código para ficar no tabeamento padrão do projeto
+| *   48a8d2f | Miguel Ryan Dantas de Freitas | 2026-01-17 | Merge branch 'main' into feature/tuning
+| |\  
+| |/  
+|/|   
+* |   5fcaf3f | Miguel Ryan Dantas de Freitas | 2026-01-16 | Merge pull request #21 from embarcados-virtus-cc/feature/about
+|\ \  
+| * | d6fb9a1 | Miguel Ryan Dantas de Freitas | 2026-01-16 | feat: adicionei os ícones do lucide-react desejados
+| * | 2d0e396 | Miguel Ryan Dantas de Freitas | 2026-01-16 | feat: estilização completa da tela de sobre, acho que ainda posso colocar apenas uns ícones do lucide-react para completar
+|/ /  
+| * 7745b9a | Miguel Ryan Dantas de Freitas | 2026-01-17 | feat: adicionei toda a estilização necessária da forma que eu gostaria que fosse
+| * 5bb78f8 | Miguel Ryan Dantas de Freitas | 2026-01-16 | feat: adicionei os ícones do lucide-react desejados
+| * 7c87a19 | Miguel Ryan Dantas de Freitas | 2026-01-16 | feat: estilização completa da tela de sobre, acho que ainda posso colocar apenas uns ícones do lucide-react para completar
+| * db715e4 | Miguel Ryan Dantas de Freitas | 2026-01-17 | feat: versão inicial da tela de tuning (calibração) da aplicação, ainda tenho que estilizar da maneira correta
+| * d2690b3 | Miguel Ryan Dantas de Freitas | 2026-01-16 | feat: adicionando o ano no footer
+|/  
+* 688bcc3 | Miguel Ryan Dantas de Freitas | 2026-01-16 | feat: versão inicial da página about do projeto, ainda falta estilizar ela inteira
+*   0fb4049 | Miguel Ryan Dantas de Freitas | 2026-01-13 | Merge pull request #8 from embarcados-virtus-cc/feature/alarms
+|\  
+| *   615c74e | Miguel Ryan Dantas de Freitas | 2026-01-13 | Merge branch 'main' into feature/alarms
+| |\  
+| |/  
+|/|   
+* | df0db00 | Miguel Ryan Dantas de Freitas | 2026-01-13 | Delete docs/Power Meter GUI.penpot
+* |   d2ba7ea | Miguel Ryan Dantas de Freitas | 2026-01-09 | Merge pull request #7 from embarcados-virtus-cc/feature/footer
+|\ \  
+| * \   06330e5 | Miguel Ryan Dantas de Freitas | 2026-01-09 | Merge branch 'main' into feature/footer
+| |\ \  
+| |/ /  
+|/| |   
+* | |   6dcc7ac | Miguel Ryan Dantas de Freitas | 2026-01-09 | Merge pull request #2 from embarcados-virtus-cc/feature/dashboard
+|\ \ \  
+| * | | 3ca95e0 | Miguel Ryan Dantas de Freitas | 2026-01-05 | docs: adicionando o penpot atual
+| * | | a9276d2 | Miguel Ryan Dantas de Freitas | 2026-01-05 | fix: adicionei as estilizações corretas conforme o arquivo descrito no penpot, na área de parâmetros e informações
+* | | |   225bde4 | Miguel Ryan Dantas de Freitas | 2026-01-09 | Merge pull request #1 from embarcados-virtus-cc/feature/header
+|\ \ \ \  
+* | | | | 6b16eab | Miguel Ryan Dantas de Freitas | 2026-01-05 | Update design file reference in README
+| | | | * ec64d81 | athavus | 2026-01-13 | docs: removi o documento daqui para parar de dar merge conflict
+| | | | * 75e1471 | athavus | 2026-01-12 | feat: troquei o estilo da navbar para uma maior, com um toque diferente de select
+| | | | * ab5f63b | athavus | 2026-01-11 | feat: adicionei uns alerts em toda aplicação toda vez que chega um novo alarme ou aviso em Flags.tsx
+| | | | * 1498625 | athavus | 2026-01-11 | fix: corrigi as cores no amarelo para ficar mais visível
+| | | | * e4bac4c | athavus | 2026-01-11 | feat: adicionando descrição melhor para os switches
+| | | | * d66a6bf | athavus | 2026-01-11 | feat: agora toda a página de alarmes e avisos possui skeletons coerentes e está funcional
+| | | | * 8443a00 | Miguel Ryan Dantas de Freitas | 2026-01-11 | feat: v1 da aba de alarmes e avisos
+| | | | * 0e7abb8 | athavus | 2026-01-10 | docs: terminei de fazer a prototipação da tela de alarmes e avisos
+| | | | * ea878eb | athavus | 2026-01-10 | refactor: refatoração do código para obedecer as regras de linting estabelecidas
+| | | | * a049ef9 | Miguel Ryan Dantas de Freitas | 2026-01-10 | docs: atualização da aba de alarmes e avisos
+| | | | * 3e1195f | athavus | 2026-01-10 | docs: adicionei a nova versão atualizada com as telas, incluindo o inicio da tela de aviso
+| | | | * 6cd0eeb | athavus | 2026-01-09 | fix: consertei o resto dos skeletons da dashboard
+| | | | * 442c120 | athavus | 2026-01-09 | fix: consertei os skeletons do footer e header
+| | | |/  
+| | | * c572e48 | athavus | 2026-01-09 | fix: ajeitei o tamanho do título corretamente
+| | | * b9494a0 | athavus | 2026-01-09 | fix & feat: consertei o espaçamento entre o header, a dashboard e o footer | adicionei a logo em todos os lugares da aplicação, inclusive o .ico
+| | | * 27fe076 | athavus | 2026-01-09 | fix: ajeitei as media-queries da dashboard
+| | | * f087491 | Miguel Ryan Dantas de Freitas | 2026-01-08 | fix: ajeitei o problema de bounce que estava tendo na página
+| | | * a675974 | Miguel Ryan Dantas de Freitas | 2026-01-08 | chore: organizando uma dependência que estava faltando no package.json
+| | | * ed6cf35 | athavus | 2026-01-05 | feat: entregando a versão nova da dashboard, com mais opções de funcionalidades e também com um footer
+| | | * 4ef9c22 | athavus | 2026-01-05 | feat: mudei a tipografia
+| | | * 4ff4123 | athavus | 2026-01-05 | feat: adicionei o footer da aplicação, que estará presente em todas as páginas pelo layout
+| | |/  
+| | * daf6150 | athavus | 2026-01-05 | feat: versão inicial da dashboard inteiramente feita, ainda com dados baseados em mocks naturalmente
+| |/  
+| * 0da038d | athavus | 2026-01-05 | fix: corrigi os tamanhos e espaçamentos dos skeletons
+| * 5bc1751 | athavus | 2026-01-05 | feat: adicionei o skeleton ao header
+| * 59aaf7e | Miguel Ryan Dantas de Freitas | 2026-01-04 | feat: borda colorida conforme o template no header
+| * 0803af1 | Miguel Ryan Dantas de Freitas | 2026-01-04 | feat: adicionando algumas estilizações no header
+| * 6756c3f | athavus | 2026-01-04 | feat: adicionando o header da aplicação, completo e modular
+| * b5ba4f3 | athavus | 2026-01-02 | docs: adicionando as telas vetorizadas da dashboard principal do frontend
+| * 8029cf6 | athavus | 2025-12-31 | docs: adicionei a versão atual do penpot com a prototipação das telas
+|/  
+* f3d279e | athavus | 2025-12-30 | chore: organizando alguns arquivos de build do que será usado de fato na aplicação
+* 1f9a82b | Miguel Ryan Dantas de Freitas | 2025-12-29 | fix: consertei um problema na documentação, que estava duplicada
+* 42ba3bd | Miguel Ryan Dantas de Freitas | 2025-12-29 | docs: fiz a configuração inicial do projeto e já documentei os padrões de código que iremos usar

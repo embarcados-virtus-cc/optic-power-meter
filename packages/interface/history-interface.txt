@@ -1,0 +1,8 @@
+* ecd2f3e | athavus | 2026-01-23 | fix: versão funcional dos bytes atuais na raspberry pi
+* 5d68783 | Miguel Ryan Dantas de Freitas | 2026-01-23 | feat: atualizando o makefile para suportar a criação do .so (shared objects) para fazer a integração com a API em python.
+* 6ee1943 | Miguel Ryan Dantas de Freitas | 2026-01-23 | fix: resolvendo um problema de não declaração na .h
+* 784b603 | Miguel Ryan Dantas de Freitas | 2026-01-23 | feat: adicionando as novas features, feitas por pedro e pablo, imagino que ambas estejam funcionando
+* e9dfdc7 | Miguel Ryan Dantas de Freitas | 2026-01-22 | feat: atualizando a main com a leitura de conector
+* 0dfd974 | Miguel Ryan Dantas de Freitas | 2026-01-21 | feat: adicionando as funções da task - Leitura e Identificação do Tipo do Conector do Módulo
+* b526a4d | Miguel Ryan Dantas de Freitas | 2026-01-18 | fix: removendo uma biblioteca que não vai ser útil mais
+* ce3ea37 | Miguel Ryan Dantas de Freitas | 2026-01-18 | feat: commit inicial do porte para a plataforma de linux embarcado do projeto, teoricamente tudo funciona da mesma forma a partir daqui, já que a conexão com o módulo i2c já está feita corretamente
