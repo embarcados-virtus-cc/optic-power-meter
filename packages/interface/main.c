@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
         uint8_t ext = sfp_a0_get_ext_identifier(&a0);
 
         if (!sfp_validate_ext_identifier(&a0)) {
-            printf("Modulo nao conforme (esperado 0x%02X)\n", SFP_EXT_IDENTIFIER_EXPECTED);
+            printf("Modulo nao conforme (esperado 0x%02X, lido 0x%02X)\n", SFP_EXT_IDENTIFIER_EXPECTED, ext);
         } else {
             printf("Modulo conforme (0x%02X)\n", SFP_EXT_IDENTIFIER_EXPECTED);
         }

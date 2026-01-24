@@ -803,7 +803,6 @@ void sfp_parse_a0_fc_speed_2(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
     if (!a0_base_data || !a0)
         return;
 
-    /* Byte 62 — Fibre Channel Speed 2 */
     a0->fc_speed2 = a0_base_data[62];
 }
 

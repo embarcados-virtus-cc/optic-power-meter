@@ -414,14 +414,6 @@ const char *sfp_connector_to_string(sfp_connector_type_t connector);
 
 /* Byte 3-10 Compliance Codes */
 void sfp_read_compliance(const uint8_t *a0_base_data, sfp_compliance_codes_t *cc);
-static void decode_byte3(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
-static void decode_byte4(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
-static void decode_byte5(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
-static void decode_byte6(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
-static void decode_byte7(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
-static void decode_byte8(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
-static void decode_byte9(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
-static void decode_byte10(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
 void sfp_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
 void sfp_print_compliance(const sfp_compliance_decoded_t *c);
 
@@ -457,7 +449,7 @@ uint32_t sfp_vendor_oui_to_u32(const sfp_a0h_base_t *a0);
 
 /* Byte 62 — Fibre Channel Speed 2 */
 void sfp_parse_a0_fc_speed_2(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
-bool sfp_get_a0_fc_speed_2(const sfp_a0h_base_t *a0, const sfp_compliance_decoded_t *comp)
+bool sfp_get_a0_fc_speed_2(const sfp_a0h_base_t *a0, const sfp_compliance_decoded_t *comp);
 
 /* Byte 63 — CC_BASE (Checksum) */
 void sfp_parse_a0_base_cc_base(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);

@@ -2,3 +2,5 @@ i2c.o
 main.o
 sfp_8472_a0h.o
 sfp_8472_a2h.o
+teste
+sfp_reader
