@@ -3,7 +3,6 @@
  * @brief Aplicação de leitura de módulos SFP via I2C para Raspberry Pi (Linux)
  *
  * Demonstra a leitura da EEPROM A0h de módulos SFP/SFP+ conforme SFF-8472.
- * Adaptado para Linux embarcado usando a interface I2C do kernel.
  */
 
 #include <stdio.h>
@@ -374,9 +373,9 @@ int main(int argc, char *argv[])
      * Leitura da página A2h (Diagnósticos)
      * ===================================================== */
     printf("\n=== Leitura da página A2h (Diagnósticos) ===\n");
-    
+
     uint8_t a2_diag_data[SFP_A2_DIAG_SIZE] = {0};
-    
+
     bool ok_a2 = sfp_read_block(
         i2c_fd,
         SFP_I2C_ADDR_A2,
@@ -389,10 +388,10 @@ int main(int argc, char *argv[])
         fprintf(stderr, "AVISO: Falha na leitura do A2h (diagnósticos podem não estar disponíveis)\n");
     } else {
         printf("Leitura A2h OK\n");
-        
+
         sfp_a2h_diagnostics_t diag = {0};
         sfp_parse_a2h_diagnostics(a2_diag_data, &diag);
-        
+
         sfp_print_a2h_diagnostics(&diag);
     }
 
@@ -404,7 +403,7 @@ int main(int argc, char *argv[])
         printf("%02X ", a0_base_data[i]);
     }
     printf("\n");
-  
+
     printf("===================================================");
 
     printf("\nDump EEPROM A2h:");

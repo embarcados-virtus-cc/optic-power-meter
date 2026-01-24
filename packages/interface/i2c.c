@@ -3,7 +3,7 @@
 #include <fcntl.h>
 
 /* ============================================
- * I2C Initialization and Control (Linux)
+ * I2C Initialization and Control
  * ============================================ */
 
 /**

@@ -3,14 +3,13 @@
  * @brief Biblioteca de parsing SFF-8472 – Página A2h (Diagnósticos)
  *
  * @author Alexandre Junior
- * @author Miguel Ryan
  * @author Carlos Elias
+ * @author Melquisedeque Leite
+ * @author Miguel Ryan
+ * @author Nicholas Gomes
  * @author Pablo Daniel
  * @author Pedro Lucena
- * @author Nicholas Gomes
  * @author Pedro Wilson
- * @author Melquisedeque Leite
- * @date 2026-01-23
  *
  * @details
  *  Implementa a leitura e interpretação dos campos da EEPROM A2h
@@ -55,7 +54,7 @@ typedef struct {
     bool tx_power_alarm_low;
     bool rx_power_alarm_high;
     bool rx_power_alarm_low;
-    
+
     /* Byte 111 - Warning Flags */
     bool temp_warning_high;
     bool temp_warning_low;
@@ -76,28 +75,28 @@ typedef struct {
     /* Bytes 96-97: Temperature (signed 16-bit, units of 1/256°C) */
     int16_t temperature_raw;
     float temperature_c;  /* Converted to Celsius */
-    
+
     /* Bytes 98-99: Voltage (unsigned 16-bit, units of 100 µV = 0.1 mV) */
     uint16_t voltage_raw;
     float voltage_v;  /* Converted to Volts */
-    
+
     /* Bytes 100-101: Bias Current (unsigned 16-bit, units of 2 µA) */
     uint16_t bias_current_raw;
     float bias_current_ma;  /* Converted to milliamps */
-    
+
     /* Bytes 102-103: TX Power (unsigned 16-bit, units of 0.1 µW) */
     uint16_t tx_power_raw;
     float tx_power_mw;  /* Converted to milliwatts */
     float tx_power_dbm; /* Converted to dBm */
-    
+
     /* Bytes 104-105: RX Power (unsigned 16-bit, units of 0.1 µW) */
     uint16_t rx_power_raw;
     float rx_power_mw;  /* Converted to milliwatts */
     float rx_power_dbm; /* Converted to dBm */
-    
+
     /* Bytes 110-111: Alarm/Status Flags */
     sfp_a2h_alarm_flags_t alarms;
-    
+
     /* Validity flags */
     bool temperature_valid;
     bool voltage_valid;
@@ -130,4 +129,3 @@ bool sfp_a2h_is_valid(const sfp_a2h_diagnostics_t *diag);
 void sfp_print_a2h_diagnostics(const sfp_a2h_diagnostics_t *diag);
 
 #endif /* SFF_8472_A2H_H */
-

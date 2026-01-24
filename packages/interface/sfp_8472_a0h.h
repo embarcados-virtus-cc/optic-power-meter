@@ -3,14 +3,13 @@
  * @brief Biblioteca de parsing SFF-8472 – Página A0h (Base ID)
  *
  * @author Alexandre Junior
- * @author Miguel Ryan
  * @author Carlos Elias
+ * @author Melquisedeque Leite
+ * @author Miguel Ryan
+ * @author Nicholas Gomes
  * @author Pablo Daniel
  * @author Pedro Lucena
- * @author Nicholas Gomes
  * @author Pedro Wilson
- * @author Melquisedeque Leite
- * @date 2026-01-23
  *
  * @details
  *  Implementa a leitura e interpretação dos campos da EEPROM A0h
@@ -303,6 +302,9 @@ typedef struct {
 } sfp_compliance_codes_t;
 
 typedef struct {
+    /* ==============================
+     * Byte 3 — Ethernet / InfiniBand
+     * ============================== */
     bool eth_10g_base_sr;
     bool eth_10g_base_lr;
     bool eth_10g_base_lrm;
@@ -311,6 +313,10 @@ typedef struct {
     bool infiniband_1x_lx;
     bool infiniband_1x_copper_active;
     bool infiniband_1x_copper_passive;
+
+    /* ======================
+     * Byte 4 — ESCON / SONET
+     * ====================== */
     bool escon_mmf;
     bool escon_smf;
     bool oc_192_sr;
@@ -319,12 +325,20 @@ typedef struct {
     bool oc_48_lr;
     bool oc_48_ir;
     bool oc_48_sr;
+
+    /* ======================
+     * Byte 5 — SONET
+     * ====================== */
     bool oc_12_sm_lr;
     bool oc_12_sm_ir;
     bool oc_12_sr;
     bool oc_3_sm_lr;
     bool oc_3_sm_ir;
     bool oc_3_sr;
+
+    /* ======================
+     * Byte 6 — Ethernet 1G
+     * ====================== */
     bool eth_base_px;
     bool eth_base_bx_10;
     bool eth_100_base_fx;
@@ -333,6 +347,10 @@ typedef struct {
     bool eth_1000_base_cx;
     bool eth_1000_base_lx;
     bool eth_1000_base_sx;
+
+    /* ====================================
+     * Byte 7 — FC Link Length & Technology
+     * ==================================== */
     bool fc_very_long_distance;
     bool fc_short_distance;
     bool fc_intermediate_distance;
@@ -341,19 +359,31 @@ typedef struct {
     bool shortwave_laser_sa;
     bool longwave_laser_lc;
     bool electrical_inter_enclosure;
+
+    /* ==============================================
+     * Byte 8 — FC technology & SFP+ Cable Technology
+     * ============================================== */
     bool electrical_intra_enclosure;
     bool shortwave_laser_sn;
     bool shortwave_laser_sl;
     bool longwave_laser_ll;
     bool active_cable;
     bool passive_cable;
+
+    /* ==============================
+     * Byte 9 — FC Transmission Media
+     * ============================== */
     bool twin_axial_pair;
     bool twisted_pair;
     bool miniature_coax;
     bool video_coax;
-    bool multimode_m6;
-    bool multimode_m5;
+    bool multimode_m6; // 62.5 um
+    bool multimode_m5; // 50 um
     bool single_mode;
+
+    /* ==============================
+     * Byte 10 — FC Channel Speed
+     * ============================== */
     bool cs_1200_mbps;
     bool cs_800_mbps;
     bool cs_1600_mbps;
@@ -382,8 +412,16 @@ void sfp_parse_a0_base_connector(const uint8_t *a0_base_data, sfp_a0h_base_t *a0
 sfp_connector_type_t sfp_a0_get_connector(const sfp_a0h_base_t *a0);
 const char *sfp_connector_to_string(sfp_connector_type_t connector);
 
-/* Bytes 3-10 — Compliance Codes */
+/* Byte 3-10 Compliance Codes */
 void sfp_read_compliance(const uint8_t *a0_base_data, sfp_compliance_codes_t *cc);
+static void decode_byte3(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
+static void decode_byte4(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
+static void decode_byte5(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
+static void decode_byte6(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
+static void decode_byte7(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
+static void decode_byte8(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
+static void decode_byte9(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
+static void decode_byte10(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
 void sfp_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
 void sfp_print_compliance(const sfp_compliance_decoded_t *c);
 
@@ -412,12 +450,17 @@ uint16_t sfp_a0_get_om4_copper_or_length_m(const sfp_a0h_base_t *a0, sfp_om4_len
 void sfp_parse_a0_base_ext_compliance(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 sfp_extended_spec_compliance_code_t sfp_a0_get_ext_compliance(const sfp_a0h_base_t *a0);
 
+/* Byte 37–39 Vendor OUI (IEEE Company Identifier) */
+void sfp_parse_a0_base_vendor_oui(const uint8_t *a0_base_data,sfp_a0h_base_t *a0);
+bool sfp_a0_get_vendor_oui(const sfp_a0h_base_t *a0, uint8_t oui_buffer[3]);
+uint32_t sfp_vendor_oui_to_u32(const sfp_a0h_base_t *a0);
+
+/* Byte 62 — Fibre Channel Speed 2 */
+void sfp_parse_a0_fc_speed_2(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
+bool sfp_get_a0_fc_speed_2(const sfp_a0h_base_t *a0, const sfp_compliance_decoded_t *comp)
+
 /* Byte 63 — CC_BASE (Checksum) */
 void sfp_parse_a0_base_cc_base(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 bool sfp_a0_get_cc_base_is_valid(const sfp_a0h_base_t *a0);
 
-/* Vendor Information */
-void sfp_parse_a0_base_vendor_info(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
-
 #endif /* SFF_8472_A0H_H */
-
