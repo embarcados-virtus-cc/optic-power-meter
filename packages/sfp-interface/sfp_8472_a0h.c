@@ -14,7 +14,7 @@ void sfp_parse_a0_base_identifier(const uint8_t *a0_base_data, sfp_a0h_base_t *a
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 sfp_identifier_t sfp_a0_get_identifier(const sfp_a0h_base_t *a0)
 {
@@ -36,7 +36,7 @@ void sfp_parse_a0_base_ext_identifier(const uint8_t *a0_base_data, sfp_a0h_base_
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 uint8_t sfp_a0_get_ext_identifier(const sfp_a0h_base_t *a0)
 {
@@ -67,7 +67,7 @@ void sfp_parse_a0_base_connector(const uint8_t *a0_base_data, sfp_a0h_base_t *a0
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 sfp_connector_type_t sfp_a0_get_connector(const sfp_a0h_base_t *a0)
 {
@@ -78,7 +78,7 @@ sfp_connector_type_t sfp_a0_get_connector(const sfp_a0h_base_t *a0)
 }
 
 /* ============================================
- * Método de Exposição
+ * Função de Exposição
  * ============================================ */
 const char *sfp_connector_to_string(sfp_connector_type_t connector)
 {
@@ -264,7 +264,7 @@ static void decode_byte10(const sfp_compliance_codes_t *cc, sfp_compliance_decod
 }
 
 /* ============================================
- * Método principal para decodificação de todos os bytes
+ * Função principal para decodificação de todos os bytes
  * ============================================ */
 void sfp_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out)
 {
@@ -283,7 +283,7 @@ void sfp_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_deco
 }
 
 /* ============================================
- * Método de Exposição
+ * Função de Exposição
  * ============================================ */
 void sfp_print_compliance(const sfp_compliance_decoded_t *c)
 {
@@ -410,7 +410,7 @@ void sfp_parse_a0_base_encoding(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 sfp_encoding_codes_t sfp_a0_get_encoding(const sfp_a0h_base_t *a0)
 {
@@ -420,7 +420,7 @@ sfp_encoding_codes_t sfp_a0_get_encoding(const sfp_a0h_base_t *a0)
 }
 
 /* ============================================
- * Método de Exposição
+ * Função de Exposição
  * ============================================ */
 void sfp_print_encoding(sfp_encoding_codes_t encoding)
 {
@@ -528,7 +528,7 @@ void sfp_parse_a0_base_smf(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 uint16_t sfp_a0_get_smf_length_m(const sfp_a0h_base_t *a0, sfp_smf_length_status_t *status)
 {
@@ -583,7 +583,7 @@ void sfp_parse_a0_base_om2(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 uint16_t sfp_a0_get_om2_length_m(const sfp_a0h_base_t *a0, sfp_om2_length_status_t *status)
 {
@@ -640,7 +640,7 @@ void sfp_parse_a0_base_om1(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 uint16_t sfp_a0_get_om1_length_m(const sfp_a0h_base_t *a0, sfp_om1_length_status_t *status)
 {
@@ -715,7 +715,7 @@ void sfp_parse_a0_base_om4_or_copper(const uint8_t *a0_base_data, sfp_a0h_base_t
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 uint16_t sfp_a0_get_om4_copper_or_length_m(const sfp_a0h_base_t *a0, sfp_om4_length_status_t *status)
 {
@@ -740,7 +740,7 @@ void sfp_parse_a0_base_ext_compliance(const uint8_t *a0_base_data, sfp_a0h_base_
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 sfp_extended_spec_compliance_code_t sfp_a0_get_ext_compliance(const sfp_a0h_base_t *a0)
 {
@@ -765,7 +765,7 @@ void sfp_parse_a0_base_vendor_oui(const uint8_t *a0_base_data,
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 bool sfp_a0_get_vendor_oui(const sfp_a0h_base_t *a0,
                            uint8_t oui_buffer[3])
@@ -807,7 +807,7 @@ void sfp_parse_a0_fc_speed_2(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 bool sfp_get_a0_fc_speed_2(const sfp_a0h_base_t *a0, const sfp_compliance_decoded_t *comp)
 {
@@ -848,7 +848,7 @@ void sfp_parse_a0_base_cc_base(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 }
 
 /* ============================================
- * Método Getter
+ * Função Getter
  * ============================================ */
 bool sfp_a0_get_cc_base_is_valid(const sfp_a0h_base_t *a0)
 {

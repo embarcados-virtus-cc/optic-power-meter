@@ -167,7 +167,7 @@ bool sfp_a2h_is_valid(const sfp_a2h_diagnostics_t *diag)
 }
 
 /* ============================================
- * Método de Exposição
+ * Função de Exposição
  * ============================================ */
 void sfp_print_a2h_diagnostics(const sfp_a2h_diagnostics_t *diag)
 {

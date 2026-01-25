@@ -1,4 +1,4 @@
-# Configurações para Desenvolvimento Contínuo da Aplicação
+# Configurações para Desenvolvimento Contínuo da Dashboard (View)
 
 ## Componentes de estilização:
 
