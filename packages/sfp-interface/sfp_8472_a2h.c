@@ -50,7 +50,7 @@ void sfp_parse_a2h_diagnostics(const uint8_t *a2_data, sfp_a2h_diagnostics_t *di
             diag->tx_power_dbm = 10.0f * log10f(diag->tx_power_mw);
         } else {
             diag->tx_power_dbm = -40.0f;
-    }
+        }
         diag->tx_power_valid = true;
     } else {
         diag->tx_power_valid = false;
@@ -71,33 +71,39 @@ void sfp_parse_a2h_diagnostics(const uint8_t *a2_data, sfp_a2h_diagnostics_t *di
         diag->rx_power_valid = false;
     }
 
-    /* Bytes 110-111: Alarm/Status Flags */
-    uint8_t alarm_byte = a2_data[110];
-    uint8_t warning_byte = a2_data[111];
+    /* Bytes 112-113: Alarm Flags (corrigido conforme SFF-8472) */
+    uint8_t alarm_byte_high = a2_data[112];  /* Byte 112 */
+    uint8_t alarm_byte_low = a2_data[113];   /* Byte 113 */
 
-    /* Byte 110 - Alarm Flags */
-    diag->alarms.temp_alarm_high      = (alarm_byte & (1 << 7)) != 0;
-    diag->alarms.temp_alarm_low       = (alarm_byte & (1 << 6)) != 0;
-    diag->alarms.voltage_alarm_high   = (alarm_byte & (1 << 5)) != 0;
-    diag->alarms.voltage_alarm_low    = (alarm_byte & (1 << 4)) != 0;
-    diag->alarms.bias_alarm_high      = (alarm_byte & (1 << 3)) != 0;
-    diag->alarms.bias_alarm_low       = (alarm_byte & (1 << 2)) != 0;
-    diag->alarms.tx_power_alarm_high  = (alarm_byte & (1 << 1)) != 0;
-    diag->alarms.tx_power_alarm_low   = (alarm_byte & (1 << 0)) != 0;
-    diag->alarms.rx_power_alarm_high  = (warning_byte & (1 << 7)) != 0; /* Bit 7 of byte 111 */
-    diag->alarms.rx_power_alarm_low   = (warning_byte & (1 << 6)) != 0; /* Bit 6 of byte 111 */
+    /* Byte 112 - TX/RX Alarm Flags */
+    diag->alarms.tx_power_alarm_high  = (alarm_byte_high & (1 << 7)) != 0;
+    diag->alarms.tx_power_alarm_low   = (alarm_byte_high & (1 << 6)) != 0;
+    diag->alarms.rx_power_alarm_high  = (alarm_byte_high & (1 << 5)) != 0;
+    diag->alarms.rx_power_alarm_low   = (alarm_byte_high & (1 << 4)) != 0;
+    diag->alarms.tx_power_warning_high = (alarm_byte_high & (1 << 3)) != 0;
+    diag->alarms.tx_power_warning_low  = (alarm_byte_high & (1 << 2)) != 0;
+    diag->alarms.rx_power_warning_high = (alarm_byte_high & (1 << 1)) != 0;
+    diag->alarms.rx_power_warning_low  = (alarm_byte_high & (1 << 0)) != 0;
 
-    /* Byte 111 - Warning Flags (bits 5-0) */
-    diag->alarms.temp_warning_high      = (warning_byte & (1 << 5)) != 0;
-    diag->alarms.temp_warning_low       = (warning_byte & (1 << 4)) != 0;
-    diag->alarms.voltage_warning_high   = (warning_byte & (1 << 3)) != 0;
-    diag->alarms.voltage_warning_low    = (warning_byte & (1 << 2)) != 0;
-    diag->alarms.bias_warning_high      = (warning_byte & (1 << 1)) != 0;
-    diag->alarms.bias_warning_low       = (warning_byte & (1 << 0)) != 0;
-    diag->alarms.tx_power_warning_high  = (alarm_byte & (1 << 1)) != 0;
-    diag->alarms.tx_power_warning_low   = (alarm_byte & (1 << 0)) != 0;
-    diag->alarms.rx_power_warning_high  = (warning_byte & (1 << 7)) != 0;
-    diag->alarms.rx_power_warning_low   = (warning_byte & (1 << 6)) != 0;
+    /* Byte 113 - Temp/Voltage/Bias Alarm Flags */
+    diag->alarms.temp_alarm_high      = (alarm_byte_low & (1 << 7)) != 0;
+    diag->alarms.temp_alarm_low       = (alarm_byte_low & (1 << 6)) != 0;
+    diag->alarms.voltage_alarm_high   = (alarm_byte_low & (1 << 5)) != 0;
+    diag->alarms.voltage_alarm_low    = (alarm_byte_low & (1 << 4)) != 0;
+    diag->alarms.temp_warning_high    = (alarm_byte_low & (1 << 3)) != 0;
+    diag->alarms.temp_warning_low     = (alarm_byte_low & (1 << 2)) != 0;
+    diag->alarms.voltage_warning_high = (alarm_byte_low & (1 << 1)) != 0;
+    diag->alarms.voltage_warning_low  = (alarm_byte_low & (1 << 0)) != 0;
+
+    /* Bytes 116-117: Bias Current Alarm/Warning Flags */
+    uint8_t bias_alarm_byte = a2_data[116];
+
+    diag->alarms.bias_alarm_high      = (bias_alarm_byte & (1 << 7)) != 0;
+    diag->alarms.bias_alarm_low       = (bias_alarm_byte & (1 << 6)) != 0;
+    /* Bits 5-4 são reservados */
+    diag->alarms.bias_warning_high    = (bias_alarm_byte & (1 << 3)) != 0;
+    diag->alarms.bias_warning_low     = (bias_alarm_byte & (1 << 2)) != 0;
+    /* Bits 1-0 são reservados */
 }
 
 /* ============================================
@@ -155,13 +161,13 @@ bool sfp_a2h_is_valid(const sfp_a2h_diagnostics_t *diag)
 {
     if (!diag)
         return false;
-    return diag->temperature_valid || diag->voltage_valid || 
-           diag->bias_current_valid || diag->tx_power_valid || 
+    return diag->temperature_valid || diag->voltage_valid ||
+           diag->bias_current_valid || diag->tx_power_valid ||
            diag->rx_power_valid;
 }
 
 /* ============================================
- * Print Diagnostics (for debugging)
+ * Método de Exposição
  * ============================================ */
 void sfp_print_a2h_diagnostics(const sfp_a2h_diagnostics_t *diag)
 {
@@ -171,7 +177,7 @@ void sfp_print_a2h_diagnostics(const sfp_a2h_diagnostics_t *diag)
     }
 
     printf("\n=== SFP A2h Diagnostics ===\n");
-    
+
     if (diag->temperature_valid) {
         printf("Temperature: %.2f °C (raw: %d)\n", diag->temperature_c, diag->temperature_raw);
     } else {
@@ -191,34 +197,57 @@ void sfp_print_a2h_diagnostics(const sfp_a2h_diagnostics_t *diag)
     }
 
     if (diag->tx_power_valid) {
-        printf("TX Power: %.2f dBm (%.4f mW, raw: 0x%04X)\n", 
+        printf("TX Power: %.2f dBm (%.4f mW, raw: 0x%04X)\n",
                diag->tx_power_dbm, diag->tx_power_mw, diag->tx_power_raw);
     } else {
         printf("TX Power: N/A\n");
     }
 
     if (diag->rx_power_valid) {
-        printf("RX Power: %.2f dBm (%.4f mW, raw: 0x%04X)\n", 
+        printf("RX Power: %.2f dBm (%.4f mW, raw: 0x%04X)\n",
                diag->rx_power_dbm, diag->rx_power_mw, diag->rx_power_raw);
     } else {
         printf("RX Power: N/A\n");
     }
 
-    printf("\nAlarm Flags:\n");
-    printf("  Temp High: %s, Low: %s\n", 
+    printf("\n=== Alarm Flags ===\n");
+    printf("Temperature:\n");
+    printf("  Alarm  - High: %s, Low: %s\n",
            diag->alarms.temp_alarm_high ? "ON" : "OFF",
            diag->alarms.temp_alarm_low ? "ON" : "OFF");
-    printf("  Voltage High: %s, Low: %s\n",
+    printf("  Warning - High: %s, Low: %s\n",
+           diag->alarms.temp_warning_high ? "ON" : "OFF",
+           diag->alarms.temp_warning_low ? "ON" : "OFF");
+
+    printf("\nVoltage:\n");
+    printf("  Alarm  - High: %s, Low: %s\n",
            diag->alarms.voltage_alarm_high ? "ON" : "OFF",
            diag->alarms.voltage_alarm_low ? "ON" : "OFF");
-    printf("  Bias High: %s, Low: %s\n",
+    printf("  Warning - High: %s, Low: %s\n",
+           diag->alarms.voltage_warning_high ? "ON" : "OFF",
+           diag->alarms.voltage_warning_low ? "ON" : "OFF");
+
+    printf("\nBias Current:\n");
+    printf("  Alarm  - High: %s, Low: %s\n",
            diag->alarms.bias_alarm_high ? "ON" : "OFF",
            diag->alarms.bias_alarm_low ? "ON" : "OFF");
-    printf("  TX Power High: %s, Low: %s\n",
+    printf("  Warning - High: %s, Low: %s\n",
+           diag->alarms.bias_warning_high ? "ON" : "OFF",
+           diag->alarms.bias_warning_low ? "ON" : "OFF");
+
+    printf("\nTX Power:\n");
+    printf("  Alarm  - High: %s, Low: %s\n",
            diag->alarms.tx_power_alarm_high ? "ON" : "OFF",
            diag->alarms.tx_power_alarm_low ? "ON" : "OFF");
-    printf("  RX Power High: %s, Low: %s\n",
+    printf("  Warning - High: %s, Low: %s\n",
+           diag->alarms.tx_power_warning_high ? "ON" : "OFF",
+           diag->alarms.tx_power_warning_low ? "ON" : "OFF");
+
+    printf("\nRX Power:\n");
+    printf("  Alarm  - High: %s, Low: %s\n",
            diag->alarms.rx_power_alarm_high ? "ON" : "OFF",
            diag->alarms.rx_power_alarm_low ? "ON" : "OFF");
+    printf("  Warning - High: %s, Low: %s\n",
+           diag->alarms.rx_power_warning_high ? "ON" : "OFF",
+           diag->alarms.rx_power_warning_low ? "ON" : "OFF");
 }
-
