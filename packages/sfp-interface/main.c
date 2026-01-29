@@ -178,25 +178,85 @@ int main(int argc, char *argv[])
     sfp_a0h_base_t a0 = {0};
 
     /* Parsing do bloco */
-    sfp_parse_a0_base_identifier(a0_base_data, &a0);
-    sfp_parse_a0_base_ext_identifier(a0_base_data, &a0); // <-- RF-02
-    sfp_parse_a0_base_connector(a0_base_data, &a0);
-    sfp_parse_a0_base_om1(a0_base_data, &a0);
-    sfp_parse_a0_base_om2(a0_base_data, &a0);
-    sfp_parse_a0_base_smf(a0_base_data, &a0);
-    sfp_parse_a0_base_om4_or_copper(a0_base_data, &a0);
-    sfp_parse_a0_base_ext_compliance(a0_base_data, &a0);
-    sfp_parse_a0_base_encoding(a0_base_data, &a0); /* Byte 11 */
-    sfp_parse_a0_base_cc_base(a0_base_data, &a0);  /* Byte 63 */
+    sfp_parse_a0_base_identifier(a0_base_data, &a0);        /* Byte 0 */
+    sfp_parse_a0_base_ext_identifier(a0_base_data, &a0);    /* Byte 1 */
+    sfp_parse_a0_base_connector(a0_base_data, &a0);         /* Byte 2 */
+    sfp_parse_a0_base_compliance(a0_base_data, &a0.cc);     /* Byte 3-10 */
+    sfp_parse_a0_base_encoding(a0_base_data, &a0);          /* Byte 11 */
+    sfp_parse_a0_base_smf(a0_base_data, &a0);               /* Byte 14 */
+    sfp_parse_a0_base_om2(a0_base_data, &a0);               /* Byte 16 */
+    sfp_parse_a0_base_om1(a0_base_data, &a0);               /* Byte 17 */
+    sfp_parse_a0_base_om4_or_copper(a0_base_data, &a0);     /* Byte 18 */
+    sfp_parse_a0_base_vendor_name(a0_base_data, &a0);       /* Byte 20-35 */
+    sfp_parse_a0_base_ext_compliance(a0_base_data, &a0);    /* Byte 36 */
+    sfp_parse_a0_base_vendor_oui(a0_base_data, &a0);        /* Byte 37-39 */
+    sfp_parse_a0_fc_speed_2(a0_base_data, &a0);             /* Byte 62 */
+    sfp_parse_a0_base_cc_base(a0_base_data, &a0);           /* Byte 63 */
 
     /* =====================================================
-     * Teste do Byte 0 — Identifier
+     * Leitura dos dados (UMA ÚNICA VEZ)
      * ===================================================== */
-    sfp_identifier_t id = sfp_a0_get_identifier(&a0);
 
-    printf("\nByte 0 — Identifier: 0x%02X\n", id);
+    /* Byte 0 */
+    uint8_t identifier = sfp_a0_get_identifier(&a0);
 
-    switch (id) {
+    /* Byte 1 */
+    uint8_t ext_identifier = sfp_a0_get_ext_identifier(&a0);
+    bool ext_id_valid = sfp_validate_ext_identifier(&a0);
+
+    /* Byte 2 */
+    uint8_t connector_raw = a0.connector;
+    const char *connector_str = sfp_connector_to_string(a0.connector);
+
+    /* Bytes 3–10 */
+    sfp_a0_decode_compliance(&a0.cc, &a0.dc);
+
+    /* Byte 11 */
+    uint8_t encoding = sfp_a0_get_encoding(&a0);
+
+    /* Byte 14 */
+    uint16_t smf_len = sfp_a0_get_smf_length_m(&a0, &a0.smf_status);
+    float smf_attenuation = smf_len * 0.5f;
+    sfp_smf_length_status_t smf_status = a0.smf_status;
+
+    /* Byte 16 */
+    uint16_t om2_len = sfp_a0_get_om2_length_m(&a0, &a0.om2_status);
+    sfp_om2_length_status_t om2_status = a0.om2_status;
+
+    /* Byte 17 */
+    uint16_t om1_len = sfp_a0_get_om1_length_m(&a0, &a0.om1_status);
+    sfp_om1_length_status_t om1_status = a0.om1_status;
+
+    /* Byte 18 */
+    uint16_t om4_copper_len = sfp_a0_get_om4_copper_or_length_m(&a0, &a0.om4_or_copper_status);
+    sfp_om4_length_status_t om4_copper_status = a0.om4_or_copper_status;
+
+    /* Byte 20-35 */
+    char vendor_name[SFP_A0_LEN_VENDOR_NAME + 1] = {0};
+    bool vendor_name_valid = sfp_a0_get_vendor_name(&a0, vendor_name);
+
+    /* Byte 37-39 */
+    uint8_t vendor_oui_raw[3] = { 0x00, 0x00, 0x00 };
+    bool vendor_oui_valid = sfp_a0_get_vendor_oui(&a0, vendor_oui_raw);
+    uint32_t vendor_oui_u32 = sfp_vendor_oui_to_u32(&a0);
+
+    /* Byte 36 */
+    uint8_t ext_compliance = sfp_a0_get_ext_compliance(&a0);
+    const char *ext_compliance_desc = ext_compliance_to_string(ext_compliance);
+
+    /* Byte 62 */
+    bool fc_speed_2_valid = sfp_get_a0_fc_speed_2(&a0, &a0.dc);
+
+    /* Byte 63 */
+    bool cc_base_valid = sfp_a0_get_cc_base_is_valid(&a0);
+
+
+    /* =====================================================
+     * Byte 0 — Identifier
+     * ===================================================== */
+    printf("\nByte 0 — Identifier: 0x%02X\n", identifier);
+
+    switch (identifier) {
         case SFP_ID_GBIC:
             printf("Módulo GBIC identificado\n");
             break;
@@ -209,159 +269,164 @@ int main(int argc, char *argv[])
         case SFP_ID_QSFP_PLUS:
             printf("Módulo QSFP+ identificado\n");
             break;
-        case SFP_I_QSFP28:
+        case SFP_ID_QSFP28:
             printf("Módulo QSFP28 identificado\n");
             break;
-        case SFP_ID_UNKNOWN:
         default:
             printf("Módulo não suportado ou identificador desconhecido\n");
             break;
     }
 
-    /* =============================================================
-     * Teste do Byte 1 — Extended Identifier
-     * ============================================================= */
+    /* =====================================================
+     * Byte 1 — Extended Identifier
+     * ===================================================== */
     printf("\nByte 1 — Extended Identifier\n");
-    if (id == SFP_ID_SFP) {
-        uint8_t ext = sfp_a0_get_ext_identifier(&a0);
 
-        if (!sfp_validate_ext_identifier(&a0)) {
-            printf("Modulo nao conforme (esperado 0x%02X, lido 0x%02X)\n", SFP_EXT_IDENTIFIER_EXPECTED, ext);
+    if (identifier == SFP_ID_SFP) {
+        if (!ext_id_valid) {
+            printf("Modulo nao conforme (esperado 0x%02X, lido 0x%02X)\n", SFP_EXT_IDENTIFIER_EXPECTED, ext_identifier);
         } else {
             printf("Modulo conforme (0x%02X)\n", SFP_EXT_IDENTIFIER_EXPECTED);
         }
     } else {
-        printf("\nByte 0 precisa ser 0x03 / SFP).\n");
+        printf("Byte 0 precisa ser 0x03 (SFP)\n");
     }
 
-    /* ===================================
-        Teste do Byte 2 - Leitura do Conector
-     * =================================== */
-    printf("\nByte 2 - Leitura do Conector\n");
-    printf("Connector: %s (0x%02X)\n",sfp_connector_to_string(a0.connector),a0_base_data[2]);
+    /* =====================================================
+     * Byte 2 — Connector
+     * ===================================================== */
+    printf("\nByte 2 — Leitura do Conector\n");
 
-    /* =============================================================
-     * Teste dos Bytes 3-10 — Códigos de Conformidade do Transceptor
-     * ============================================================= */
-    sfp_read_compliance(a0_base_data, &a0.cc);
-    sfp_decode_compliance(&a0.cc, &a0.dc);
-
-    sfp_print_compliance(&a0.dc);
+    printf("Connector: %s (0x%02X)\n", connector_str, connector_raw);
 
     /* =====================================================
-     * Teste do Byte 11 — Encoding
+     * Bytes 3–10 — Compliance Codes
      * ===================================================== */
-    sfp_encoding_codes_t encoding_code = sfp_a0_get_encoding(&a0);
-    sfp_print_encoding(encoding_code);
+    printf("\nBytes 3-10 — Códigos de Conformidade do Transceptor\n");
+
+    sfp_a0_print_compliance(&a0.dc);
 
     /* =====================================================
-     * Teste do Byte 14 — Length SMF or Copper Attenuation
+     * Byte 11 — Encoding
      * ===================================================== */
-    sfp_smf_length_status_t smf_status;
-    uint16_t smf_length_m = sfp_a0_get_smf_length_m(&a0, &smf_status);
+    printf("\nByte 11 — Encoding\n");
 
+    sfp_print_encoding(encoding);
+
+    /* =====================================================
+     * Byte 14 — Length SMF or Copper Attenuation
+     * ===================================================== */
     printf("\nByte 14 — Length SMF or Copper Attenuation\n");
 
     switch (smf_status) {
-    case SFP_SMF_LEN_VALID:
-        printf("Alcance SMF válido: %u km (ou atenuação: %u * 0.5 dB/100m)\n", smf_length_m, smf_length_m);
-        break;
-    case SFP_SMF_LEN_EXTENDED:
-        printf("Alcance SMF superior a %u km (ou atenuação > 127 dB/100m)\n", smf_length_m);
-        break;
-    case SFP_SMF_LEN_NOT_SUPPORTED:
-    default:
-        printf("Alcance SMF ou atenuação de cobre não especificado\n");
-        break;
+        case SFP_SMF_LEN_VALID:
+            printf("Alcance SMF válido: %u km (atenuação: %.1f dB/100m)\n", smf_len, smf_attenuation);
+            break;
+        case SFP_SMF_LEN_EXTENDED:
+            printf("Alcance SMF superior a %u km (atenuação > %.1f dB/100m)\n", smf_len, smf_attenuation);
+            break;
+        default:
+            printf("Alcance SMF ou atenuação de cobre não especificado\n");
+            break;
     }
 
     /* =====================================================
-     * Teste do Byte 16 — Length OM2 (50 µm)
+     * Byte 16 — OM2
      * ===================================================== */
-    sfp_om2_length_status_t om2_status;
-    uint16_t om2_length_m = sfp_a0_get_om2_length_m(&a0, &om2_status);
-
     printf("\nByte 16 — Length OM2 (50 µm)\n");
 
     switch (om2_status) {
-    case SFP_OM2_LEN_VALID:
-        printf("Alcance OM2 válido: %u metros\n", om2_length_m);
-        break;
-    case SFP_OM2_LEN_EXTENDED:
-        printf("Alcance OM2 superior a %u metros (>2.54 km)\n", om2_length_m);
-        break;
-    case SFP_OM2_LEN_NOT_SUPPORTED:
-    default:
-        printf("Alcance OM2 não especificado ou não suportado\n");
-        break;
+        case SFP_OM2_LEN_VALID:
+            printf("Alcance OM2 válido: %u metros\n", om2_len);
+            break;
+        case SFP_OM2_LEN_EXTENDED:
+            printf("Alcance OM2 superior a %u metros (>2.54 km)\n", om2_len);
+            break;
+        default:
+            printf("Alcance OM2 não especificado\n");
+            break;
     }
 
     /* =====================================================
-     * Teste do Byte 17 — Length OM1 (62.5 µm)
+     * Byte 17 — OM1
      * ===================================================== */
-    sfp_om1_length_status_t om1_status;
-    uint16_t om1_length_m = sfp_a0_get_om1_length_m(&a0, &om1_status);
-
     printf("\nByte 17 — Length OM1 (62.5 µm)\n");
 
     switch (om1_status) {
-    case SFP_OM1_LEN_VALID:
-        printf("Alcance OM1 válido: %u metros\n", om1_length_m);
-        break;
-    case SFP_OM1_LEN_EXTENDED:
-        printf("Alcance OM1 superior a %u metros (>2.54 km)\n", om1_length_m);
-        break;
-    case SFP_OM1_LEN_NOT_SUPPORTED:
-    default:
-        printf("Alcance OM1 não especificado ou não suportado\n");
-        break;
+        case SFP_OM1_LEN_VALID:
+            printf("Alcance OM1 válido: %u metros\n", om1_len);
+            break;
+        case SFP_OM1_LEN_EXTENDED:
+            printf("Alcance OM1 superior a %u metros (>2.54 km)\n", om1_len);
+            break;
+        default:
+            printf("Alcance OM1 não especificado\n");
+            break;
     }
 
     /* =====================================================
-     * Teste do Byte 18 — Length OM4 or copper cable
+     * Byte 18 — OM4 / Copper
      * ===================================================== */
-    sfp_om4_length_status_t om4_status;
-    uint16_t om4_length_m = sfp_a0_get_om4_copper_or_length_m(&a0, &om4_status);
-
     printf("\nByte 18 — Length OM4 or Copper Cable\n");
 
-    switch (om4_status) {
-    case SFP_OM4_LEN_VALID:
-        printf("Comprimento válido: %u metros\n", om4_length_m);
-        break;
-    case SFP_OM4_LEN_EXTENDED:
-        printf("Comprimento superior a %u metros\n", om4_length_m);
-        break;
-    case SFP_OM4_LEN_NOT_SUPPORTED:
-    default:
-        printf("Comprimento não especificado\n");
-        break;
+    switch (om4_copper_status) {
+        case SFP_OM4_LEN_VALID:
+            printf("Comprimento válido: %u metros\n", om4_copper_len);
+            break;
+        case SFP_OM4_LEN_EXTENDED:
+            printf("Comprimento superior a %u metros\n", om4_copper_len);
+            break;
+        default:
+            printf("Comprimento não especificado\n");
+            break;
     }
 
     /* =====================================================
-     * Teste do Byte 36 — Extended Specification Compliance Codes
+     * Bytes 20–35 — Vendor Name
      * ===================================================== */
-    sfp_extended_spec_compliance_code_t ext_comp = sfp_a0_get_ext_compliance(&a0);
+    printf("\nBytes 20–35 — Vendor Name\n");
 
-    printf("\nByte 36 — Extended Specification Compliance Code: 0x%02X\n", ext_comp);
-    printf("Descrição: %s\n", ext_compliance_to_string(ext_comp));
-
-    /* Mostrar o valor bruto do byte 36*/
-    printf("Valor bruto (Byte 36): 0x%02X\n", a0_base_data[36]);
-
-    /* =====================================================
-     * Teste do Byte 63 — CC_BASE (Checksum)
-     * ===================================================== */
-    bool cc_base_valid = sfp_a0_get_cc_base_is_valid(&a0);
-
-    printf("\nByte 63 — CC_BASE (Checksum):\n");
-    printf("Valor: 0x%02X\n", a0_base_data[63]);
-
-    if (cc_base_valid) {
-        printf("Status: ✓ Checksum VÁLIDO\n");
+    if (!vendor_name_valid || vendor_name[0] == '\0') {
+        printf("Vendor name não especificado\n");
     } else {
-        printf("Status: ✗ Checksum INVÁLIDO\n");
+        printf("Vendor Name: \"%s\"\n", vendor_name);
     }
+
+    /* =====================================================
+     * Byte 36 — Extended Compliance
+     * ===================================================== */
+    printf("\nByte 36 — Extended Specification Compliance Code: 0x%02X\n", ext_compliance);
+    printf("Descrição: %s\n", ext_compliance_desc);
+
+    /* =====================================================
+     * Bytes 37–39 — Vendor OUI
+     * ===================================================== */
+    printf("\nBytes 37–39 — Vendor OUI\n");
+
+    if (!vendor_oui_valid) {
+        printf("Vendor OUI não especificado\n");
+    } else {
+        printf("OUI: %02X-%02X-%02X (0x%06X)\n", vendor_oui_raw[0], vendor_oui_raw[1], vendor_oui_raw[2], vendor_oui_u32);
+    }
+
+    /* =====================================================
+     * Byte 62 — Fibre Channel Speed 2
+     * ===================================================== */
+    printf("\nByte 62 — Fibre Channel Speed 2\n");
+
+    if (!fc_speed_2_valid) {
+        printf("FC Speed 2 não especificado ou não aplicável\n");
+    } else {
+        printf("FC Speed 2 presente — ver bits de Channel Speed\n");
+    }
+
+    /* =====================================================
+     * Byte 63 — CC_BASE
+     * ===================================================== */
+    printf("\nByte 63 — CC_BASE (Checksum)\n");
+
+    printf("Status: %s\n", cc_base_valid ? "Checksum VÁLIDO": "Checksum INVÁLIDO");
+
 
 #ifdef DEBUG
 #endif

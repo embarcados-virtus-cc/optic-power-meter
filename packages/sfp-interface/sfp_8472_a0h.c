@@ -1,6 +1,7 @@
 #include "sfp_8472_a0h.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 /* ============================================
  * Byte 0 — Identifier
@@ -125,7 +126,7 @@ const char *sfp_connector_to_string(sfp_connector_type_t connector)
 /* ============================================
  * Bytes 3-10 — Compliance Codes
  * ============================================ */
-void sfp_read_compliance(const uint8_t *a0_base_data, sfp_compliance_codes_t *cc)
+void sfp_parse_a0_base_compliance(const uint8_t *a0_base_data, sfp_compliance_codes_t *cc)
 {
     if (!a0_base_data || !cc)
         return;
@@ -266,7 +267,7 @@ static void decode_byte10(const sfp_compliance_codes_t *cc, sfp_compliance_decod
 /* ============================================
  * Função principal para decodificação de todos os bytes
  * ============================================ */
-void sfp_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out)
+void sfp_a0_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out)
 {
     if (!cc || !out)
         return;
@@ -285,16 +286,15 @@ void sfp_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_deco
 /* ============================================
  * Função de Exposição
  * ============================================ */
-void sfp_print_compliance(const sfp_compliance_decoded_t *c)
+void sfp_a0_print_compliance(const sfp_compliance_decoded_t *c)
 {
     if (!c) return;
-
-    printf("\n=== Transceiver Compliance Codes (Bytes 3–10) ===\n");
 
     /* ==============================
      * Byte 3 — Ethernet / InfiniBand
      * ============================== */
     printf("\n[Byte 3] Ethernet / InfiniBand:\n");
+
     if (c->eth_10g_base_er)  printf("  - 10GBASE-ER\n");
     if (c->eth_10g_base_lrm) printf("  - 10GBASE-LRM\n");
     if (c->eth_10g_base_lr)  printf("  - 10GBASE-LR\n");
@@ -309,6 +309,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 4 — ESCON / SONET
      * ====================== */
     printf("\n[Byte 4] ESCON / SONET:\n");
+
     if (c->escon_mmf)   printf("  - ESCON MMF\n");
     if (c->escon_smf)   printf("  - ESCON SMF\n");
     if (c->oc_192_sr)   printf("  - OC-192 SR\n");
@@ -322,6 +323,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 5 — SONET
      * ====================== */
     printf("\n[Byte 5] SONET:\n");
+
     if (c->oc_12_sm_lr) printf("  - OC-12 SM LR\n");
     if (c->oc_12_sm_ir) printf("  - OC-12 SM IR\n");
     if (c->oc_12_sr)    printf("  - OC-12 SR\n");
@@ -333,6 +335,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 6 — Ethernet
      * ====================== */
     printf("\n[Byte 6] Ethernet:\n");
+
     if (c->eth_base_px)      printf("  - BASE-PX\n");
     if (c->eth_base_bx_10)   printf("  - BASE-BX10\n");
     if (c->eth_100_base_fx)  printf("  - 100BASE-FX\n");
@@ -346,6 +349,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 7 — FC Link Length & Technology
      * ==================================== */
     printf("\n[Byte 7] Fibre Channel — Link Length / Technology:\n");
+
     if (c->fc_very_long_distance)      printf("  - Very Long Distance\n");
     if (c->fc_short_distance)          printf("  - Short Distance\n");
     if (c->fc_intermediate_distance)   printf("  - Intermediate Distance\n");
@@ -359,6 +363,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 8 — FC & SFP+ Cable Technology
      * ============================================== */
     printf("\n[Byte 8] Fibre Channel / Cable Technology:\n");
+
     if (c->electrical_intra_enclosure) printf("  - Electrical Intra-Enclosure\n");
     if (c->shortwave_laser_sn)         printf("  - Shortwave Laser (SN)\n");
     if (c->shortwave_laser_sl)         printf("  - Shortwave Laser (SL)\n");
@@ -370,6 +375,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 9 — FC Transmission Media
      * ============================== */
     printf("\n[Byte 9] Fibre Channel — Transmission Media:\n");
+
     if (c->twin_axial_pair) printf("  - Twin Axial Pair\n");
     if (c->twisted_pair)    printf("  - Twisted Pair\n");
     if (c->miniature_coax)  printf("  - Miniature Coax\n");
@@ -382,6 +388,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 10 — FC Channel Speed
      * ============================== */
     printf("\n[Byte 10] Fibre Channel — Speed:\n");
+
     if (c->cs_1200_mbps) printf("  - 1200 Mbps\n");
     if (c->cs_800_mbps)  printf("  - 800 Mbps\n");
     if (c->cs_1600_mbps) printf("  - 1600 Mbps\n");

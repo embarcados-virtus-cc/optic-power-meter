@@ -52,7 +52,7 @@ typedef enum {
     SFP_ID_SFP       = 0x03,
     SFP_ID_QSFP      = 0x0C,
     SFP_ID_QSFP_PLUS = 0x11,
-    SFP_I_QSFP28     = 0x18
+    SFP_ID_QSFP28     = 0x18
 } sfp_identifier_t;
 
 /* ==============================
@@ -459,9 +459,9 @@ sfp_connector_type_t sfp_a0_get_connector(const sfp_a0h_base_t *a0);
 const char *sfp_connector_to_string(sfp_connector_type_t connector);
 
 /* Byte 3-10 Compliance Codes */
-void sfp_read_compliance(const uint8_t *a0_base_data, sfp_compliance_codes_t *cc);
-void sfp_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
-void sfp_print_compliance(const sfp_compliance_decoded_t *c);
+void sfp_parse_a0_base_compliance(const uint8_t *a0_base_data, sfp_compliance_codes_t *cc);
+void sfp_a0_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out);
+void sfp_a0_print_compliance(const sfp_compliance_decoded_t *c);
 
 /* Byte 11 — Encoding */
 void sfp_parse_a0_base_encoding(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
@@ -486,14 +486,14 @@ uint16_t sfp_a0_get_om4_copper_or_length_m(const sfp_a0h_base_t *a0, sfp_om4_len
 
 /* Bytes 20-35 Vendor Name */
 void sfp_parse_a0_base_vendor_name(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
-bool sfp_a0_get_vendor_name(const sfp_a0h_base_t *a0, const char *vendor_name)
+bool sfp_a0_get_vendor_name(const sfp_a0h_base_t *a0, const char *vendor_name);
 
 /* Byte 36 — Extended Compliance Codes */
 void sfp_parse_a0_base_ext_compliance(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 sfp_extended_spec_compliance_code_t sfp_a0_get_ext_compliance(const sfp_a0h_base_t *a0);
 
 /* Byte 37–39 Vendor OUI (IEEE Company Identifier) */
-void sfp_parse_a0_base_vendor_oui(const uint8_t *a0_base_data,sfp_a0h_base_t *a0);
+void sfp_parse_a0_base_vendor_oui(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 bool sfp_a0_get_vendor_oui(const sfp_a0h_base_t *a0, uint8_t oui_buffer[3]);
 uint32_t sfp_vendor_oui_to_u32(const sfp_a0h_base_t *a0);
 
