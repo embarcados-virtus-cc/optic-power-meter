@@ -243,13 +243,10 @@ int main(int argc, char *argv[])
     /* =============================================================
      * Teste dos Bytes 3-10 — Códigos de Conformidade do Transceptor
      * ============================================================= */
-    sfp_compliance_codes_t cc;
-    sfp_compliance_decoded_t comp;
+    sfp_read_compliance(a0_base_data, &a0.cc);
+    sfp_decode_compliance(&a0.cc, &a0.dc);
 
-    sfp_read_compliance(a0_base_data, &cc);
-    sfp_decode_compliance(&cc, &comp);
-
-    sfp_print_compliance(&comp);
+    sfp_print_compliance(&a0.dc);
 
     /* =====================================================
      * Teste do Byte 11 — Encoding
