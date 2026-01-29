@@ -177,7 +177,9 @@ int main(int argc, char *argv[])
     /* Estrutura interpretada */
     sfp_a0h_base_t a0 = {0};
 
-    /* Parsing do bloco */
+    /* =====================================================
+     * Parsing do bloco de dados
+     * ===================================================== */
     sfp_parse_a0_base_identifier(a0_base_data, &a0);        /* Byte 0 */
     sfp_parse_a0_base_ext_identifier(a0_base_data, &a0);    /* Byte 1 */
     sfp_parse_a0_base_connector(a0_base_data, &a0);         /* Byte 2 */
@@ -194,7 +196,7 @@ int main(int argc, char *argv[])
     sfp_parse_a0_base_cc_base(a0_base_data, &a0);           /* Byte 63 */
 
     /* =====================================================
-     * Leitura dos dados (UMA ÚNICA VEZ)
+     * Leitura dos dados
      * ===================================================== */
 
     /* Byte 0 */
@@ -250,10 +252,11 @@ int main(int argc, char *argv[])
     /* Byte 63 */
     bool cc_base_valid = sfp_a0_get_cc_base_is_valid(&a0);
 
-
     /* =====================================================
-     * Byte 0 — Identifier
+     * Apresentação dos dados
      * ===================================================== */
+
+    /* Byte 0 — Identifier */
     printf("\nByte 0 — Identifier: 0x%02X\n", identifier);
 
     switch (identifier) {
@@ -277,9 +280,7 @@ int main(int argc, char *argv[])
             break;
     }
 
-    /* =====================================================
-     * Byte 1 — Extended Identifier
-     * ===================================================== */
+    /* Byte 1 — Extended Identifier */
     printf("\nByte 1 — Extended Identifier\n");
 
     if (identifier == SFP_ID_SFP) {
@@ -292,30 +293,22 @@ int main(int argc, char *argv[])
         printf("Byte 0 precisa ser 0x03 (SFP)\n");
     }
 
-    /* =====================================================
-     * Byte 2 — Connector
-     * ===================================================== */
+    /* Byte 2 — Connector */
     printf("\nByte 2 — Leitura do Conector\n");
 
     printf("Connector: %s (0x%02X)\n", connector_str, connector_raw);
 
-    /* =====================================================
-     * Bytes 3–10 — Compliance Codes
-     * ===================================================== */
+    /* Bytes 3–10 — Compliance Codes */
     printf("\nBytes 3-10 — Códigos de Conformidade do Transceptor\n");
 
     sfp_a0_print_compliance(&a0.dc);
 
-    /* =====================================================
-     * Byte 11 — Encoding
-     * ===================================================== */
+    /* Byte 11 — Encoding */
     printf("\nByte 11 — Encoding\n");
 
     sfp_print_encoding(encoding);
 
-    /* =====================================================
-     * Byte 14 — Length SMF or Copper Attenuation
-     * ===================================================== */
+    /* Byte 14 — Length SMF or Copper Attenuation */
     printf("\nByte 14 — Length SMF or Copper Attenuation\n");
 
     switch (smf_status) {
@@ -330,9 +323,7 @@ int main(int argc, char *argv[])
             break;
     }
 
-    /* =====================================================
-     * Byte 16 — OM2
-     * ===================================================== */
+    /* Byte 16 — OM2 */
     printf("\nByte 16 — Length OM2 (50 µm)\n");
 
     switch (om2_status) {
@@ -347,9 +338,7 @@ int main(int argc, char *argv[])
             break;
     }
 
-    /* =====================================================
-     * Byte 17 — OM1
-     * ===================================================== */
+    /* Byte 17 — OM1 */
     printf("\nByte 17 — Length OM1 (62.5 µm)\n");
 
     switch (om1_status) {
@@ -364,9 +353,7 @@ int main(int argc, char *argv[])
             break;
     }
 
-    /* =====================================================
-     * Byte 18 — OM4 / Copper
-     * ===================================================== */
+    /* Byte 18 — OM4 / Copper */
     printf("\nByte 18 — Length OM4 or Copper Cable\n");
 
     switch (om4_copper_status) {
@@ -381,9 +368,7 @@ int main(int argc, char *argv[])
             break;
     }
 
-    /* =====================================================
-     * Bytes 20–35 — Vendor Name
-     * ===================================================== */
+    /* Bytes 20–35 — Vendor Name */
     printf("\nBytes 20–35 — Vendor Name\n");
 
     if (!vendor_name_valid || vendor_name[0] == '\0') {
@@ -392,15 +377,11 @@ int main(int argc, char *argv[])
         printf("Vendor Name: \"%s\"\n", vendor_name);
     }
 
-    /* =====================================================
-     * Byte 36 — Extended Compliance
-     * ===================================================== */
+    /* Byte 36 — Extended Compliance */
     printf("\nByte 36 — Extended Specification Compliance Code: 0x%02X\n", ext_compliance);
     printf("Descrição: %s\n", ext_compliance_desc);
 
-    /* =====================================================
-     * Bytes 37–39 — Vendor OUI
-     * ===================================================== */
+    /* Bytes 37–39 — Vendor OUI */
     printf("\nBytes 37–39 — Vendor OUI\n");
 
     if (!vendor_oui_valid) {
@@ -409,9 +390,7 @@ int main(int argc, char *argv[])
         printf("OUI: %02X-%02X-%02X (0x%06X)\n", vendor_oui_raw[0], vendor_oui_raw[1], vendor_oui_raw[2], vendor_oui_u32);
     }
 
-    /* =====================================================
-     * Byte 62 — Fibre Channel Speed 2
-     * ===================================================== */
+    /* Byte 62 — Fibre Channel Speed 2 */
     printf("\nByte 62 — Fibre Channel Speed 2\n");
 
     if (!fc_speed_2_valid) {
@@ -420,9 +399,7 @@ int main(int argc, char *argv[])
         printf("FC Speed 2 presente — ver bits de Channel Speed\n");
     }
 
-    /* =====================================================
-     * Byte 63 — CC_BASE
-     * ===================================================== */
+    /* Byte 63 — CC_BASE */
     printf("\nByte 63 — CC_BASE (Checksum)\n");
 
     printf("Status: %s\n", cc_base_valid ? "Checksum VÁLIDO": "Checksum INVÁLIDO");
