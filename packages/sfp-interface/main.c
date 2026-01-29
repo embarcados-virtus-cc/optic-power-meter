@@ -258,7 +258,6 @@ int main(int argc, char *argv[])
 
     /* Byte 0 — Identifier */
     printf("\nByte 0 — Identifier: 0x%02X\n", identifier);
-
     switch (identifier) {
         case SFP_ID_GBIC:
             printf("Módulo GBIC identificado\n");
@@ -282,7 +281,6 @@ int main(int argc, char *argv[])
 
     /* Byte 1 — Extended Identifier */
     printf("\nByte 1 — Extended Identifier\n");
-
     if (identifier == SFP_ID_SFP) {
         if (!ext_id_valid) {
             printf("Modulo nao conforme (esperado 0x%02X, lido 0x%02X)\n", SFP_EXT_IDENTIFIER_EXPECTED, ext_identifier);
@@ -295,22 +293,18 @@ int main(int argc, char *argv[])
 
     /* Byte 2 — Connector */
     printf("\nByte 2 — Leitura do Conector\n");
-
     printf("Connector: %s (0x%02X)\n", connector_str, connector_raw);
 
     /* Bytes 3–10 — Compliance Codes */
     printf("\nBytes 3-10 — Códigos de Conformidade do Transceptor\n");
-
     sfp_a0_print_compliance(&a0.dc);
 
     /* Byte 11 — Encoding */
     printf("\nByte 11 — Encoding\n");
-
     sfp_print_encoding(encoding);
 
     /* Byte 14 — Length SMF or Copper Attenuation */
     printf("\nByte 14 — Length SMF or Copper Attenuation\n");
-
     switch (smf_status) {
         case SFP_SMF_LEN_VALID:
             printf("Alcance SMF válido: %u km (atenuação: %.1f dB/100m)\n", smf_len, smf_attenuation);
@@ -325,7 +319,6 @@ int main(int argc, char *argv[])
 
     /* Byte 16 — OM2 */
     printf("\nByte 16 — Length OM2 (50 µm)\n");
-
     switch (om2_status) {
         case SFP_OM2_LEN_VALID:
             printf("Alcance OM2 válido: %u metros\n", om2_len);
@@ -340,7 +333,6 @@ int main(int argc, char *argv[])
 
     /* Byte 17 — OM1 */
     printf("\nByte 17 — Length OM1 (62.5 µm)\n");
-
     switch (om1_status) {
         case SFP_OM1_LEN_VALID:
             printf("Alcance OM1 válido: %u metros\n", om1_len);
@@ -355,7 +347,6 @@ int main(int argc, char *argv[])
 
     /* Byte 18 — OM4 / Copper */
     printf("\nByte 18 — Length OM4 or Copper Cable\n");
-
     switch (om4_copper_status) {
         case SFP_OM4_LEN_VALID:
             printf("Comprimento válido: %u metros\n", om4_copper_len);
@@ -370,7 +361,6 @@ int main(int argc, char *argv[])
 
     /* Bytes 20–35 — Vendor Name */
     printf("\nBytes 20–35 — Vendor Name\n");
-
     if (!vendor_name_valid || vendor_name[0] == '\0') {
         printf("Vendor name não especificado\n");
     } else {
@@ -383,7 +373,6 @@ int main(int argc, char *argv[])
 
     /* Bytes 37–39 — Vendor OUI */
     printf("\nBytes 37–39 — Vendor OUI\n");
-
     if (!vendor_oui_valid) {
         printf("Vendor OUI não especificado\n");
     } else {
@@ -392,7 +381,6 @@ int main(int argc, char *argv[])
 
     /* Byte 62 — Fibre Channel Speed 2 */
     printf("\nByte 62 — Fibre Channel Speed 2\n");
-
     if (!fc_speed_2_valid) {
         printf("FC Speed 2 não especificado ou não aplicável\n");
     } else {
@@ -401,7 +389,6 @@ int main(int argc, char *argv[])
 
     /* Byte 63 — CC_BASE */
     printf("\nByte 63 — CC_BASE (Checksum)\n");
-
     printf("Status: %s\n", cc_base_valid ? "Checksum VÁLIDO": "Checksum INVÁLIDO");
 
 
