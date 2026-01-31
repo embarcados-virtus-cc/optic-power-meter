@@ -740,20 +740,11 @@ uint16_t sfp_a0_get_om4_copper_or_length_m(const sfp_a0h_base_t *a0, sfp_om4_len
 /* ============================================
  * Bytes 20-35 — Vendor Name
  * ============================================ */
+
 /* ASCII imprimível padrão (inclui espaço) */
-static bool sfp__is_printable_ascii(uint8_t c)
+static bool sfp_is_printable_ascii(uint8_t c)
 {
     return (c >= 0x20u) && (c <= 0x7Eu);
-}
-
-void sfp_parse_a0_base_vendor_name(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
-{
-    if (!a0_base_data || !a0)
-        return;
-
-    /* Vendor Name (16 bytes) - ASCII, alinhado a esquerda, padding com 0x20 */
-    memcpy(a0->vendor_name, &a0_base_data[SFP_A0_BYTE_VENDOR_NAME], SFP_A0_LEN_VENDOR_NAME);
-    a0->is_valid_vendor_name = sfp_a0_vendor_name_is_valid(a0);
 }
 
 static bool sfp_a0_vendor_name_is_valid(const sfp_a0h_base_t *a0)
@@ -767,7 +758,7 @@ static bool sfp_a0_vendor_name_is_valid(const sfp_a0h_base_t *a0)
     /* Todos os bytes devem ser ASCII imprimível */
     for (size_t i = 0; i < SFP_A0_LEN_VENDOR_NAME; i++) {
         uint8_t c = (uint8_t)a0->vendor_name[i];
-        if (!sfp__is_printable_ascii(c))
+        if (!sfp_is_printable_ascii(c))
             return false;
 
         if (c == 0x20u) {
@@ -784,25 +775,37 @@ static bool sfp_a0_vendor_name_is_valid(const sfp_a0h_base_t *a0)
     /* Não pode ser vazio (todos espaços) */
     return has_content;
 }
+
+void sfp_parse_a0_base_vendor_name(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0)
+        return;
+
+    /* Vendor Name (16 bytes) - ASCII, alinhado a esquerda, padding com 0x20 */
+    memcpy(a0->vendor_name, &a0_base_data[SFP_A0_BYTE_VENDOR_NAME], SFP_A0_LEN_VENDOR_NAME);
+    a0->is_valid_vendor_name = sfp_a0_vendor_name_is_valid(a0);
+}
+
 /* ============================================
  * Método Getter
  * ============================================ */
-bool sfp_a0_get_vendor_name(const sfp_a0h_base_t *a0, const char *vendor_name)
+bool sfp_a0_get_vendor_name(const sfp_a0h_base_t *a0, char *vendor_name)
 {
-    if (!a0) {
-        if (vendor_name)
-            *vendor_name = NULL;
+    if (!vendor_name)
         return false;
-    }
 
-    if (!a0->is_valid_vendor_name) {
-        if (vendor_name)
-            *vendor_name = NULL;
+    vendor_name[0] = '\0';
+
+    if (!a0 || !a0->is_valid_vendor_name)
         return false;
-    }
 
-    if (vendor_name)
-        *vendor_name = a0->vendor_name;
+    size_t len = SFP_A0_LEN_VENDOR_NAME;
+
+    while (len > 0 && a0->vendor_name[len - 1] == ' ')
+        len--;
+
+    memcpy(vendor_name, a0->vendor_name, len);
+    vendor_name[len] = '\0';
 
     return true;
 }

@@ -486,7 +486,7 @@ uint16_t sfp_a0_get_om4_copper_or_length_m(const sfp_a0h_base_t *a0, sfp_om4_len
 
 /* Bytes 20-35 Vendor Name */
 void sfp_parse_a0_base_vendor_name(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
-bool sfp_a0_get_vendor_name(const sfp_a0h_base_t *a0, const char *vendor_name);
+bool sfp_a0_get_vendor_name(const sfp_a0h_base_t *a0, char *vendor_name);
 
 /* Byte 36 — Extended Compliance Codes */
 void sfp_parse_a0_base_ext_compliance(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
