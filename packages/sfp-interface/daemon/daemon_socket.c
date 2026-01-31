@@ -6,6 +6,8 @@
 #include "daemon_socket.h"
 #include "daemon_fsm.h"
 #include "daemon_state.h"
+#include "../sfp_8472_a0h.h"
+#include "../sfp_8472_a2h.h"
 #include <cjson/cJSON.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -292,6 +294,453 @@ void daemon_socket_close_inactive(daemon_socket_server_t *server)
 }
 
 /* ============================================
+ * Funções Auxiliares de Serialização
+ * ============================================ */
+
+/* Serializa compliance codes decodificados */
+static void serialize_compliance_codes(cJSON *obj, const sfp_compliance_decoded_t *dc)
+{
+    if (!obj || !dc) return;
+    
+    cJSON *byte3 = cJSON_CreateObject();
+    cJSON_AddBoolToObject(byte3, "eth_10g_base_sr", dc->eth_10g_base_sr);
+    cJSON_AddBoolToObject(byte3, "eth_10g_base_lr", dc->eth_10g_base_lr);
+    cJSON_AddBoolToObject(byte3, "eth_10g_base_lrm", dc->eth_10g_base_lrm);
+    cJSON_AddBoolToObject(byte3, "eth_10g_base_er", dc->eth_10g_base_er);
+    cJSON_AddBoolToObject(byte3, "infiniband_1x_sx", dc->infiniband_1x_sx);
+    cJSON_AddBoolToObject(byte3, "infiniband_1x_lx", dc->infiniband_1x_lx);
+    cJSON_AddBoolToObject(byte3, "infiniband_1x_copper_active", dc->infiniband_1x_copper_active);
+    cJSON_AddBoolToObject(byte3, "infiniband_1x_copper_passive", dc->infiniband_1x_copper_passive);
+    cJSON_AddItemToObject(obj, "byte3_ethernet_infiniband", byte3);
+    
+    cJSON *byte4 = cJSON_CreateObject();
+    cJSON_AddBoolToObject(byte4, "escon_mmf", dc->escon_mmf);
+    cJSON_AddBoolToObject(byte4, "escon_smf", dc->escon_smf);
+    cJSON_AddBoolToObject(byte4, "oc_192_sr", dc->oc_192_sr);
+    cJSON_AddBoolToObject(byte4, "sonet_rs_1", dc->sonet_rs_1);
+    cJSON_AddBoolToObject(byte4, "sonet_rs_2", dc->sonet_rs_2);
+    cJSON_AddBoolToObject(byte4, "oc_48_lr", dc->oc_48_lr);
+    cJSON_AddBoolToObject(byte4, "oc_48_ir", dc->oc_48_ir);
+    cJSON_AddBoolToObject(byte4, "oc_48_sr", dc->oc_48_sr);
+    cJSON_AddItemToObject(obj, "byte4_escon_sonet", byte4);
+    
+    cJSON *byte5 = cJSON_CreateObject();
+    cJSON_AddBoolToObject(byte5, "oc_12_sm_lr", dc->oc_12_sm_lr);
+    cJSON_AddBoolToObject(byte5, "oc_12_sm_ir", dc->oc_12_sm_ir);
+    cJSON_AddBoolToObject(byte5, "oc_12_sr", dc->oc_12_sr);
+    cJSON_AddBoolToObject(byte5, "oc_3_sm_lr", dc->oc_3_sm_lr);
+    cJSON_AddBoolToObject(byte5, "oc_3_sm_ir", dc->oc_3_sm_ir);
+    cJSON_AddBoolToObject(byte5, "oc_3_sr", dc->oc_3_sr);
+    cJSON_AddItemToObject(obj, "byte5_sonet", byte5);
+    
+    cJSON *byte6 = cJSON_CreateObject();
+    cJSON_AddBoolToObject(byte6, "eth_base_px", dc->eth_base_px);
+    cJSON_AddBoolToObject(byte6, "eth_base_bx_10", dc->eth_base_bx_10);
+    cJSON_AddBoolToObject(byte6, "eth_100_base_fx", dc->eth_100_base_fx);
+    cJSON_AddBoolToObject(byte6, "eth_100_base_lx", dc->eth_100_base_lx);
+    cJSON_AddBoolToObject(byte6, "eth_1000_base_t", dc->eth_1000_base_t);
+    cJSON_AddBoolToObject(byte6, "eth_1000_base_cx", dc->eth_1000_base_cx);
+    cJSON_AddBoolToObject(byte6, "eth_1000_base_lx", dc->eth_1000_base_lx);
+    cJSON_AddBoolToObject(byte6, "eth_1000_base_sx", dc->eth_1000_base_sx);
+    cJSON_AddItemToObject(obj, "byte6_ethernet_1g", byte6);
+    
+    cJSON *byte7 = cJSON_CreateObject();
+    cJSON_AddBoolToObject(byte7, "fc_very_long_distance", dc->fc_very_long_distance);
+    cJSON_AddBoolToObject(byte7, "fc_short_distance", dc->fc_short_distance);
+    cJSON_AddBoolToObject(byte7, "fc_intermediate_distance", dc->fc_intermediate_distance);
+    cJSON_AddBoolToObject(byte7, "fc_long_distance", dc->fc_long_distance);
+    cJSON_AddBoolToObject(byte7, "fc_medium_distance", dc->fc_medium_distance);
+    cJSON_AddBoolToObject(byte7, "shortwave_laser_sa", dc->shortwave_laser_sa);
+    cJSON_AddBoolToObject(byte7, "longwave_laser_lc", dc->longwave_laser_lc);
+    cJSON_AddBoolToObject(byte7, "electrical_inter_enclosure", dc->electrical_inter_enclosure);
+    cJSON_AddItemToObject(obj, "byte7_fc_link_length", byte7);
+    
+    cJSON *byte8 = cJSON_CreateObject();
+    cJSON_AddBoolToObject(byte8, "electrical_intra_enclosure", dc->electrical_intra_enclosure);
+    cJSON_AddBoolToObject(byte8, "shortwave_laser_sn", dc->shortwave_laser_sn);
+    cJSON_AddBoolToObject(byte8, "shortwave_laser_sl", dc->shortwave_laser_sl);
+    cJSON_AddBoolToObject(byte8, "longwave_laser_ll", dc->longwave_laser_ll);
+    cJSON_AddBoolToObject(byte8, "active_cable", dc->active_cable);
+    cJSON_AddBoolToObject(byte8, "passive_cable", dc->passive_cable);
+    cJSON_AddItemToObject(obj, "byte8_fc_technology", byte8);
+    
+    cJSON *byte9 = cJSON_CreateObject();
+    cJSON_AddBoolToObject(byte9, "twin_axial_pair", dc->twin_axial_pair);
+    cJSON_AddBoolToObject(byte9, "twisted_pair", dc->twisted_pair);
+    cJSON_AddBoolToObject(byte9, "miniature_coax", dc->miniature_coax);
+    cJSON_AddBoolToObject(byte9, "video_coax", dc->video_coax);
+    cJSON_AddBoolToObject(byte9, "multimode_m6", dc->multimode_m6);
+    cJSON_AddBoolToObject(byte9, "multimode_m5", dc->multimode_m5);
+    cJSON_AddBoolToObject(byte9, "single_mode", dc->single_mode);
+    cJSON_AddItemToObject(obj, "byte9_fc_transmission_media", byte9);
+    
+    cJSON *byte10 = cJSON_CreateObject();
+    cJSON_AddBoolToObject(byte10, "cs_1200_mbps", dc->cs_1200_mbps);
+    cJSON_AddBoolToObject(byte10, "cs_800_mbps", dc->cs_800_mbps);
+    cJSON_AddBoolToObject(byte10, "cs_1600_mbps", dc->cs_1600_mbps);
+    cJSON_AddBoolToObject(byte10, "cs_400_mbps", dc->cs_400_mbps);
+    cJSON_AddBoolToObject(byte10, "cs_3200_mbps", dc->cs_3200_mbps);
+    cJSON_AddBoolToObject(byte10, "cs_200_mbps", dc->cs_200_mbps);
+    cJSON_AddBoolToObject(byte10, "see_byte_62", dc->see_byte_62);
+    cJSON_AddBoolToObject(byte10, "cs_100_mbps", dc->cs_100_mbps);
+    cJSON_AddItemToObject(obj, "byte10_fc_channel_speed", byte10);
+}
+
+/* Serializa identifier type como string */
+static const char* identifier_type_to_string(sfp_identifier_t id)
+{
+    switch (id) {
+        case SFP_ID_GBIC: return "GBIC";
+        case SFP_ID_SFP: return "SFP/SFP+";
+        case SFP_ID_QSFP: return "QSFP";
+        case SFP_ID_QSFP_PLUS: return "QSFP+";
+        case SFP_ID_QSFP28: return "QSFP28";
+        default: return "Unknown";
+    }
+}
+
+/* Serializa extended compliance code como string */
+static const char* ext_compliance_to_string(sfp_extended_spec_compliance_code_t code)
+{
+    switch (code) {
+        case EXT_SPEC_COMPLIANCE_UNSPECIFIED:
+            return "Não especificado";
+        case EXT_SPEC_COMPLIANCE_100G_AOC_OR_25GAUI_C2M_AOC_BER_5E_5:
+            return "100G AOC ou 25GAUI C2M AOC (BER 5e-5)";
+        case EXT_SPEC_COMPLIANCE_100GBASE_SR4_OR_25GBASE_SR:
+            return "100GBASE-SR4 ou 25GBASE-SR";
+        case EXT_SPEC_COMPLIANCE_100GBASE_LR4_OR_25GBASE_LR:
+            return "100GBASE-LR4 ou 25GBASE-LR";
+        case EXT_SPEC_COMPLIANCE_100GBASE_ER4_OR_25GBASE_ER:
+            return "100GBASE-ER4 ou 25GBASE-ER";
+        case EXT_SPEC_COMPLIANCE_100GBASE_SR10:
+            return "100GBASE-SR10";
+        case EXT_SPEC_COMPLIANCE_100G_CWDM4:
+            return "100G CWDM4";
+        case EXT_SPEC_COMPLIANCE_100G_PSM4:
+            return "100G PSM4";
+        case EXT_SPEC_COMPLIANCE_100G_ACC_OR_25GAUI_C2M_ACC_BER_5E_5:
+            return "100G ACC ou 25GAUI C2M ACC (BER 5e-5)";
+        case EXT_SPEC_COMPLIANCE_100GBASE_CR4_OR_25GBASE_CR_CA_25G_L_OR_50GBASE_CR2_RS_FEC:
+            return "100GBASE-CR4, 25GBASE-CR CA-25G-L ou 50GBASE-CR2 RS-FEC";
+        case EXT_SPEC_COMPLIANCE_25GBASE_CR_CA_25G_S_OR_50GBASE_CR2_BASE_R_FEC:
+            return "25GBASE-CR CA-25G-S ou 50GBASE-CR2 BASE-R FEC";
+        case EXT_SPEC_COMPLIANCE_25GBASE_CR_CA_25G_N_OR_50GBASE_CR2_NO_FEC:
+            return "25GBASE-CR CA-25G-N ou 50GBASE-CR2 NO-FEC";
+        case EXT_SPEC_COMPLIANCE_10MB_SINGLE_PAIR_ETHERNET:
+            return "10Mb Single Pair Ethernet";
+        case EXT_SPEC_COMPLIANCE_40GBASE_ER4:
+            return "40GBASE-ER4";
+        case EXT_SPEC_COMPLIANCE_4X_10GBASE_SR:
+            return "4x10GBASE-SR";
+        case EXT_SPEC_COMPLIANCE_40G_PSM4:
+            return "40G PSM4";
+        case EXT_SPEC_COMPLIANCE_10GBASE_T_SFI:
+            return "10GBASE-T SFI";
+        case EXT_SPEC_COMPLIANCE_100G_CLR4:
+            return "100G CLR4";
+        case EXT_SPEC_COMPLIANCE_100G_AOC_OR_25GAUI_C2M_AOC_BER_1E_12:
+            return "100G AOC ou 25GAUI C2M AOC (BER 1e-12)";
+        case EXT_SPEC_COMPLIANCE_100G_ACC_OR_25GAUI_C2M_ACC_BER_1E_12:
+            return "100G ACC ou 25GAUI C2M ACC (BER 1e-12)";
+        case EXT_SPEC_COMPLIANCE_10GBASE_T_SHORT_REACH:
+            return "10GBASE-T Short Reach";
+        case EXT_SPEC_COMPLIANCE_5GBASE_T:
+            return "5GBASE-T";
+        case EXT_SPEC_COMPLIANCE_2_5GBASE_T:
+            return "2.5GBASE-T";
+        case EXT_SPEC_COMPLIANCE_40G_SWDM4:
+            return "40G SWDM4";
+        case EXT_SPEC_COMPLIANCE_100G_SWDM4:
+            return "100G SWDM4";
+        case EXT_SPEC_COMPLIANCE_100G_PAM4_BIDI:
+            return "100G PAM4 BiDi";
+        case EXT_SPEC_COMPLIANCE_100GBASE_DR_CAUI4_NO_FEC:
+            return "100GBASE-DR (CAUI-4 NO FEC)";
+        case EXT_SPEC_COMPLIANCE_100G_FR_OR_100GBASE_FR1_CAUI4_NO_FEC:
+            return "100G-FR/100GBASE-FR1 (CAUI-4 NO FEC)";
+        case EXT_SPEC_COMPLIANCE_100G_LR_OR_100GBASE_LR1_CAUI4_NO_FEC:
+            return "100G-LR/100GBASE-LR1 (CAUI-4 NO FEC)";
+        case EXT_SPEC_COMPLIANCE_100GBASE_SR1_CAUI4_NO_FEC:
+            return "100GBASE-SR1 (CAUI-4 NO FEC)";
+        case EXT_SPEC_COMPLIANCE_100GBASE_SR1_OR_200GBASE_SR2_OR_400GBASE_SR4:
+            return "100GBASE-SR1, 200GBASE-SR2 ou 400GBASE-SR4";
+        case EXT_SPEC_COMPLIANCE_100GBASE_FR1_OR_400GBASE_DR4_2:
+            return "100GBASE-FR1 ou 400GBASE-DR4";
+        case EXT_SPEC_COMPLIANCE_100GBASE_LR1:
+            return "100GBASE-LR1";
+        case EXT_SPEC_COMPLIANCE_ACTIVE_CU_CABLE_50GAUI_100GAUI2_200GAUI4_C2M_BER_1E_6:
+            return "Active Copper Cable (50GAUI/100GAUI-2/200GAUI-4 C2M BER 1e-6)";
+        case EXT_SPEC_COMPLIANCE_ACTIVE_OPTICAL_CABLE_50GAUI_100GAUI2_200GAUI4_C2M_BER_1E_6:
+            return "Active Optical Cable (50GAUI/100GAUI-2/200GAUI-4 C2M BER 1e-6)";
+        case EXT_SPEC_COMPLIANCE_100GBASE_CR1_OR_200GBASE_CR2_OR_400GBASE_CR4:
+            return "100GBASE-CR1, 200GBASE-CR2 ou 400GBASE-CR4";
+        case EXT_SPEC_COMPLIANCE_50GBASE_CR_OR_100GBASE_CR2_OR_200GBASE_CR4:
+            return "50GBASE-CR, 100GBASE-CR2 ou 200GBASE-CR4";
+        case EXT_SPEC_COMPLIANCE_50GBASE_R_OR_100GBASE_SR2_OR_200GBASE_SR4:
+            return "50GBASE-R, 100GBASE-SR2 ou 200GBASE-SR4";
+        case EXT_SPEC_COMPLIANCE_50GBASE_FR_OR_200GBASE_DR4:
+            return "50GBASE-FR ou 200GBASE-DR4";
+        case EXT_SPEC_COMPLIANCE_200GBASE_FR4:
+            return "200GBASE-FR4";
+        case EXT_SPEC_COMPLIANCE_50GBASE_LR:
+            return "50GBASE-LR";
+        case EXT_SPEC_COMPLIANCE_200GBASE_LR4:
+            return "200GBASE-LR4";
+        case EXT_SPEC_COMPLIANCE_400GBASE_DR4_400GAUI4_C2M:
+            return "400GBASE-DR4 (400GAUI-4 C2M)";
+        case EXT_SPEC_COMPLIANCE_400GBASE_FR4:
+            return "400GBASE-FR4";
+        case EXT_SPEC_COMPLIANCE_400GBASE_LR4_6:
+            return "400GBASE-LR4-6";
+        case EXT_SPEC_COMPLIANCE_400G_LR4_10:
+            return "400G LR4-10";
+        case EXT_SPEC_COMPLIANCE_256GFC_SW4:
+            return "256GFC SW4";
+        case EXT_SPEC_COMPLIANCE_64GFC:
+            return "64GFC";
+        case EXT_SPEC_COMPLIANCE_128GFC:
+            return "128GFC";
+        case EXT_SPEC_COMPLIANCE_VENDOR_SPECIFIC:
+            return "Específico do fabricante";
+        default:
+            if (code >= 0x4D && code <= 0x7E) {
+                return "Reservado (SFF-8024)";
+            } else if (code >= 0x82 && code <= 0xFE) {
+                return "Reservado (SFF-8024)";
+            }
+            return "Código desconhecido";
+    }
+}
+
+/* Serializa A0h completo */
+static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
+{
+    if (!a0_obj || !a0) return;
+    
+    /* Byte 0 - Identifier */
+    uint8_t identifier = sfp_a0_get_identifier(a0);
+    cJSON_AddNumberToObject(a0_obj, "identifier", identifier);
+    cJSON_AddStringToObject(a0_obj, "identifier_type", identifier_type_to_string((sfp_identifier_t)identifier));
+    
+    /* Byte 1 - Extended Identifier */
+    uint8_t ext_identifier = sfp_a0_get_ext_identifier(a0);
+    bool ext_id_valid = sfp_validate_ext_identifier(a0);
+    cJSON_AddNumberToObject(a0_obj, "ext_identifier", ext_identifier);
+    cJSON_AddBoolToObject(a0_obj, "ext_identifier_valid", ext_id_valid);
+    
+    /* Byte 2 - Connector */
+    sfp_connector_type_t connector = sfp_a0_get_connector(a0);
+    const char *connector_str = sfp_connector_to_string(connector);
+    cJSON_AddNumberToObject(a0_obj, "connector", connector);
+    cJSON_AddStringToObject(a0_obj, "connector_type", connector_str);
+    
+    /* Bytes 3-10 - Compliance Codes */
+    serialize_compliance_codes(a0_obj, &a0->dc);
+    
+    /* Byte 11 - Encoding */
+    sfp_encoding_codes_t encoding = sfp_a0_get_encoding(a0);
+    cJSON_AddNumberToObject(a0_obj, "encoding", encoding);
+    
+    /* Byte 12 - Nominal Rate */
+    sfp_nominal_rate_status_t nominal_rate_status;
+    uint8_t nominal_rate = sfp_a0_get_nominal_rate_mbd(a0, &nominal_rate_status);
+    cJSON_AddNumberToObject(a0_obj, "nominal_rate_mbd", nominal_rate);
+    cJSON_AddNumberToObject(a0_obj, "nominal_rate_status", nominal_rate_status);
+    
+    /* Byte 13 - Rate Identifier */
+    sfp_rate_select rate_id = sfp_a0_get_rate_identifier(a0);
+    cJSON_AddNumberToObject(a0_obj, "rate_identifier", rate_id);
+    
+    /* Byte 14 - SMF Length or Copper Attenuation */
+    sfp_smf_length_status_t smf_status;
+    uint16_t smf_len = sfp_a0_get_smf_length_m(a0, &smf_status);
+    float smf_attenuation = smf_len * 0.5f;
+    cJSON_AddNumberToObject(a0_obj, "smf_length_km", smf_len);
+    cJSON_AddNumberToObject(a0_obj, "smf_length_status", smf_status);
+    cJSON_AddNumberToObject(a0_obj, "smf_attenuation_db_per_100m", smf_attenuation);
+    
+    /* Byte 16 - OM2 Length */
+    sfp_om2_length_status_t om2_status;
+    uint16_t om2_len = sfp_a0_get_om2_length_m(a0, &om2_status);
+    cJSON_AddNumberToObject(a0_obj, "om2_length_m", om2_len);
+    cJSON_AddNumberToObject(a0_obj, "om2_length_status", om2_status);
+    
+    /* Byte 17 - OM1 Length */
+    sfp_om1_length_status_t om1_status;
+    uint16_t om1_len = sfp_a0_get_om1_length_m(a0, &om1_status);
+    cJSON_AddNumberToObject(a0_obj, "om1_length_m", om1_len);
+    cJSON_AddNumberToObject(a0_obj, "om1_length_status", om1_status);
+    
+    /* Byte 18 - OM4 or Copper Length */
+    sfp_om4_length_status_t om4_status;
+    uint16_t om4_copper_len = sfp_a0_get_om4_copper_or_length_m(a0, &om4_status);
+    cJSON_AddNumberToObject(a0_obj, "om4_or_copper_length_m", om4_copper_len);
+    cJSON_AddNumberToObject(a0_obj, "om4_or_copper_length_status", om4_status);
+    
+    /* Bytes 20-35 - Vendor Name */
+    char vendor_name[SFP_A0_LEN_VENDOR_NAME + 1] = {0};
+    bool vendor_name_valid = sfp_a0_get_vendor_name(a0, vendor_name);
+    cJSON_AddStringToObject(a0_obj, "vendor_name", vendor_name_valid && vendor_name[0] ? vendor_name : "");
+    cJSON_AddBoolToObject(a0_obj, "vendor_name_valid", vendor_name_valid);
+    
+    /* Byte 36 - Extended Compliance */
+    sfp_extended_spec_compliance_code_t ext_compliance = sfp_a0_get_ext_compliance(a0);
+    cJSON_AddNumberToObject(a0_obj, "ext_compliance_code", ext_compliance);
+    cJSON_AddStringToObject(a0_obj, "ext_compliance_desc", ext_compliance_to_string(ext_compliance));
+    
+    /* Bytes 37-39 - Vendor OUI */
+    uint8_t vendor_oui_raw[3] = {0};
+    bool vendor_oui_valid = sfp_a0_get_vendor_oui(a0, vendor_oui_raw);
+    uint32_t vendor_oui_u32 = sfp_vendor_oui_to_u32(a0);
+    cJSON_AddBoolToObject(a0_obj, "vendor_oui_valid", vendor_oui_valid);
+    if (vendor_oui_valid) {
+        cJSON *oui_array = cJSON_CreateArray();
+        cJSON_AddItemToArray(oui_array, cJSON_CreateNumber(vendor_oui_raw[0]));
+        cJSON_AddItemToArray(oui_array, cJSON_CreateNumber(vendor_oui_raw[1]));
+        cJSON_AddItemToArray(oui_array, cJSON_CreateNumber(vendor_oui_raw[2]));
+        cJSON_AddItemToObject(a0_obj, "vendor_oui", oui_array);
+        cJSON_AddNumberToObject(a0_obj, "vendor_oui_u32", vendor_oui_u32);
+    }
+    
+    /* Bytes 40-55 - Vendor Part Number */
+    const char *vendor_pn = NULL;
+    bool vendor_pn_valid = sfp_a0_get_vendor_pn(a0, &vendor_pn);
+    cJSON_AddStringToObject(a0_obj, "vendor_pn", vendor_pn_valid && vendor_pn ? vendor_pn : "");
+    cJSON_AddBoolToObject(a0_obj, "vendor_pn_valid", vendor_pn_valid);
+    
+    /* Bytes 56-59 - Vendor Revision */
+    cJSON_AddStringToObject(a0_obj, "vendor_rev", a0->vendor_rev[0] ? a0->vendor_rev : "");
+    
+    /* Bytes 60-61 - Wavelength or Cable Compliance */
+    sfp_variant_t variant = sfp_a0_get_variant(a0);
+    cJSON_AddNumberToObject(a0_obj, "variant", variant);
+    if (variant == SFP_VARIANT_OPTICAL) {
+        uint16_t wavelength = 0;
+        if (sfp_a0_get_wavelength_nm(a0, &wavelength)) {
+            cJSON_AddNumberToObject(a0_obj, "wavelength_nm", wavelength);
+        }
+    } else if (variant == SFP_VARIANT_PASSIVE_CABLE || variant == SFP_VARIANT_ACTIVE_CABLE) {
+        uint8_t cable_compliance = 0;
+        if (sfp_a0_get_cable_compliance(a0, &cable_compliance)) {
+            cJSON_AddNumberToObject(a0_obj, "cable_compliance", cable_compliance);
+        }
+    }
+    
+    /* Byte 62 - Fibre Channel Speed 2 */
+    bool fc_speed_2_valid = sfp_get_a0_fc_speed_2(a0, &a0->dc);
+    cJSON_AddBoolToObject(a0_obj, "fc_speed_2_valid", fc_speed_2_valid);
+    if (fc_speed_2_valid) {
+        cJSON_AddNumberToObject(a0_obj, "fc_speed_2", a0->fc_speed2);
+    }
+    
+    /* Byte 63 - CC_BASE (Checksum) */
+    bool cc_base_valid = sfp_a0_get_cc_base_is_valid(a0);
+    cJSON_AddBoolToObject(a0_obj, "cc_base_valid", cc_base_valid);
+    cJSON_AddNumberToObject(a0_obj, "cc_base", a0->cc_base);
+}
+
+/* Serializa A2h completo */
+static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_diagnostics_t *a2)
+{
+    if (!a2_obj || !a2) return;
+    
+    /* Temperature */
+    cJSON_AddBoolToObject(a2_obj, "temperature_valid", a2->temperature_valid);
+    if (a2->temperature_valid) {
+        cJSON_AddNumberToObject(a2_obj, "temperature_c", a2->temperature_c);
+        cJSON_AddNumberToObject(a2_obj, "temperature_raw", a2->temperature_raw);
+    }
+    
+    /* Voltage */
+    cJSON_AddBoolToObject(a2_obj, "voltage_valid", a2->voltage_valid);
+    if (a2->voltage_valid) {
+        cJSON_AddNumberToObject(a2_obj, "voltage_v", a2->voltage_v);
+        cJSON_AddNumberToObject(a2_obj, "voltage_raw", a2->voltage_raw);
+    }
+    
+    /* Bias Current */
+    cJSON_AddBoolToObject(a2_obj, "bias_current_valid", a2->bias_current_valid);
+    if (a2->bias_current_valid) {
+        cJSON_AddNumberToObject(a2_obj, "bias_current_ma", a2->bias_current_ma);
+        cJSON_AddNumberToObject(a2_obj, "bias_current_raw", a2->bias_current_raw);
+    }
+    
+    /* TX Power */
+    cJSON_AddBoolToObject(a2_obj, "tx_power_valid", a2->tx_power_valid);
+    if (a2->tx_power_valid) {
+        cJSON_AddNumberToObject(a2_obj, "tx_power_dbm", a2->tx_power_dbm);
+        cJSON_AddNumberToObject(a2_obj, "tx_power_mw", a2->tx_power_mw);
+        cJSON_AddNumberToObject(a2_obj, "tx_power_raw", a2->tx_power_raw);
+    }
+    
+    /* RX Power */
+    cJSON_AddBoolToObject(a2_obj, "rx_power_valid", a2->rx_power_valid);
+    if (a2->rx_power_valid) {
+        cJSON_AddNumberToObject(a2_obj, "rx_power_dbm", a2->rx_power_dbm);
+        cJSON_AddNumberToObject(a2_obj, "rx_power_mw", a2->rx_power_mw);
+        cJSON_AddNumberToObject(a2_obj, "rx_power_raw", a2->rx_power_raw);
+    }
+    
+    /* Alarms */
+    cJSON *alarms = cJSON_CreateObject();
+    cJSON *temp_alarms = cJSON_CreateObject();
+    cJSON_AddBoolToObject(temp_alarms, "high", a2->alarms.temp_alarm_high);
+    cJSON_AddBoolToObject(temp_alarms, "low", a2->alarms.temp_alarm_low);
+    cJSON_AddItemToObject(alarms, "temperature", temp_alarms);
+    
+    cJSON *voltage_alarms = cJSON_CreateObject();
+    cJSON_AddBoolToObject(voltage_alarms, "high", a2->alarms.voltage_alarm_high);
+    cJSON_AddBoolToObject(voltage_alarms, "low", a2->alarms.voltage_alarm_low);
+    cJSON_AddItemToObject(alarms, "voltage", voltage_alarms);
+    
+    cJSON *bias_alarms = cJSON_CreateObject();
+    cJSON_AddBoolToObject(bias_alarms, "high", a2->alarms.bias_alarm_high);
+    cJSON_AddBoolToObject(bias_alarms, "low", a2->alarms.bias_alarm_low);
+    cJSON_AddItemToObject(alarms, "bias_current", bias_alarms);
+    
+    cJSON *tx_power_alarms = cJSON_CreateObject();
+    cJSON_AddBoolToObject(tx_power_alarms, "high", a2->alarms.tx_power_alarm_high);
+    cJSON_AddBoolToObject(tx_power_alarms, "low", a2->alarms.tx_power_alarm_low);
+    cJSON_AddItemToObject(alarms, "tx_power", tx_power_alarms);
+    
+    cJSON *rx_power_alarms = cJSON_CreateObject();
+    cJSON_AddBoolToObject(rx_power_alarms, "high", a2->alarms.rx_power_alarm_high);
+    cJSON_AddBoolToObject(rx_power_alarms, "low", a2->alarms.rx_power_alarm_low);
+    cJSON_AddItemToObject(alarms, "rx_power", rx_power_alarms);
+    
+    /* Warnings */
+    cJSON *warnings = cJSON_CreateObject();
+    cJSON *temp_warnings = cJSON_CreateObject();
+    cJSON_AddBoolToObject(temp_warnings, "high", a2->alarms.temp_warning_high);
+    cJSON_AddBoolToObject(temp_warnings, "low", a2->alarms.temp_warning_low);
+    cJSON_AddItemToObject(warnings, "temperature", temp_warnings);
+    
+    cJSON *voltage_warnings = cJSON_CreateObject();
+    cJSON_AddBoolToObject(voltage_warnings, "high", a2->alarms.voltage_warning_high);
+    cJSON_AddBoolToObject(voltage_warnings, "low", a2->alarms.voltage_warning_low);
+    cJSON_AddItemToObject(warnings, "voltage", voltage_warnings);
+    
+    cJSON *bias_warnings = cJSON_CreateObject();
+    cJSON_AddBoolToObject(bias_warnings, "high", a2->alarms.bias_warning_high);
+    cJSON_AddBoolToObject(bias_warnings, "low", a2->alarms.bias_warning_low);
+    cJSON_AddItemToObject(warnings, "bias_current", bias_warnings);
+    
+    cJSON *tx_power_warnings = cJSON_CreateObject();
+    cJSON_AddBoolToObject(tx_power_warnings, "high", a2->alarms.tx_power_warning_high);
+    cJSON_AddBoolToObject(tx_power_warnings, "low", a2->alarms.tx_power_warning_low);
+    cJSON_AddItemToObject(warnings, "tx_power", tx_power_warnings);
+    
+    cJSON *rx_power_warnings = cJSON_CreateObject();
+    cJSON_AddBoolToObject(rx_power_warnings, "high", a2->alarms.rx_power_warning_high);
+    cJSON_AddBoolToObject(rx_power_warnings, "low", a2->alarms.rx_power_warning_low);
+    cJSON_AddItemToObject(warnings, "rx_power", rx_power_warnings);
+    
+    cJSON_AddItemToObject(a2_obj, "alarms", alarms);
+    cJSON_AddItemToObject(a2_obj, "warnings", warnings);
+}
+
+/* ============================================
  * Serializa Estado Completo
  * ============================================ */
 char *daemon_socket_serialize_current(const sfp_daemon_state_data_t *state)
@@ -313,7 +762,7 @@ char *daemon_socket_serialize_current(const sfp_daemon_state_data_t *state)
     if (state_copy.state == SFP_STATE_ABSENT) {
         cJSON_AddStringToObject(json, "status", "not_found");
         cJSON_AddStringToObject(json, "message", "SFP not detected on I²C bus");
-    } else if (state->state == SFP_STATE_ERROR) {
+    } else if (state_copy.state == SFP_STATE_ERROR) {
         cJSON_AddStringToObject(json, "status", "error");
         cJSON_AddStringToObject(json, "message", "I²C error or recovery in progress");
     } else {
@@ -333,12 +782,7 @@ char *daemon_socket_serialize_current(const sfp_daemon_state_data_t *state)
     if (state_copy.a0_valid) {
         a0_obj = cJSON_CreateObject();
         cJSON_AddBoolToObject(a0_obj, "valid", true);
-        cJSON_AddNumberToObject(a0_obj, "identifier", state_copy.a0_parsed.identifier);
-        cJSON_AddStringToObject(a0_obj, "vendor_name", state_copy.a0_parsed.vendor_name);
-        cJSON_AddStringToObject(a0_obj, "vendor_pn", state_copy.a0_parsed.vendor_pn);
-        if (state_copy.a0_parsed.variant == SFP_VARIANT_OPTICAL) {
-            cJSON_AddNumberToObject(a0_obj, "wavelength_nm", state_copy.a0_parsed.wavelength_nm);
-        }
+        serialize_a0h_complete(a0_obj, &state_copy.a0_parsed);
         cJSON_AddItemToObject(json, "a0", a0_obj);
     } else {
         a0_obj = cJSON_CreateObject();
@@ -350,18 +794,7 @@ char *daemon_socket_serialize_current(const sfp_daemon_state_data_t *state)
     if (state_copy.a2_valid) {
         a2_obj = cJSON_CreateObject();
         cJSON_AddBoolToObject(a2_obj, "valid", true);
-        cJSON_AddNumberToObject(a2_obj, "temperature_c", state_copy.a2_parsed.temperature_c);
-        cJSON_AddNumberToObject(a2_obj, "voltage_v", state_copy.a2_parsed.voltage_v);
-        cJSON_AddNumberToObject(a2_obj, "tx_power_dbm", state_copy.a2_parsed.tx_power_dbm);
-        cJSON_AddNumberToObject(a2_obj, "rx_power_dbm", state_copy.a2_parsed.rx_power_dbm);
-        
-        /* Alarms */
-        cJSON *alarms = cJSON_CreateObject();
-        cJSON_AddBoolToObject(alarms, "temp_alarm_high", state_copy.a2_parsed.alarms.temp_alarm_high);
-        cJSON_AddBoolToObject(alarms, "temp_alarm_low", state_copy.a2_parsed.alarms.temp_alarm_low);
-        cJSON_AddBoolToObject(alarms, "rx_power_alarm_low", state_copy.a2_parsed.alarms.rx_power_alarm_low);
-        cJSON_AddItemToObject(a2_obj, "alarms", alarms);
-        
+        serialize_a2h_complete(a2_obj, &state_copy.a2_parsed);
         cJSON_AddItemToObject(json, "a2", a2_obj);
     } else {
         a2_obj = cJSON_CreateObject();
@@ -397,12 +830,7 @@ char *daemon_socket_serialize_static(const sfp_daemon_state_data_t *state)
     if (state_copy.a0_valid) {
         a0_obj = cJSON_CreateObject();
         cJSON_AddBoolToObject(a0_obj, "valid", true);
-        cJSON_AddNumberToObject(a0_obj, "identifier", state_copy.a0_parsed.identifier);
-        cJSON_AddStringToObject(a0_obj, "vendor_name", state_copy.a0_parsed.vendor_name);
-        cJSON_AddStringToObject(a0_obj, "vendor_pn", state_copy.a0_parsed.vendor_pn);
-        if (state_copy.a0_parsed.variant == SFP_VARIANT_OPTICAL) {
-            cJSON_AddNumberToObject(a0_obj, "wavelength_nm", state_copy.a0_parsed.wavelength_nm);
-        }
+        serialize_a0h_complete(a0_obj, &state_copy.a0_parsed);
         cJSON_AddItemToObject(json, "a0", a0_obj);
     } else {
         a0_obj = cJSON_CreateObject();
@@ -437,18 +865,7 @@ char *daemon_socket_serialize_dynamic(const sfp_daemon_state_data_t *state)
     if (state_copy.a2_valid) {
         a2_obj = cJSON_CreateObject();
         cJSON_AddBoolToObject(a2_obj, "valid", true);
-        cJSON_AddNumberToObject(a2_obj, "temperature_c", state_copy.a2_parsed.temperature_c);
-        cJSON_AddNumberToObject(a2_obj, "voltage_v", state_copy.a2_parsed.voltage_v);
-        cJSON_AddNumberToObject(a2_obj, "tx_power_dbm", state_copy.a2_parsed.tx_power_dbm);
-        cJSON_AddNumberToObject(a2_obj, "rx_power_dbm", state_copy.a2_parsed.rx_power_dbm);
-        
-        /* Alarms */
-        cJSON *alarms = cJSON_CreateObject();
-        cJSON_AddBoolToObject(alarms, "temp_alarm_high", state_copy.a2_parsed.alarms.temp_alarm_high);
-        cJSON_AddBoolToObject(alarms, "temp_alarm_low", state_copy.a2_parsed.alarms.temp_alarm_low);
-        cJSON_AddBoolToObject(alarms, "rx_power_alarm_low", state_copy.a2_parsed.alarms.rx_power_alarm_low);
-        cJSON_AddItemToObject(a2_obj, "alarms", alarms);
-        
+        serialize_a2h_complete(a2_obj, &state_copy.a2_parsed);
         cJSON_AddItemToObject(json, "a2", a2_obj);
     } else {
         a2_obj = cJSON_CreateObject();
