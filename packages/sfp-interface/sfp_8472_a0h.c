@@ -1,6 +1,7 @@
 #include "sfp_8472_a0h.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 /* ============================================
  * Byte 0 — Identifier
@@ -125,7 +126,7 @@ const char *sfp_connector_to_string(sfp_connector_type_t connector)
 /* ============================================
  * Bytes 3-10 — Compliance Codes
  * ============================================ */
-void sfp_read_compliance(const uint8_t *a0_base_data, sfp_compliance_codes_t *cc)
+void sfp_parse_a0_base_compliance(const uint8_t *a0_base_data, sfp_compliance_codes_t *cc)
 {
     if (!a0_base_data || !cc)
         return;
@@ -266,7 +267,7 @@ static void decode_byte10(const sfp_compliance_codes_t *cc, sfp_compliance_decod
 /* ============================================
  * Função principal para decodificação de todos os bytes
  * ============================================ */
-void sfp_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out)
+void sfp_a0_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_decoded_t *out)
 {
     if (!cc || !out)
         return;
@@ -285,16 +286,15 @@ void sfp_decode_compliance(const sfp_compliance_codes_t *cc, sfp_compliance_deco
 /* ============================================
  * Função de Exposição
  * ============================================ */
-void sfp_print_compliance(const sfp_compliance_decoded_t *c)
+void sfp_a0_print_compliance(const sfp_compliance_decoded_t *c)
 {
     if (!c) return;
-
-    printf("\n=== Transceiver Compliance Codes (Bytes 3–10) ===\n");
 
     /* ==============================
      * Byte 3 — Ethernet / InfiniBand
      * ============================== */
     printf("\n[Byte 3] Ethernet / InfiniBand:\n");
+
     if (c->eth_10g_base_er)  printf("  - 10GBASE-ER\n");
     if (c->eth_10g_base_lrm) printf("  - 10GBASE-LRM\n");
     if (c->eth_10g_base_lr)  printf("  - 10GBASE-LR\n");
@@ -309,6 +309,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 4 — ESCON / SONET
      * ====================== */
     printf("\n[Byte 4] ESCON / SONET:\n");
+
     if (c->escon_mmf)   printf("  - ESCON MMF\n");
     if (c->escon_smf)   printf("  - ESCON SMF\n");
     if (c->oc_192_sr)   printf("  - OC-192 SR\n");
@@ -322,6 +323,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 5 — SONET
      * ====================== */
     printf("\n[Byte 5] SONET:\n");
+
     if (c->oc_12_sm_lr) printf("  - OC-12 SM LR\n");
     if (c->oc_12_sm_ir) printf("  - OC-12 SM IR\n");
     if (c->oc_12_sr)    printf("  - OC-12 SR\n");
@@ -333,6 +335,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 6 — Ethernet
      * ====================== */
     printf("\n[Byte 6] Ethernet:\n");
+
     if (c->eth_base_px)      printf("  - BASE-PX\n");
     if (c->eth_base_bx_10)   printf("  - BASE-BX10\n");
     if (c->eth_100_base_fx)  printf("  - 100BASE-FX\n");
@@ -346,6 +349,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 7 — FC Link Length & Technology
      * ==================================== */
     printf("\n[Byte 7] Fibre Channel — Link Length / Technology:\n");
+
     if (c->fc_very_long_distance)      printf("  - Very Long Distance\n");
     if (c->fc_short_distance)          printf("  - Short Distance\n");
     if (c->fc_intermediate_distance)   printf("  - Intermediate Distance\n");
@@ -359,6 +363,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 8 — FC & SFP+ Cable Technology
      * ============================================== */
     printf("\n[Byte 8] Fibre Channel / Cable Technology:\n");
+
     if (c->electrical_intra_enclosure) printf("  - Electrical Intra-Enclosure\n");
     if (c->shortwave_laser_sn)         printf("  - Shortwave Laser (SN)\n");
     if (c->shortwave_laser_sl)         printf("  - Shortwave Laser (SL)\n");
@@ -370,6 +375,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 9 — FC Transmission Media
      * ============================== */
     printf("\n[Byte 9] Fibre Channel — Transmission Media:\n");
+
     if (c->twin_axial_pair) printf("  - Twin Axial Pair\n");
     if (c->twisted_pair)    printf("  - Twisted Pair\n");
     if (c->miniature_coax)  printf("  - Miniature Coax\n");
@@ -382,6 +388,7 @@ void sfp_print_compliance(const sfp_compliance_decoded_t *c)
      * Byte 10 — FC Channel Speed
      * ============================== */
     printf("\n[Byte 10] Fibre Channel — Speed:\n");
+
     if (c->cs_1200_mbps) printf("  - 1200 Mbps\n");
     if (c->cs_800_mbps)  printf("  - 800 Mbps\n");
     if (c->cs_1600_mbps) printf("  - 1600 Mbps\n");
@@ -458,6 +465,66 @@ void sfp_print_encoding(sfp_encoding_codes_t encoding)
             printf("  - Reserved / Unknown Code (0x%02X)\n", (uint8_t)encoding);
             break;
     }
+}
+
+/* ============================================
+ * Byte 12 — Signaling Rate, Nominal
+ * ============================================ */
+void sfp_parse_a0_base_nominal_rate(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0)
+        return;
+
+    /* Byte 12 — Signaling Rate, Nominal (somente leitura crua do bloco base) */
+    uint8_t raw = a0_base_data[SFP_A0_BYTE_NOMINAL_RATE];
+    if (raw == SFP_NOMINAL_RATE_RAW_UNSPECIFIED) {
+        a0->nominal_rate_status = SFP_NOMINAL_RATE_NOT_SPECIFIED;
+        a0->nominal_rate = 0;
+    } else if (raw == SFP_NOMINAL_RATE_RAW_EXTENDED) {
+        a0->nominal_rate_status = SFP_NOMINAL_RATE_EXTENDED;
+        a0->nominal_rate = 25400;
+    } else {
+        a0->nominal_rate_status = SFP_NOMINAL_RATE_VALID;
+        a0->nominal_rate = (uint32_t)raw * 100;
+    }
+}
+
+/* ============================================
+ * Método Getter
+ * ============================================ */
+uint8_t sfp_a0_get_nominal_rate_mbd(const sfp_a0h_base_t *a0, sfp_nominal_rate_status_t *status)
+{
+    if (!a0) {
+        if (status)
+            *status = SFP_NOMINAL_RATE_NOT_SPECIFIED;
+        return 0;
+    }
+
+    if (status)
+        *status = a0->nominal_rate_status;
+    return a0->nominal_rate;
+}
+
+/* ============================================
+ * Byte 13 — Rate Identifier
+ * ============================================ */
+void sfp_parse_a0_base_rate_identifier(const uint8_t *a0_base_date, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_date || !a0)
+        return;
+
+    a0->rate_identifier = (sfp_rate_select) a0_base_date[13];
+}
+
+/* ============================================
+ * Método Getter
+ * ============================================ */
+sfp_rate_select sfp_a0_get_rate_identifier(const sfp_a0h_base_t *a0)
+{
+    if (!a0)
+        return 0;
+
+    return a0->rate_identifier;
 }
 
 /* =========================================================
@@ -729,6 +796,80 @@ uint16_t sfp_a0_get_om4_copper_or_length_m(const sfp_a0h_base_t *a0, sfp_om4_len
     return a0->om4_or_copper_length_m;
 }
 
+
+/* ============================================
+ * Bytes 20-35 — Vendor Name
+ * ============================================ */
+
+/* ASCII imprimível padrão (inclui espaço) */
+static bool sfp_is_printable_ascii(uint8_t c)
+{
+    return (c >= 0x20u) && (c <= 0x7Eu);
+}
+
+static bool sfp_a0_vendor_name_is_valid(const sfp_a0h_base_t *a0)
+{
+    if (!a0)
+        return false;
+
+    bool found_padding = false;
+    bool has_content = false;
+
+    /* Todos os bytes devem ser ASCII imprimível */
+    for (size_t i = 0; i < SFP_A0_LEN_VENDOR_NAME; i++) {
+        uint8_t c = (uint8_t)a0->vendor_name[i];
+        if (!sfp_is_printable_ascii(c))
+            return false;
+
+        if (c == 0x20u) {
+            found_padding = true;
+            continue;
+        }
+
+        if (found_padding)
+            return false;
+
+        has_content = true;
+    }
+
+    /* Não pode ser vazio (todos espaços) */
+    return has_content;
+}
+
+void sfp_parse_a0_base_vendor_name(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0)
+        return;
+
+    /* Vendor Name (16 bytes) - ASCII, alinhado a esquerda, padding com 0x20 */
+    memcpy(a0->vendor_name, &a0_base_data[SFP_A0_BYTE_VENDOR_NAME], SFP_A0_LEN_VENDOR_NAME);
+    a0->is_valid_vendor_name = sfp_a0_vendor_name_is_valid(a0);
+}
+
+/* ============================================
+ * Método Getter
+ * ============================================ */
+bool sfp_a0_get_vendor_name(const sfp_a0h_base_t *a0, char *vendor_name)
+{
+    if (!vendor_name)
+        return false;
+
+    vendor_name[0] = '\0';
+
+    if (!a0 || !a0->is_valid_vendor_name)
+        return false;
+
+    size_t len = SFP_A0_LEN_VENDOR_NAME;
+
+    while (len > 0 && a0->vendor_name[len - 1] == ' ')
+        len--;
+
+    memcpy(vendor_name, a0->vendor_name, len);
+    vendor_name[len] = '\0';
+
+    return true;
+}
+
 /* ============================================
  * Byte 36 — Extended Compliance Codes (SFF-8024 Table 4-4)
  * ============================================ */
@@ -793,6 +934,86 @@ uint32_t sfp_vendor_oui_to_u32(const sfp_a0h_base_t *a0)
     return ((uint32_t)a0->vendor_oui[0] << 16) |
            ((uint32_t)a0->vendor_oui[1] << 8)  |
            ((uint32_t)a0->vendor_oui[2]);
+}
+
+/* ============================================
+ * Byte 40-55 — Vendor PN (Part Number)
+ * ============================================ */
+void sfp_parse_a0_base_vendor_pn(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0)
+        return;
+
+    memcpy (a0->vendor_pn, &a0_base_data[40], 16);
+}
+
+bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char **vendor_pn)
+{
+    if (!a0 || !vendor_pn) {
+        return false;
+    }
+
+    *vendor_pn = a0->vendor_pn;
+    return true;
+}
+
+static sfp_variant_t sfp_detect_variant(uint8_t byte8)
+{
+    bool passive = (byte8 & (1 << 2)) != 0;
+    bool active  = (byte8 & (1 << 3)) != 0;
+
+    if (active)  return SFP_VARIANT_ACTIVE_CABLE;
+    if (passive) return SFP_VARIANT_PASSIVE_CABLE;
+    return SFP_VARIANT_OPTICAL;
+}
+
+void sfp_parse_a0_base_media(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0)
+        return;
+
+    uint8_t byte8  = a0_base_data[8];
+    uint8_t byte60 = a0_base_data[60];
+    uint8_t byte61 = a0_base_data[61];
+
+    a0->variant = sfp_detect_variant(byte8);
+
+    if (a0->variant == SFP_VARIANT_OPTICAL) {
+        a0->wavelength_nm = ((uint16_t)byte60 << 8) | byte61;
+    } else if (a0->variant == SFP_VARIANT_PASSIVE_CABLE || a0->variant == SFP_VARIANT_ACTIVE_CABLE) {
+       a0->cable_compliance = byte60;
+   }
+
+}
+
+sfp_variant_t sfp_a0_get_variant(const sfp_a0h_base_t *a0)
+{
+    if (!a0) return SFP_VARIANT_UNKNOWN;
+    return a0->variant;
+}
+
+bool sfp_a0_get_wavelength_nm(const sfp_a0h_base_t *a0, uint16_t *nm)
+{
+    if (!a0 || !nm)
+        return false;
+
+    if (a0->variant != SFP_VARIANT_OPTICAL)
+        return false;
+
+    *nm = a0->wavelength_nm;
+    return true;
+}
+
+bool sfp_a0_get_cable_compliance(const sfp_a0h_base_t *a0, uint8_t *bits)
+{
+    if (!a0 || !bits)
+        return false;
+
+    if (a0->variant != SFP_VARIANT_PASSIVE_CABLE && a0->variant != SFP_VARIANT_ACTIVE_CABLE)
+        return false;
+
+    *bits = a0->cable_compliance;
+    return true;
 }
 
 /* ============================================
