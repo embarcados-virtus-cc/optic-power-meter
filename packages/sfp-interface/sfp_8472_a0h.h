@@ -258,6 +258,14 @@ typedef enum {
     EXT_SPEC_COMPLIANCE_VENDOR_SPECIFIC                                              = 0xFF
 } sfp_extended_spec_compliance_code_t;
 
+// Variantes de módulo SFP/SFP+
+typedef enum {
+    SFP_VARIANT_OPTICAL = 0,       // bits 2 e 3 do Byte 8 = 0
+    SFP_VARIANT_PASSIVE_CABLE,     // bit 2 = 1
+    SFP_VARIANT_ACTIVE_CABLE,      // bit 3 = 1
+    SFP_VARIANT_UNKNOWN
+} sfp_variant_t;
+
 /* Bytes 3-10: Transceiver Compliance Codes */
 typedef struct {
     uint8_t byte3;
@@ -363,6 +371,81 @@ typedef struct {
     bool cs_100_mbps;
 } sfp_compliance_decoded_t;
 
+/*=================================================================
+ * Byte 13: Rate Identifier
+ =================================================================
+
+ * Enumeração para os valores do byte 13 do endereço A0h (Rate Select)
+ * Referência: SFF-8472 (Diagnostic Monitoring Interface for Optical Transceivers)
+ =================================================================*/
+typedef enum {
+    // 0x00: Não especificado
+    RS_UNSPECIFIED_00 = 0x00,
+
+    // 0x01: SFF-8079 (4/2/1G Rate_Select & AS0/AS1)
+    RS_SFF_8079 = 0x01,
+
+    // 0x02: SFF-8431 (8/4/2G Rx Rate_Select only)
+    RS_SFF_8431_RX_ONLY = 0x02,
+
+    // 0x03: Não especificado
+    RS_UNSPECIFIED_03 = 0x03,
+
+    // 0x04: SFF-8431 (8/4/2G Tx Rate_Select only)
+    RS_SFF_8431_TX_ONLY = 0x04,
+
+    // 0x05: Não especificado
+    RS_UNSPECIFIED_05 = 0x05,
+
+    // 0x06: SFF-8431 (8/4/2G Independent Rx & Tx Rate_select)
+    RS_SFF_8431_INDEPENDENT_RX_TX = 0x06,
+
+    // 0x07: Não especificado
+    RS_UNSPECIFIED_07 = 0x07,
+
+    // 0x08: FC-PI-5 (16/8/4G Rx Rate_select only) High=16G only, Low=8G/4G
+    RS_FC_PI_5_RX_ONLY = 0x08,
+
+    // 0x09: Não especificado
+    RS_UNSPECIFIED_09 = 0x09,
+
+    // 0x0A: FC-PI-5 (16/8/4G Independent Rx, Tx Rate_select) High=16G only, Low=8G/4G
+    RS_FC_PI_5_INDEPENDENT_RX_TX = 0x0A,
+
+    // 0x0B: Não especificado
+    RS_UNSPECIFIED_0B = 0x0B,
+
+    // 0x0C: FC-PI-6 (32/16/8G Independent Rx, Tx Rate_select) High=32G only, Low=16G/8G
+    RS_FC_PI_6_INDEPENDENT_RX_TX = 0x0C,
+
+    // 0x0D: Não especificado
+    RS_UNSPECIFIED_0D = 0x0D,
+
+    // 0x0E: 10/8G Rx and Tx Rate_Select controlando operação ou modos de bloqueio
+    RS_10G_8G_RX_TX_RATE_SELECT = 0x0E,
+
+    // 0x0F: Não especificado
+    RS_UNSPECIFIED_0F = 0x0F,
+
+    // 0x10: FC-PI-7 (64/32/16G Independent Rx, Tx Rate Select) High=32GFC e 64GFC, Low=16GFC
+    RS_FC_PI_7_INDEPENDENT_RX_TX = 0x10,
+
+    // 0x11: Não especificado
+    RS_UNSPECIFIED_11 = 0x11,
+
+    // 0x12-0x1F: Reservados
+    RS_RESERVED_START = 0x12,
+    RS_RESERVED_END   = 0x1F,
+
+    // 0x20: Rate select baseado em PMDs definidos por A0h, byte 36 e A2h, byte 67
+    RS_PMD_BASED = 0x20,
+
+    // 0x21-0xFF: Reservados
+    RS_EXTENDED_RESERVED_START = 0x21,
+    RS_EXTENDED_RESERVED_END   = 0xFF
+
+} sfp_rate_select;
+
 /**********************************************
  * A0h Memory Map (128 bytes) - Base ID Fields
  **********************************************/
@@ -385,9 +468,10 @@ typedef struct {
 
     /* Byte 12: Signaling Rate, Nominal */
     uint8_t nominal_rate;
+    sfp_nominal_rate_status_t nominal_rate_status;         // Units of 100 MBd
 
     /* Byte 13: Rate Identifier */
-    uint8_t rate_identifier;
+    sfp_rate_select rate_select;
 
     /* Byte 14: SMF Length or Copper Attenuation */
     uint16_t smf_length_m;
@@ -416,19 +500,15 @@ typedef struct {
     uint8_t vendor_oui[3];
 
     /* Bytes 40-55: Vendor Part Number (ASCII) */
-    char vendor_pn[17];
+    char vendor_pn[16];
 
     /* Bytes 56-59: Vendor Revision (ASCII) */
-    char vendor_rev[5];
+    char vendor_rev[4];
 
-    /* Bytes 60-61: Wavelength or Cable Compliance */
-    union {
-        uint16_t wavelength;
-        struct {
-            uint8_t passive_bits;
-            uint8_t active_bits;
-        } cable_compliance;
-    } media_info;
+    /* Bytes 60-61: Wavelength ou Cable Compliance (depende do Byte 8) */
+    sfp_variant_t variant;
+    uint8_t media_byte60_raw;
+    uint8_t media_byte61_raw;
 
     /* Byte 62: Fibre Channel Speed 2 */
     uint8_t fc_speed2;
@@ -468,6 +548,14 @@ void sfp_parse_a0_base_encoding(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 sfp_encoding_codes_t sfp_a0_get_encoding(const sfp_a0h_base_t *a0);
 void sfp_print_encoding(sfp_encoding_codes_t encoding);
 
+/* Byte 12: Signaling Rate, Nominal */
+void sfp_parse_a0_base_nominal_rate(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
+uint8_t sfp_a0_get_nominal_rate_mbd(const sfp_a0h_base_t *a0, sfp_nominal_rate_status_t *status);
+
+/*Byte 13: Rate Identifier*/
+void sfp_parse_a0_base_rate_identifier(const uint8_t *a0_base_date, sfp_a0h_base_t *a0);
+sfp_rate_select sfp_a0_get_rate_identifier(const sfp_a0h_base_t *a0);
+
 /* Byte 14 SMF Length or Copper Attenuation */
 void sfp_parse_a0_base_smf(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 uint16_t sfp_a0_get_smf_length_m(const sfp_a0h_base_t *a0, sfp_smf_length_status_t *status);
@@ -496,6 +584,18 @@ sfp_extended_spec_compliance_code_t sfp_a0_get_ext_compliance(const sfp_a0h_base
 void sfp_parse_a0_base_vendor_oui(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 bool sfp_a0_get_vendor_oui(const sfp_a0h_base_t *a0, uint8_t oui_buffer[3]);
 uint32_t sfp_vendor_oui_to_u32(const sfp_a0h_base_t *a0);
+
+/*Byte 40-55 Vendor PN (Part Number)*/
+void sfp_parse_a0_base_vendor_pn(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
+bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char *vendor_pn);
+
+/* Bytes 60-61 — Wavelength (optical) OU Cable Compliance (active/passive) */
+void sfp_parse_a0_base_media(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
+sfp_variant_t sfp_a0_get_variant(const sfp_a0h_base_t *a0);
+/* Se OPTICAL: retorna wavelength em nm (valid=true); senão valid=false */
+uint16_t sfp_a0_get_wavelength_nm(const sfp_a0h_base_t *a0, bool *valid);
+/* Se CABLE: retorna bytes brutos 60-61 (valid=true); senão valid=false */
+void sfp_a0_get_cable_compliance(const sfp_a0h_base_t *a0, uint8_t *byte60, uint8_t *byte61, bool *valid);
 
 /* Byte 62 — Fibre Channel Speed 2 */
 void sfp_parse_a0_fc_speed_2(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);

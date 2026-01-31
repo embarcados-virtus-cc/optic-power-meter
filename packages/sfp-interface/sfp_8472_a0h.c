@@ -467,6 +467,67 @@ void sfp_print_encoding(sfp_encoding_codes_t encoding)
     }
 }
 
+/* ============================================
+ * Byte 12 — Signaling Rate, Nominal
+ * ============================================ */
+void sfp_parse_a0_base_nominal_rate(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0)
+        return;
+
+    /* Byte 12 — Signaling Rate, Nominal (somente leitura crua do bloco base) */
+    uint8_t raw = a0_base_data[SFP_A0_BYTE_NOMINAL_RATE];
+    /*a0->nominal_rate = raw;*/
+    if (raw == SFP_NOMINAL_RATE_RAW_UNSPECIFIED) {
+        a0->nominal_rate_status = SFP_NOMINAL_RATE_NOT_SPECIFIED;
+        a0->nominal_rate_mbd    = 0;
+    } else if (raw == SFP_NOMINAL_RATE_RAW_EXTENDED) {
+        a0->nominal_rate_status = SFP_NOMINAL_RATE_EXTENDED;
+        a0->nominal_rate_mbd    = 25400;
+    } else {
+        a0->nominal_rate_status = SFP_NOMINAL_RATE_VALID;
+        a0->nominal_rate_mbd    = (uint32_t)raw * 100;
+    }
+}
+
+/* ============================================
+ * Método Getter
+ * ============================================ */
+uint8_t sfp_a0_get_nominal_rate_mbd(const sfp_a0h_base_t *a0, sfp_nominal_rate_status_t *status)
+{
+    if (!a0) {
+        if (status)
+            *status = SFP_NOMINAL_RATE_NOT_SPECIFIED;
+        return 0;
+    }
+
+    if (status)
+        *status = a0->nominal_rate_status;
+    return a0->nominal_rate;
+}
+
+/* ============================================
+ * Byte 13 — Rate Identifier
+ * ============================================ */
+void sfp_parse_a0_base_rate_identifier(const uint8_t *a0_base_date, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_date || !a0)
+        return;
+
+    a0->rate_identifier = (sfp_rate_select) a0_base_date[13];
+}
+
+/* ============================================
+ * Método Getter
+ * ============================================ */
+sfp_rate_select sfp_a0_get_rate_identifier(const sfp_a0h_base_t *a0)
+{
+    if (!a0)
+        return 0;
+
+    return a0->rate_identifier;
+}
+
 /* =========================================================
  * Byte 14 — Length (SMF) or Attenuation (Copper)
  *
@@ -875,6 +936,107 @@ uint32_t sfp_vendor_oui_to_u32(const sfp_a0h_base_t *a0)
            ((uint32_t)a0->vendor_oui[1] << 8)  |
            ((uint32_t)a0->vendor_oui[2]);
 }
+
+/* ============================================
+ * Byte 40-55 — Vendor PN (Part Number)
+ * ============================================ */
+void sfp_parse_a0_base_vendor_pn(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0)
+        return;
+
+    mencpy (a0->vendor_pn, &a0_base_data[40], 16);
+
+}
+
+bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char *vendor_pn)
+{
+    if (!a0){
+        if (vendor_pn)
+            *vendor_pn = NULL;
+        return false;
+    }
+
+    if (vendor_pn){
+        *vendor_pn = a0->vendor_pn;
+    }
+}
+
+
+static sfp_variant_t sfp_detect_variant(uint8_t byte8)
+{
+    bool passive = (byte8 & (1u << 2)) != 0; // bit 2
+    bool active  = (byte8 & (1u << 3)) != 0; // bit 3
+
+    // prioridade: ativo > passivo > óptico
+    if (active)  return SFP_VARIANT_ACTIVE_CABLE;
+    if (passive) return SFP_VARIANT_PASSIVE_CABLE;
+    return SFP_VARIANT_OPTICAL;
+}
+
+void sfp_parse_a0_base_media(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0) return;
+
+    uint8_t byte8 = a0_base_data[8];
+    uint8_t b60   = a0_base_data[60];
+    uint8_t b61   = a0_base_data[61];
+
+    a0->variant = sfp_detect_variant(byte8);
+
+    a0->media_byte60_raw = b60;
+    a0->media_byte61_raw = b61;
+
+    if (a0->variant == SFP_VARIANT_OPTICAL) {
+        a0->media_info.wavelength = ((uint16_t)b60 << 8) | b61; // Big Endian
+    } else if (a0->variant == SFP_VARIANT_PASSIVE_CABLE || a0->variant == SFP_VARIANT_ACTIVE_CABLE) {
+        // Guardar os bytes na área de cabo (mesmo que o significado seja flags)
+        a0->media_info.cable_compliance.passive_bits = b60; // byte 60 (flags)
+        a0->media_info.cable_compliance.active_bits  = b61; // byte 61 (flags/extra)
+    } else {
+        // unknown: não assume nada
+    }
+}
+
+sfp_variant_t sfp_a0_get_variant(const sfp_a0h_base_t *a0)
+{
+    if (!a0) return SFP_VARIANT_UNKNOWN;
+    return a0->variant;
+}
+
+uint16_t sfp_a0_get_wavelength_nm(const sfp_a0h_base_t *a0, bool *valid)
+{
+    if (!a0) {
+        if (valid) *valid = false;
+        return 0;
+    }
+
+    if (a0->variant != SFP_VARIANT_OPTICAL) {
+        if (valid) *valid = false;
+        return 0;
+    }
+
+    if (valid) *valid = true;
+    return a0->media_info.wavelength;
+}
+
+void sfp_a0_get_cable_compliance(const sfp_a0h_base_t *a0, uint8_t *byte60, uint8_t *byte61, bool *valid)
+{
+    if (!a0) {
+        if (valid) *valid = false;
+        return;
+    }
+
+    if (a0->variant != SFP_VARIANT_PASSIVE_CABLE && a0->variant != SFP_VARIANT_ACTIVE_CABLE) {
+        if (valid) *valid = false;
+        return;
+    }
+
+    if (byte60) *byte60 = a0->media_byte60_raw;
+    if (byte61) *byte61 = a0->media_byte61_raw;
+    if (valid) *valid = true;
+}
+
 
 /* ============================================
  * Byte 62 — Fibre Channel Speed 2
