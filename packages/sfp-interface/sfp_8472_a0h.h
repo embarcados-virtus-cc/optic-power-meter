@@ -467,11 +467,11 @@ typedef struct {
     sfp_encoding_codes_t encoding;
 
     /* Byte 12: Signaling Rate, Nominal */
-    uint8_t nominal_rate;
+    uint16_t nominal_rate;
     sfp_nominal_rate_status_t nominal_rate_status;         // Units of 100 MBd
 
     /* Byte 13: Rate Identifier */
-    sfp_rate_select rate_select;
+    sfp_rate_select rate_identifier;
 
     /* Byte 14: SMF Length or Copper Attenuation */
     uint16_t smf_length_m;
@@ -505,10 +505,12 @@ typedef struct {
     /* Bytes 56-59: Vendor Revision (ASCII) */
     char vendor_rev[4];
 
-    /* Bytes 60-61: Wavelength ou Cable Compliance (depende do Byte 8) */
+    /* Bytes 60–61: Wavelength OR Cable Compliance (Byte 8 decides) */
+    union {
+        uint16_t wavelength_nm;   // Optical
+        uint8_t  cable_compliance; // Cable
+    };
     sfp_variant_t variant;
-    uint8_t media_byte60_raw;
-    uint8_t media_byte61_raw;
 
     /* Byte 62: Fibre Channel Speed 2 */
     uint8_t fc_speed2;
@@ -587,15 +589,15 @@ uint32_t sfp_vendor_oui_to_u32(const sfp_a0h_base_t *a0);
 
 /*Byte 40-55 Vendor PN (Part Number)*/
 void sfp_parse_a0_base_vendor_pn(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
-bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char *vendor_pn);
+bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char **vendor_pn);
 
 /* Bytes 60-61 — Wavelength (optical) OU Cable Compliance (active/passive) */
 void sfp_parse_a0_base_media(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 sfp_variant_t sfp_a0_get_variant(const sfp_a0h_base_t *a0);
 /* Se OPTICAL: retorna wavelength em nm (valid=true); senão valid=false */
-uint16_t sfp_a0_get_wavelength_nm(const sfp_a0h_base_t *a0, bool *valid);
+bool sfp_a0_get_wavelength_nm(const sfp_a0h_base_t *a0, uint16_t *nm);
 /* Se CABLE: retorna bytes brutos 60-61 (valid=true); senão valid=false */
-void sfp_a0_get_cable_compliance(const sfp_a0h_base_t *a0, uint8_t *byte60, uint8_t *byte61, bool *valid);
+bool sfp_a0_get_cable_compliance(const sfp_a0h_base_t *a0, uint8_t *bits);
 
 /* Byte 62 — Fibre Channel Speed 2 */
 void sfp_parse_a0_fc_speed_2(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);

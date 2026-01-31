@@ -477,16 +477,15 @@ void sfp_parse_a0_base_nominal_rate(const uint8_t *a0_base_data, sfp_a0h_base_t 
 
     /* Byte 12 — Signaling Rate, Nominal (somente leitura crua do bloco base) */
     uint8_t raw = a0_base_data[SFP_A0_BYTE_NOMINAL_RATE];
-    /*a0->nominal_rate = raw;*/
     if (raw == SFP_NOMINAL_RATE_RAW_UNSPECIFIED) {
         a0->nominal_rate_status = SFP_NOMINAL_RATE_NOT_SPECIFIED;
-        a0->nominal_rate_mbd    = 0;
+        a0->nominal_rate = 0;
     } else if (raw == SFP_NOMINAL_RATE_RAW_EXTENDED) {
         a0->nominal_rate_status = SFP_NOMINAL_RATE_EXTENDED;
-        a0->nominal_rate_mbd    = 25400;
+        a0->nominal_rate = 25400;
     } else {
         a0->nominal_rate_status = SFP_NOMINAL_RATE_VALID;
-        a0->nominal_rate_mbd    = (uint32_t)raw * 100;
+        a0->nominal_rate = (uint32_t)raw * 100;
     }
 }
 
@@ -945,30 +944,24 @@ void sfp_parse_a0_base_vendor_pn(const uint8_t *a0_base_data, sfp_a0h_base_t *a0
     if (!a0_base_data || !a0)
         return;
 
-    mencpy (a0->vendor_pn, &a0_base_data[40], 16);
-
+    memcpy (a0->vendor_pn, &a0_base_data[40], 16);
 }
 
-bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char *vendor_pn)
+bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char **vendor_pn)
 {
-    if (!a0){
-        if (vendor_pn)
-            *vendor_pn = NULL;
+    if (!a0 || !vendor_pn) {
         return false;
     }
 
-    if (vendor_pn){
-        *vendor_pn = a0->vendor_pn;
-    }
+    *vendor_pn = a0->vendor_pn;
+    return true;
 }
-
 
 static sfp_variant_t sfp_detect_variant(uint8_t byte8)
 {
-    bool passive = (byte8 & (1u << 2)) != 0; // bit 2
-    bool active  = (byte8 & (1u << 3)) != 0; // bit 3
+    bool passive = (byte8 & (1 << 2)) != 0;
+    bool active  = (byte8 & (1 << 3)) != 0;
 
-    // prioridade: ativo > passivo > óptico
     if (active)  return SFP_VARIANT_ACTIVE_CABLE;
     if (passive) return SFP_VARIANT_PASSIVE_CABLE;
     return SFP_VARIANT_OPTICAL;
@@ -976,26 +969,21 @@ static sfp_variant_t sfp_detect_variant(uint8_t byte8)
 
 void sfp_parse_a0_base_media(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 {
-    if (!a0_base_data || !a0) return;
+    if (!a0_base_data || !a0)
+        return;
 
-    uint8_t byte8 = a0_base_data[8];
-    uint8_t b60   = a0_base_data[60];
-    uint8_t b61   = a0_base_data[61];
+    uint8_t byte8  = a0_base_data[8];
+    uint8_t byte60 = a0_base_data[60];
+    uint8_t byte61 = a0_base_data[61];
 
     a0->variant = sfp_detect_variant(byte8);
 
-    a0->media_byte60_raw = b60;
-    a0->media_byte61_raw = b61;
-
     if (a0->variant == SFP_VARIANT_OPTICAL) {
-        a0->media_info.wavelength = ((uint16_t)b60 << 8) | b61; // Big Endian
+        a0->wavelength_nm = ((uint16_t)byte60 << 8) | byte61;
     } else if (a0->variant == SFP_VARIANT_PASSIVE_CABLE || a0->variant == SFP_VARIANT_ACTIVE_CABLE) {
-        // Guardar os bytes na área de cabo (mesmo que o significado seja flags)
-        a0->media_info.cable_compliance.passive_bits = b60; // byte 60 (flags)
-        a0->media_info.cable_compliance.active_bits  = b61; // byte 61 (flags/extra)
-    } else {
-        // unknown: não assume nada
-    }
+       a0->cable_compliance = byte60;
+   }
+
 }
 
 sfp_variant_t sfp_a0_get_variant(const sfp_a0h_base_t *a0)
@@ -1004,39 +992,29 @@ sfp_variant_t sfp_a0_get_variant(const sfp_a0h_base_t *a0)
     return a0->variant;
 }
 
-uint16_t sfp_a0_get_wavelength_nm(const sfp_a0h_base_t *a0, bool *valid)
+bool sfp_a0_get_wavelength_nm(const sfp_a0h_base_t *a0, uint16_t *nm)
 {
-    if (!a0) {
-        if (valid) *valid = false;
-        return 0;
-    }
+    if (!a0 || !nm)
+        return false;
 
-    if (a0->variant != SFP_VARIANT_OPTICAL) {
-        if (valid) *valid = false;
-        return 0;
-    }
+    if (a0->variant != SFP_VARIANT_OPTICAL)
+        return false;
 
-    if (valid) *valid = true;
-    return a0->media_info.wavelength;
+    *nm = a0->wavelength_nm;
+    return true;
 }
 
-void sfp_a0_get_cable_compliance(const sfp_a0h_base_t *a0, uint8_t *byte60, uint8_t *byte61, bool *valid)
+bool sfp_a0_get_cable_compliance(const sfp_a0h_base_t *a0, uint8_t *bits)
 {
-    if (!a0) {
-        if (valid) *valid = false;
-        return;
-    }
+    if (!a0 || !bits)
+        return false;
 
-    if (a0->variant != SFP_VARIANT_PASSIVE_CABLE && a0->variant != SFP_VARIANT_ACTIVE_CABLE) {
-        if (valid) *valid = false;
-        return;
-    }
+    if (a0->variant != SFP_VARIANT_PASSIVE_CABLE && a0->variant != SFP_VARIANT_ACTIVE_CABLE)
+        return false;
 
-    if (byte60) *byte60 = a0->media_byte60_raw;
-    if (byte61) *byte61 = a0->media_byte61_raw;
-    if (valid) *valid = true;
+    *bits = a0->cable_compliance;
+    return true;
 }
-
 
 /* ============================================
  * Byte 62 — Fibre Channel Speed 2
