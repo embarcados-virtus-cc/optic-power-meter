@@ -594,9 +594,7 @@ bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char **vendor_pn);
 /* Bytes 60-61 — Wavelength (optical) OU Cable Compliance (active/passive) */
 void sfp_parse_a0_base_media(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 sfp_variant_t sfp_a0_get_variant(const sfp_a0h_base_t *a0);
-/* Se OPTICAL: retorna wavelength em nm (valid=true); senão valid=false */
 bool sfp_a0_get_wavelength_nm(const sfp_a0h_base_t *a0, uint16_t *nm);
-/* Se CABLE: retorna bytes brutos 60-61 (valid=true); senão valid=false */
 bool sfp_a0_get_cable_compliance(const sfp_a0h_base_t *a0, uint8_t *bits);
 
 /* Byte 62 — Fibre Channel Speed 2 */
