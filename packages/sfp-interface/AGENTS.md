@@ -15,6 +15,7 @@ O projeto está organizado em duas partes principais:
    - `daemon/`: Diretório com toda a lógica do daemon
    - Expõe dados via UNIX socket em `/run/sfp-daemon/sfp.sock`
    - Protocolo simples: comandos textuais com respostas JSON
+   - Consumido pela API Python (`packages/api`) que expõe endpoints HTTP REST
 
 ## Declaração de Funções
 
