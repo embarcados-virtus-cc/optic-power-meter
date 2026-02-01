@@ -3,12 +3,8 @@
  * @brief Entry point do daemon SFP
  */
 
-#include "daemon_config.h"
-#include "daemon_state.h"
-#include "daemon_fsm.h"
-#include "daemon_i2c.h"
-#include "daemon_socket.h"
-#include "../sfp_init.h"
+#define _DEFAULT_SOURCE
+#define _BSD_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +13,23 @@
 #include <syslog.h>
 #include <time.h>
 #include <sys/time.h>
+#include <errno.h>
+
+#include "daemon_config.h"
+#include "daemon_state.h"
+#include "daemon_fsm.h"
+#include "daemon_i2c.h"
+#include "daemon_socket.h"
+#include "../sfp_init.h"
+
+/* ============================================
+ * Função Auxiliar: Sleep em Milissegundos
+ * ============================================ */
+static void msleep(uint32_t ms)
+{
+    /* Usa usleep que é mais comum e funciona bem no Raspberry Pi */
+    usleep(ms * 1000);
+}
 
 /* ============================================
  * Variáveis Globais
@@ -245,7 +258,7 @@ static void main_loop(void)
         }
         
         /* Sleep */
-        usleep(poll_delay_ms * 1000);
+        msleep(poll_delay_ms);
     }
 }
 

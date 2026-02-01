@@ -9,6 +9,8 @@
 #include "../sfp_8472_a0h.h"
 #include "../sfp_8472_a2h.h"
 #include <cjson/cJSON.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -29,8 +31,10 @@ bool daemon_socket_init(daemon_socket_server_t *server, const daemon_config_t *c
     }
     
     memset(server, 0, sizeof(daemon_socket_server_t));
-    strncpy(server->socket_path, config->socket_path, sizeof(server->socket_path) - 1);
-    server->socket_path[sizeof(server->socket_path) - 1] = '\0';
+    size_t path_len = strlen(config->socket_path);
+    size_t copy_len = (path_len < sizeof(server->socket_path) - 1) ? path_len : sizeof(server->socket_path) - 1;
+    memcpy(server->socket_path, config->socket_path, copy_len);
+    server->socket_path[copy_len] = '\0';
     server->server_fd = -1;
     server->num_clients = 0;
     
@@ -40,8 +44,10 @@ bool daemon_socket_init(daemon_socket_server_t *server, const daemon_config_t *c
     
     /* Cria diretório do socket se não existir */
     char dir_path[256];
-    strncpy(dir_path, server->socket_path, sizeof(dir_path) - 1);
-    dir_path[sizeof(dir_path) - 1] = '\0';
+    size_t dir_path_len = strlen(server->socket_path);
+    size_t dir_path_copy_len = (dir_path_len < sizeof(dir_path) - 1) ? dir_path_len : sizeof(dir_path) - 1;
+    memcpy(dir_path, server->socket_path, dir_path_copy_len);
+    dir_path[dir_path_copy_len] = '\0';
     
     char *last_slash = strrchr(dir_path, '/');
     if (last_slash) {
@@ -63,7 +69,10 @@ bool daemon_socket_init(daemon_socket_server_t *server, const daemon_config_t *c
     struct sockaddr_un addr;
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, server->socket_path, sizeof(addr.sun_path) - 1);
+    size_t sun_path_len = strlen(server->socket_path);
+    size_t sun_path_copy_len = (sun_path_len < sizeof(addr.sun_path) - 1) ? sun_path_len : sizeof(addr.sun_path) - 1;
+    memcpy(addr.sun_path, server->socket_path, sun_path_copy_len);
+    addr.sun_path[sun_path_copy_len] = '\0';
     
     /* Bind */
     if (bind(server->server_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
@@ -174,8 +183,10 @@ static void daemon_socket_process_client_command(int client_fd, sfp_daemon_state
     
     /* Remove newline */
     char cmd[256];
-    strncpy(cmd, command, sizeof(cmd) - 1);
-    cmd[sizeof(cmd) - 1] = '\0';
+    size_t cmd_len = strlen(command);
+    size_t cmd_copy_len = (cmd_len < sizeof(cmd) - 1) ? cmd_len : sizeof(cmd) - 1;
+    memcpy(cmd, command, cmd_copy_len);
+    cmd[cmd_copy_len] = '\0';
     char *nl = strchr(cmd, '\n');
     if (nl) *nl = '\0';
     

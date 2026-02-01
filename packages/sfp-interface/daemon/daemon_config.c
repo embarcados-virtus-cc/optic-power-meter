@@ -57,11 +57,15 @@ bool daemon_config_load(daemon_config_t *config, const char *config_file)
 
         /* Processa configurações conhecidas */
         if (strcmp(p, "i2c_device") == 0) {
-            strncpy(config->i2c_device, eq, sizeof(config->i2c_device) - 1);
-            config->i2c_device[sizeof(config->i2c_device) - 1] = '\0';
+            size_t eq_len = strlen(eq);
+            size_t i2c_copy_len = (eq_len < sizeof(config->i2c_device) - 1) ? eq_len : sizeof(config->i2c_device) - 1;
+            memcpy(config->i2c_device, eq, i2c_copy_len);
+            config->i2c_device[i2c_copy_len] = '\0';
         } else if (strcmp(p, "socket_path") == 0) {
-            strncpy(config->socket_path, eq, sizeof(config->socket_path) - 1);
-            config->socket_path[sizeof(config->socket_path) - 1] = '\0';
+            size_t eq_len = strlen(eq);
+            size_t socket_copy_len = (eq_len < sizeof(config->socket_path) - 1) ? eq_len : sizeof(config->socket_path) - 1;
+            memcpy(config->socket_path, eq, socket_copy_len);
+            config->socket_path[socket_copy_len] = '\0';
         } else if (strcmp(p, "poll_absent_ms") == 0) {
             config->poll_absent_ms = (uint32_t)atoi(eq);
         } else if (strcmp(p, "poll_present_ms") == 0) {
@@ -93,11 +97,15 @@ void daemon_config_get_defaults(daemon_config_t *config)
         return;
     }
 
-    strncpy(config->i2c_device, DAEMON_DEFAULT_I2C_DEVICE, sizeof(config->i2c_device) - 1);
-    config->i2c_device[sizeof(config->i2c_device) - 1] = '\0';
+    size_t i2c_default_len = strlen(DAEMON_DEFAULT_I2C_DEVICE);
+    size_t i2c_copy_len = (i2c_default_len < sizeof(config->i2c_device) - 1) ? i2c_default_len : sizeof(config->i2c_device) - 1;
+    memcpy(config->i2c_device, DAEMON_DEFAULT_I2C_DEVICE, i2c_copy_len);
+    config->i2c_device[i2c_copy_len] = '\0';
 
-    strncpy(config->socket_path, DAEMON_DEFAULT_SOCKET_PATH, sizeof(config->socket_path) - 1);
-    config->socket_path[sizeof(config->socket_path) - 1] = '\0';
+    size_t socket_default_len = strlen(DAEMON_DEFAULT_SOCKET_PATH);
+    size_t socket_copy_len = (socket_default_len < sizeof(config->socket_path) - 1) ? socket_default_len : sizeof(config->socket_path) - 1;
+    memcpy(config->socket_path, DAEMON_DEFAULT_SOCKET_PATH, socket_copy_len);
+    config->socket_path[socket_copy_len] = '\0';
 
     config->poll_absent_ms = DAEMON_POLL_ABSENT_MS;
     config->poll_present_ms = DAEMON_POLL_PRESENT_MS;

@@ -8,12 +8,12 @@ Este guia explica como compilar, instalar e usar o daemon SFP passo a passo.
 
 1. **cJSON**: Biblioteca para serialização JSON
    ```bash
-   # Debian/Ubuntu
+   # Debian
    sudo apt-get update
    sudo apt-get install libcjson-dev
 
    # Arch Linux
-   sudo pacman -S libcjson
+   sudo pacman -S cjson
    ```
 
 2. **I²C habilitado**: O barramento I²C deve estar habilitado no Raspberry Pi
@@ -35,7 +35,11 @@ Este guia explica como compilar, instalar e usar o daemon SFP passo a passo.
 
 4. **Ferramentas de compilação**: GCC e Make
    ```bash
+   # Debian
    sudo apt-get install build-essential
+   
+   # Arch Linux
+   sudo pacman -S base-devel
    ```
 
 ## Compilação
@@ -573,4 +577,3 @@ sudo rmdir /run/sfp-daemon
 # Remover configuração (opcional)
 sudo rm /etc/sfp-daemon.conf
 ```
-
