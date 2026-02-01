@@ -7,7 +7,7 @@ from prompt_toolkit.styles import Style
 # ===========================
 # ASCII do Título
 # ===========================
-TITLE_ART = """
+TITLE = """
  ██████╗ ██████╗ ████████╗██╗ ██████╗    ██████╗  ██████╗ ██╗    ██╗███████╗██████╗    ███╗   ███╗███████╗████████╗███████╗██████╗
 ██╔═══██╗██╔══██╗╚══██╔══╝██║██╔════╝    ██╔══██╗██╔═══██╗██║    ██║██╔════╝██╔══██╗   ████╗ ████║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
 ██║   ██║██████╔╝   ██║   ██║██║         ██████╔╝██║   ██║██║ █╗ ██║█████╗  ██████╔╝   ██╔████╔██║█████╗     ██║   █████╗  ██████╔╝
@@ -19,7 +19,7 @@ TITLE_ART = """
 # ===========================
 # Estado
 # ===========================
-MENU_ITEMS = ["Configuração", "Valores Atuais", "Sair"]
+MENU_ITEMS = ["Configurações do Transceptor", "Valores Atuais de Potência Óptica", "Informações do Transceptor", "Sair"]
 selected_index = 0
 
 # ===========================
@@ -39,11 +39,28 @@ def menu_text():
 # Conteúdo
 # ===========================
 def content_text():
+    # ===========================
+    # Helper para formatar janelas
+    # ===========================
+    def format_content(title, body):
+        return f"\n{title}\n\n{body}\n"
+
     page = MENU_ITEMS[selected_index]
-    if page == "Configuração":
-        return "CONFIGURAÇÃO\n\nAqui você implementa depois.\n"
-    if page == "Valores Atuais":
-        return "VALORES ATUAIS\n\nAqui você implementa depois.\n"
+    if page == "Configurações do Transceptor":
+        return format_content(
+            "CONFIGURAÇÕES DO TRANSCEPTOR",
+            "Aqui você implementa depois."
+        )
+    if page == "Valores Atuais de Potência Óptica":
+        return format_content(
+            "VALORES ATUAIS DE POTÊNCIA ÓPTICA",
+            "Aqui você implementa depois."
+        )
+    if page == "Informações do Transceptor":
+        return format_content(
+            "INFORMAÇÕES DO TRANSCEPTOR",
+            "Aqui você implementa depois."
+        )
     return ""
 
 # ===========================
@@ -51,7 +68,7 @@ def content_text():
 # ===========================
 title_window = Window(
     content=FormattedTextControl(
-        lambda: [("class:title", TITLE_ART)]
+        lambda: [("class:title", TITLE)]
     ),
     height=8,
     always_hide_cursor=True,
@@ -67,11 +84,17 @@ vertical_line = Window(
     width=1,
 )
 
-menu_window = Window(
-    content=FormattedTextControl(menu_text),
-    width=24,
-    always_hide_cursor=True,
-)
+padding_horizontal = Window(width=2)
+padding_vertical = Window(height=1)
+
+menu_window = HSplit([
+    padding_vertical,
+    Window(
+        content=FormattedTextControl(menu_text),
+        width=38,
+        always_hide_cursor=True,
+    ),
+])
 
 content_window = Window(
     content=FormattedTextControl(content_text),
@@ -88,8 +111,11 @@ layout = Layout(
             horizontal_line,
             VSplit(
                 [
-                    menu_window,
+                    padding_horizontal,
+                    menu_window,  # menu agora com padding top
+                    padding_horizontal,
                     vertical_line,
+                    padding_horizontal,
                     content_window,
                 ]
             ),
