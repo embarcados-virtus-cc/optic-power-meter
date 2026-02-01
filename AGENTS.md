@@ -8,12 +8,14 @@ Leia sempre o AGENTS.md referente ao package que você irá dar suporte, ficando
 Cada diretório dentro da pasta packages, representa um package, cada parte da aplicação deverá ser dividida em um do mesmo, até o momento essa é a estrutura atual:
 
 ── packages
+   ├── api
    ├── sfp-interface
    └── view
 
 Onde eles representam:
 
-- sfp-interface: Interface de captura dos dados dos bytes presentes nas páginas a0h e a2h de um módulo transceptor SFP (Small Form-Factor Pluggable).
+- api: API REST em Python (FastAPI) que consome o daemon SFP via socket UNIX e expõe endpoints HTTP para a aplicação.
+- sfp-interface: Interface de captura dos dados dos bytes presentes nas páginas a0h e a2h de um módulo transceptor SFP (Small Form-Factor Pluggable). Inclui biblioteca C e daemon residente.
 - view: Interface de visualização da aplicação.
 
 *Se necessário, crie outro package, como por exemplo, um package para a API, outro para os circuitos, e etc.*

@@ -1,3 +1,21 @@
+/**
+ * @file sfp_8472_a0h.c
+ * @brief Biblioteca de parsing SFF-8472 – Página A0h (Base ID)
+ *
+ * @author Alexandre Junior
+ * @author Carlos Elias
+ * @author Melquisedeque Leite
+ * @author Miguel Ryan
+ * @author Nicholas Gomes
+ * @author Pablo Daniel
+ * @author Pedro Lucena
+ * @author Pedro Wilson
+ *
+ * @details
+ *  Implementa a leitura e interpretação dos campos da EEPROM A0h
+ *  de módulos SFP/SFP+, conforme a especificação SFF-8472.
+ */
+
 #include "sfp_8472_a0h.h"
 #include <stdio.h>
 #include <string.h>
