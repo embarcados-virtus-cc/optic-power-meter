@@ -3,21 +3,47 @@ import socket
 import subprocess
 import netifaces
 from PIL import Image, ImageDraw, ImageFont
+import Adafruit_GPIO as GPIO
 import Adafruit_GPIO.SPI as SPI
+import lgpio
 from ST7789 import ST7789
 
-# Configuração dos Pinos (Confirmado pelo usuário)
-# DC  -> GPIO 25
-# RES -> GPIO 27
-# BLK -> GPIO 24
-# SPI -> Port 0, Device 0 (GPIO 10/11)
-
+# Configuração dos Pinos
 DC_PIN = 25
 RST_PIN = 27
 BLK_PIN = 24
 SPI_PORT = 0
 SPI_DEVICE = 0
-SPI_SPEED_HZ = 40000000 # 40MHz
+SPI_SPEED_HZ = 40000000
+
+class LGPIOAdapter:
+    """Adapta a interface do lgpio para o formato esperado pela biblioteca Adafruit_GPIO/ST7789"""
+    def __init__(self):
+        self._chip = lgpio.gpiochip_open(0)
+        
+    def setup(self, pin, mode):
+        # Adafruit_GPIO.OUT é 1, IN é 0
+        if mode == GPIO.OUT:
+            lgpio.gpio_claim_output(self._chip, pin)
+        else:
+            lgpio.gpio_claim_input(self._chip, pin)
+            
+    def output(self, pin, value):
+        lgpio.gpio_write(self._chip, pin, 1 if value else 0)
+        
+    def set_high(self, pin):
+        lgpio.gpio_write(self._chip, pin, 1)
+        
+    def set_low(self, pin):
+        lgpio.gpio_write(self._chip, pin, 0)
+        
+    def cleanup(self):
+        try:
+            lgpio.gpiochip_close(self._chip)
+        except:
+            pass
+            
+    # ST7789 pode chamar métodos plataforma-específicos, adicionamos stubs se necessário
 
 def get_ip_address():
     """Obtém o endereço IP principal da máquina."""
@@ -61,7 +87,7 @@ def create_image(width, height, ip_address):
     # Texto VIRTUS (Branco)
     draw.text((10, 10), "VIRTUS", font=font_title, fill=(255, 255, 255))
     
-    # Texto CC (Ciano) - Calcula largura para posicionar ao lado
+    # Texto CC (Ciano)
     virtus_width = draw.textlength("VIRTUS", font=font_title) if hasattr(draw, "textlength") else 100
     draw.text((10 + virtus_width + 8, 10), "CC", font=font_title, fill=(6, 182, 212))
     
@@ -88,22 +114,27 @@ def create_image(width, height, ip_address):
     return image
 
 def main():
-    print("Inicializando Display ST7789 (User Lib)...")
+    print("Inicializando Display ST7789 (User Lib + lgpio adapter)...")
     
-    # Configura Hardware SPI
-    spi = SPI.SpiDev(SPI_PORT, SPI_DEVICE, max_speed_hz=SPI_SPEED_HZ)
-    
-    # Instancia Display
-    # mode=3 é o padrão da lib e recomendado para ST7789
-    disp = ST7789(spi, mode=3, rst=RST_PIN, dc=DC_PIN, led=BLK_PIN)
-    
-    # Inicializa
-    disp.begin()
-    disp.clear()
-    
-    print("Display iniciado. Loop de atualização...")
+    # Adaptador GPIO para evitar erro de detecção de plataforma da Adafruit_GPIO
+    gpio_adapter = LGPIOAdapter()
     
     try:
+        # Configura Hardware SPI
+        spi = SPI.SpiDev(SPI_PORT, SPI_DEVICE, max_speed_hz=SPI_SPEED_HZ)
+        
+        # Instancia Display com adaptador GPIO customizado
+        disp = ST7789(spi, mode=3, rst=RST_PIN, dc=DC_PIN, led=BLK_PIN, gpio=gpio_adapter)
+        
+        # Inicializa
+        disp.begin()
+        disp.clear()
+        
+        # Força Backlight (caso a lib tenha falhado nisso)
+        gpio_adapter.set_high(BLK_PIN)
+        
+        print("Display iniciado. Loop de atualização...")
+        
         while True:
             ip = get_ip_address()
             img = create_image(disp.width, disp.height, ip)
@@ -113,6 +144,11 @@ def main():
     except KeyboardInterrupt:
         print("Encerrando...")
         disp.clear()
+        gpio_adapter.cleanup()
+    except Exception as e:
+        print(f"Erro: {e}")
+        gpio_adapter.cleanup()
+        raise
 
 if __name__ == "__main__":
     main()
