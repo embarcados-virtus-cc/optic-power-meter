@@ -49,17 +49,17 @@ def content_text():
     if page == "Configurações do Transceptor":
         return format_content(
             "CONFIGURAÇÕES DO TRANSCEPTOR",
-            "Aqui você implementa depois."
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         )
     if page == "Valores Atuais de Potência Óptica":
         return format_content(
             "VALORES ATUAIS DE POTÊNCIA ÓPTICA",
-            "Aqui você implementa depois."
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         )
     if page == "Informações do Transceptor":
         return format_content(
             "INFORMAÇÕES DO TRANSCEPTOR",
-            "Aqui você implementa depois."
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         )
     return ""
 
@@ -75,13 +75,15 @@ title_window = Window(
 )
 
 horizontal_line = Window(
-    char="─",
+    char="═",
     height=1,
+    style="class:border",
 )
 
 vertical_line = Window(
-    char="│",
+    char="║",
     width=1,
+    style="class:border",
 )
 
 padding_horizontal = Window(width=2)
@@ -112,7 +114,7 @@ layout = Layout(
             VSplit(
                 [
                     padding_horizontal,
-                    menu_window,  # menu agora com padding top
+                    menu_window,
                     padding_horizontal,
                     vertical_line,
                     padding_horizontal,
@@ -157,6 +159,7 @@ style = Style.from_dict(
         "title": "bold fg:#ffffff",
         "arrow": "fg:#5fd7ff bold",
         "item": "",
+        "border": "fg:#ffffff",  # cor cinza para as bordas
     }
 )
 
