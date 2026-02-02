@@ -81,43 +81,42 @@ def create_image(width, height, ip_address):
         font_small = ImageFont.load_default()
 
     # --- Branding VIRTUS CC ---
-    # Fundo do cabeçalho
-    draw.rectangle((0, 0, width, 50), fill=(23, 37, 84))
+    # --- Branding VIRTUS CC ---
     
-    # Tenta carregar e desenhar o logo
+    y_start = 70 # Valor padrão caso o logo falhe
+    
+    # Tenta carregar e desenhar o logo FULL WIDTH
     try:
         logo_path = "packages/display/assets/virtus-cc.png"
         logo = Image.open(logo_path).convert("RGBA")
         
-        # Redimensiona mantendo aspect ratio
-        # Altura alvo: 40px (margem de 5px em cima/baixo)
-        target_h = 40
-        aspect = logo.width / logo.height
-        new_w = int(target_h * aspect)
-        logo = logo.resize((new_w, target_h), Image.LANCZOS)
+        # Redimensiona para largura total (240px) mantendo aspect ratio
+        target_w = width
+        aspect = logo.height / logo.width
+        new_h = int(target_w * aspect)
+        logo = logo.resize((target_w, new_h), Image.LANCZOS)
         
-        # Centraliza horizontalmente se couber, ou alinha à esquerda com margem
-        # Aqui alinhamos à esquerda com margem de 10px para consistência, 
-        # ou centralizado se for muito pequeno. 
-        # Vamos manter estilo alinhado à esquerda como o texto anterior.
-        x_pos = 10
-        y_pos = (50 - target_h) // 2
+        # Cola o logo no topo (0,0)
+        # Usamos paste com máscara para transparência, mas o fundo padrão é azul escuro
+        image.paste(logo, (0, 0), logo)
         
-        # Cola o logo usando a própria imagem como máscara (transparência)
-        image.paste(logo, (x_pos, y_pos), logo)
+        # Define onde começa o texto (altura do logo + 10px padding)
+        y_start = new_h + 10
+        
+        # Opcional: Desenhar uma linha divisória logo abaixo do logo
+        draw.line((0, new_h, width, new_h), fill=(148, 163, 184), width=2)
         
     except Exception as e:
-        # Fallback se imagem não existir ou falhar: Texto
+        # Fallback se imagem não existir: Cabeçalho VIRTUS CC Texto antigo
         print(f"Erro ao carregar logo: {e}")
+        draw.rectangle((0, 0, width, 50), fill=(23, 37, 84))
         draw.text((10, 10), "VIRTUS", font=font_title, fill=(255, 255, 255))
         virtus_width = draw.textlength("VIRTUS", font=font_title) if hasattr(draw, "textlength") else 100
         draw.text((10 + virtus_width + 8, 10), "CC", font=font_title, fill=(6, 182, 212))
-
-    # Divisor
-    draw.line((0, 50, width, 50), fill=(148, 163, 184), width=2)
+        draw.line((0, 50, width, 50), fill=(148, 163, 184), width=2)
+        y_start = 70
 
     # --- Informações ---
-    y_start = 70
     
     # IP
     draw.text((10, y_start), "IP Address:", font=font_small, fill=(148, 163, 184))
