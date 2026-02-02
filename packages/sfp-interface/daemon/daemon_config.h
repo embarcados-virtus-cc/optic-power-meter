@@ -22,7 +22,7 @@
  * ============================================ */
 #define DAEMON_DEFAULT_SOCKET_DIR "/run/sfp-daemon"
 #define DAEMON_DEFAULT_SOCKET_PATH "/run/sfp-daemon/sfp.sock"
-#define DAEMON_DEFAULT_SOCKET_PERMISSIONS 0660
+#define DAEMON_DEFAULT_SOCKET_PERMISSIONS 0666
 #define DAEMON_MAX_CONNECTIONS 10
 
 /* ============================================
