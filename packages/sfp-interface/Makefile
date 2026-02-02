@@ -22,8 +22,8 @@ LIB_OBJS = $(LIB_SRCS:.c=.o)
 # Para debug, descomente a linha abaixo
 # CFLAGS += -DDEBUG -g
 
-TARGET = sfp_reader
-SRCS = main.c sfp_8472_a0h.c sfp_8472_a2h.c i2c.c
+TARGET = sfp-reader
+SRCS = main.c sfp_8472_a0h.c sfp_8472_a2h.c sfp_init.c i2c.c
 OBJS = $(SRCS:.c=.o)
 
 # Daemon
