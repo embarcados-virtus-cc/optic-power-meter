@@ -84,13 +84,35 @@ def create_image(width, height, ip_address):
     # Fundo do cabeçalho
     draw.rectangle((0, 0, width, 50), fill=(23, 37, 84))
     
-    # Texto VIRTUS (Branco)
-    draw.text((10, 10), "VIRTUS", font=font_title, fill=(255, 255, 255))
-    
-    # Texto CC (Ciano)
-    virtus_width = draw.textlength("VIRTUS", font=font_title) if hasattr(draw, "textlength") else 100
-    draw.text((10 + virtus_width + 8, 10), "CC", font=font_title, fill=(6, 182, 212))
-    
+    # Tenta carregar e desenhar o logo
+    try:
+        logo_path = "packages/display/assets/virtus-cc.png"
+        logo = Image.open(logo_path).convert("RGBA")
+        
+        # Redimensiona mantendo aspect ratio
+        # Altura alvo: 40px (margem de 5px em cima/baixo)
+        target_h = 40
+        aspect = logo.width / logo.height
+        new_w = int(target_h * aspect)
+        logo = logo.resize((new_w, target_h), Image.LANCZOS)
+        
+        # Centraliza horizontalmente se couber, ou alinha à esquerda com margem
+        # Aqui alinhamos à esquerda com margem de 10px para consistência, 
+        # ou centralizado se for muito pequeno. 
+        # Vamos manter estilo alinhado à esquerda como o texto anterior.
+        x_pos = 10
+        y_pos = (50 - target_h) // 2
+        
+        # Cola o logo usando a própria imagem como máscara (transparência)
+        image.paste(logo, (x_pos, y_pos), logo)
+        
+    except Exception as e:
+        # Fallback se imagem não existir ou falhar: Texto
+        print(f"Erro ao carregar logo: {e}")
+        draw.text((10, 10), "VIRTUS", font=font_title, fill=(255, 255, 255))
+        virtus_width = draw.textlength("VIRTUS", font=font_title) if hasattr(draw, "textlength") else 100
+        draw.text((10 + virtus_width + 8, 10), "CC", font=font_title, fill=(6, 182, 212))
+
     # Divisor
     draw.line((0, 50, width, 50), fill=(148, 163, 184), width=2)
 
