@@ -1,4 +1,5 @@
-spidev
-lgpio
+Adafruit-GPIO
+numpy
 Pillow
 netifaces
+spidev
