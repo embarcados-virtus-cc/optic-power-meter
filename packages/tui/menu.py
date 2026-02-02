@@ -49,18 +49,13 @@ def get_title_formatted():
             result.append(("", " " * len(TITLE_LINES[0])))
             
         # 2. Divisor (Travessão/Barra vertical)
-        result.append(("class:border", "  |  "))
+        result.append(("class:border", "  ║  "))
         
         # 3. Adiciona linha da marca VIRTUS CC
         if i < logo_height:
             line = VIRTUS_LOGO_LINES[i]
-            # VIRTUS (Branco) é a primeira parte da ASCII art
-            # CC (Ciano) é a segunda parte (as duas últimas colunas de blocos)
-            
-            # Vamos dividir a linha baseada na estrutura do texto
-            # A parte "VIRTUS" termina antes de "CC"
-            virtus_part = line[:52]
-            cc_part = line[52:]
+            virtus_part = line[:50]
+            cc_part = line[50:]
             
             result.append(("class:logo-virtus-white", virtus_part))
             result.append(("class:logo-cc-cyan", cc_part + "\n"))
@@ -532,9 +527,8 @@ style = Style.from_dict(
         "warning": "fg:#ffffff",
         "success": "fg:#10b981",
         "scroll-indicator": "fg:#c084fc bold",
-        # Cores do branding VIRTUS CC
-        "logo-virtus-white": "fg:#ffffff bold", # VIRTUS em Branco
-        "logo-cc-cyan": "fg:#06b6d4 bold",      # CC em Ciano
+        "logo-virtus-white": "fg:#172554 bold",
+        "logo-cc-cyan": "fg:#0369a1 bold",    
     }
 )
 
