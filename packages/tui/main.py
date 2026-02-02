@@ -157,9 +157,9 @@ def _(event):
 style = Style.from_dict(
     {
         "title": "bold fg:#ffffff",
-        "arrow": "fg:#5fd7ff bold",
+        "arrow": "fg:#c084fc bold",
         "item": "",
-        "border": "fg:#ffffff",  # cor cinza para as bordas
+        "border": "fg:#ffffff",
     }
 )
 
