@@ -110,8 +110,6 @@ A interface usa cores e formatação para melhorar a legibilidade:
 - **Seções**: Roxo em negrito
 - **Labels**: Cinza claro (`#94a3b8`)
 - **Valores**: Branco acinzentado (`#e2e8f0`)
-- **Erros**: Vermelho (`#ef4444`)
-- **Avisos**: Laranja (`#f59e0b`)
 - **Sucesso**: Verde (`#10b981`)
 
 ## Execução
