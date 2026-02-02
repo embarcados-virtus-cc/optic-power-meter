@@ -32,75 +32,38 @@ VIRTUS_LOGO_LINES = [
 ]
 
 def get_title_formatted():
-    """Retorna título e logo Virtus CC lado a lado com cores"""
+    """Retorna título e branding Virtus CC lado a lado com cores"""
     result = []
     result.append(("", "\n"))
     
     # Largura da primeira linha do título para padding
-    title_width = len(TITLE_LINES[0])
+    title_height = len(TITLE_LINES)
+    logo_height = len(VIRTUS_LOGO_LINES)
+    max_height = max(title_height, logo_height)
     
-    for i in range(max(len(TITLE_LINES), len(VIRTUS_LOGO_LINES))):
-        # 1. Adiciona linha do título principal (ou espaços se acabou)
-        if i < len(TITLE_LINES):
+    for i in range(max_height):
+        # 1. Adiciona linha do título principal
+        if i < title_height:
             result.append(("class:title", TITLE_LINES[i]))
         else:
-            result.append(("", " " * title_width))
+            result.append(("", " " * len(TITLE_LINES[0])))
             
-        # 2. Espaçador entre título e logo
-        result.append(("", "    "))
+        # 2. Divisor (Travessão/Barra vertical)
+        result.append(("class:border", "  |  "))
         
-        # 3. Adiciona linha do logo com cores específicas
-        if i < len(VIRTUS_LOGO_LINES):
+        # 3. Adiciona linha da marca VIRTUS CC
+        if i < logo_height:
             line = VIRTUS_LOGO_LINES[i]
-            if i == 0:
-                result.append(("class:logo-magenta", "  ║"))
-                result.append(("class:logo-purple", "║"))
-                result.append(("class:logo-blue", "║"))
-                result.append(("class:logo-cyan", "║"))
-                result.append(("class:logo-teal", "║"))
-                result.append(("", line[7:] + "\n"))
-            elif i == 1:
-                result.append(("class:logo-magenta", "  ║"))
-                result.append(("class:logo-purple", "║"))
-                result.append(("class:logo-blue", "║"))
-                result.append(("class:logo-cyan", "║"))
-                result.append(("class:logo-teal", "║  "))
-                result.append(("class:logo-virtus", "██╗   ██╗██╗██████╗ ████████╗██╗   ██╗███████╗"))
-                result.append(("class:logo-cc", "     ██████╗ ██████╗ \n"))
-            elif i == 2:
-                result.append(("class:logo-magenta", " ╔╝"))
-                result.append(("class:logo-purple", "║"))
-                result.append(("class:logo-blue", "║"))
-                result.append(("class:logo-cyan", "║"))
-                result.append(("class:logo-teal", "║  "))
-                result.append(("class:logo-virtus", "██║   ██║██║██╔══██╗╚══██╔══╝██║   ██║██╔════╝"))
-                result.append(("class:logo-cc", "    ██╔════╝██╔════╝ \n"))
-            elif i == 3:
-                result.append(("class:logo-magenta", " ║ "))
-                result.append(("class:logo-purple", "║"))
-                result.append(("class:logo-blue", "║"))
-                result.append(("class:logo-cyan", "║"))
-                result.append(("class:logo-teal", "║  "))
-                result.append(("class:logo-virtus", "██║   ██║██║██████╔╝   ██║   ██║   ██║███████╗"))
-                result.append(("class:logo-cc", "    ██║     ██║      \n"))
-            elif i == 4:
-                result.append(("class:logo-magenta", " ║ "))
-                result.append(("class:logo-purple", "║"))
-                result.append(("class:logo-blue", "╚╝"))
-                result.append(("class:logo-cyan", "║  "))
-                result.append(("class:logo-virtus", "╚██╗ ██╔╝██║██╔══██╗   ██║   ██║   ██║╚════██║"))
-                result.append(("class:logo-cc", "    ██║     ██║      \n"))
-            elif i == 5:
-                result.append(("class:logo-magenta", " ╚╗"))
-                result.append(("class:logo-purple", "║  "))
-                result.append(("class:logo-cyan", "╚╗ "))
-                result.append(("class:logo-virtus", " ╚████╔╝ ██║██║  ██║   ██║   ╚██████╔╝███████║"))
-                result.append(("class:logo-cc", "    ╚██████╗╚██████╗ \n"))
-            elif i == 6:
-                result.append(("class:logo-magenta", "  ╚╝"))
-                result.append(("class:logo-cyan", "  ╚╝  "))
-                result.append(("class:logo-virtus", " ╚═══╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚══════╝"))
-                result.append(("class:logo-cc", "     ╚═════╝ ╚═════╝ \n"))
+            # VIRTUS (Branco) é a primeira parte da ASCII art
+            # CC (Ciano) é a segunda parte (as duas últimas colunas de blocos)
+            
+            # Vamos dividir a linha baseada na estrutura do texto
+            # A parte "VIRTUS" termina antes de "CC"
+            virtus_part = line[:52]
+            cc_part = line[52:]
+            
+            result.append(("class:logo-virtus-white", virtus_part))
+            result.append(("class:logo-cc-cyan", cc_part + "\n"))
         else:
             result.append(("", "\n"))
     
@@ -569,14 +532,9 @@ style = Style.from_dict(
         "warning": "fg:#ffffff",
         "success": "fg:#10b981",
         "scroll-indicator": "fg:#c084fc bold",
-        # Cores do logo Virtus CC
-        "logo-magenta": "fg:#e91e8c bold",  # Magenta/rosa
-        "logo-purple": "fg:#9333ea bold",   # Roxo
-        "logo-blue": "fg:#3b82f6 bold",     # Azul
-        "logo-cyan": "fg:#06b6d4 bold",     # Ciano
-        "logo-teal": "fg:#14b8a6 bold",     # Teal/verde-água
-        "logo-virtus": "fg:#1e3a5f bold",   # Azul escuro (VIRTUS)
-        "logo-cc": "fg:#14b8a6 bold",       # Teal (CC)
+        # Cores do branding VIRTUS CC
+        "logo-virtus-white": "fg:#ffffff bold", # VIRTUS em Branco
+        "logo-cc-cyan": "fg:#06b6d4 bold",      # CC em Ciano
     }
 )
 
