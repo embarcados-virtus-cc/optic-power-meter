@@ -1,0 +1,4 @@
+spidev
+lgpio
+Pillow
+netifaces

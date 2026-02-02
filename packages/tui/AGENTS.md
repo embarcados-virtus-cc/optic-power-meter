@@ -103,9 +103,11 @@ Barra de status na parte inferior mostra:
 
 ## Estilização
 
-A interface usa cores e formatação para melhorar a legibilidade:
+A interface usa cores e formatação para melhorar a legibilidade e seguir o branding da Virtus CC:
 
 - **Título**: Branco em negrito
+- **Branding**: VIRTUS (Branco) | CC (Ciano `#06b6d4`)
+- **Divisor**: Barra vertical (`|`) separando título e marca
 - **Seta de seleção**: Roxo (`#c084fc`)
 - **Seções**: Roxo em negrito
 - **Labels**: Cinza claro (`#94a3b8`)

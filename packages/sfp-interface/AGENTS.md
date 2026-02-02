@@ -65,7 +65,7 @@ O daemon está organizado em módulos dentro do diretório `daemon/`:
 
 - **daemon_fsm.h/c**: Máquina de estados
   - Estados: INIT, ABSENT, PRESENT, ERROR
-  - Funções de transição entre estados
+  - Funções de transição entre estados (Correção bug INIT->ABSENT)
   - Logging de transições via syslog
 
 - **daemon_i2c.h/c**: Wrapper I²C para o daemon
@@ -75,6 +75,7 @@ O daemon está organizado em módulos dentro do diretório `daemon/`:
 
 - **daemon_socket.h/c**: Servidor UNIX socket
   - Aceita múltiplas conexões (limitado a 10)
+  - Configurado com permissões 0666 (acesso não-root permitido)
   - Protocolo textual: `GET CURRENT`, `GET STATIC`, `GET DYNAMIC`, `GET STATE`, `PING`
   - Respostas em JSON usando cJSON
   - Formato: `STATUS <code> <message>\n<JSON>\n`
