@@ -63,8 +63,8 @@ class ST7789:
         # Configuração SPI
         self._spi = spidev.SpiDev()
         self._spi.open(port, cs)
-        self._spi.max_speed_hz = spi_speed_hz
-        self._spi.mode = 0b00  # CPOL=0, CPHA=0
+        self._spi.max_speed_hz = 10000000 # Reduzido para 10MHz para estabilidade
+        self._spi.mode = 0b11  # CPOL=1, CPHA=1 (Mode 3 geralmente funciona melhor com ST7789)
         
         self.reset()
         self._init_display()
