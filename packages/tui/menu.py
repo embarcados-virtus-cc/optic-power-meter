@@ -10,16 +10,101 @@ from daemon_client import DaemonClient
 from formatters import format_flags_only, format_dynamic_values_only, format_all_a0h_fields, format_flags_template, format_dynamic_template, format_all_a0h_template
 
 # ===========================
-# ASCII do Título
+# ASCII do Título + Logo Virtus CC
 # ===========================
-TITLE = """
- ██████╗ ██████╗ ████████╗██╗ ██████╗    ██████╗  ██████╗ ██╗    ██╗███████╗██████╗    ███╗   ███╗███████╗████████╗███████╗██████╗
-██╔═══██╗██╔══██╗╚══██╔══╝██║██╔════╝    ██╔══██╗██╔═══██╗██║    ██║██╔════╝██╔══██╗   ████╗ ████║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
-██║   ██║██████╔╝   ██║   ██║██║         ██████╔╝██║   ██║██║ █╗ ██║█████╗  ██████╔╝   ██╔████╔██║█████╗     ██║   █████╗  ██████╔╝
-██║   ██║██╔═══╝    ██║   ██║██║         ██╔═══╝ ██║   ██║██║███╗██║██╔══╝  ██╔══██╗   ██║╚██╔╝██║██╔══╝     ██║   ██╔══╝  ██╔══██╗
-╚██████╔╝██║        ██║   ██║╚██████╗    ██║     ╚██████╔╝╚███╔███╔╝███████╗██║  ██║   ██║ ╚═╝ ██║███████╗   ██║   ███████╗██║  ██║
- ╚═════╝ ╚═╝        ╚═╝   ╚═╝ ╚═════╝    ╚═╝      ╚═════╝  ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝   ╚═╝     ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
-"""
+TITLE_LINES = [
+    " ██████╗ ██████╗ ████████╗██╗ ██████╗    ██████╗  ██████╗ ██╗    ██╗███████╗██████╗    ███╗   ███╗███████╗████████╗███████╗██████╗ ",
+    "██╔═══██╗██╔══██╗╚══██╔══╝██║██╔════╝    ██╔══██╗██╔═══██╗██║    ██║██╔════╝██╔══██╗   ████╗ ████║██╔════╝╚══██╔══╝██╔════╝██╔══██╗",
+    "██║   ██║██████╔╝   ██║   ██║██║         ██████╔╝██║   ██║██║ █╗ ██║█████╗  ██████╔╝   ██╔████╔██║█████╗     ██║   █████╗  ██████╔╝",
+    "██║   ██║██╔═══╝    ██║   ██║██║         ██╔═══╝ ██║   ██║██║███╗██║██╔══╝  ██╔══██╗   ██║╚██╔╝██║██╔══╝     ██║   ██╔══╝  ██╔══██╗",
+    "╚██████╔╝██║        ██║   ██║╚██████╗    ██║     ╚██████╔╝╚███╔███╔╝███████╗██║  ██║   ██║ ╚═╝ ██║███████╗   ██║   ███████╗██║  ██║",
+    " ╚═════╝ ╚═╝        ╚═╝   ╚═╝ ╚═════╝    ╚═╝      ╚═════╝  ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝   ╚═╝     ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝",
+]
+
+# Logo Virtus CC em ASCII art com cores
+VIRTUS_LOGO_LINES = [
+    "██╗   ██╗██╗██████╗ ████████╗██╗   ██╗███████╗     ██████╗ ██████╗ ",
+    "██║   ██║██║██╔══██╗╚══██╔══╝██║   ██║██╔════╝    ██╔════╝██╔════╝ ",
+    "██║   ██║██║██████╔╝   ██║   ██║   ██║███████╗    ██║     ██║      ",
+    "╚██╗ ██╔╝██║██╔══██╗   ██║   ██║   ██║╚════██║    ██║     ██║      ",
+    " ╚████╔╝ ██║██║  ██║   ██║   ╚██████╔╝███████║    ╚██████╗╚██████╗ ",
+    "  ╚═══╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚══════╝     ╚═════╝ ╚═════╝ ",
+]
+
+def get_title_formatted():
+    """Retorna título e logo Virtus CC lado a lado com cores"""
+    result = []
+    result.append(("", "\n"))
+    
+    # Largura da primeira linha do título para padding
+    title_width = len(TITLE_LINES[0])
+    
+    for i in range(max(len(TITLE_LINES), len(VIRTUS_LOGO_LINES))):
+        # 1. Adiciona linha do título principal (ou espaços se acabou)
+        if i < len(TITLE_LINES):
+            result.append(("class:title", TITLE_LINES[i]))
+        else:
+            result.append(("", " " * title_width))
+            
+        # 2. Espaçador entre título e logo
+        result.append(("", "    "))
+        
+        # 3. Adiciona linha do logo com cores específicas
+        if i < len(VIRTUS_LOGO_LINES):
+            line = VIRTUS_LOGO_LINES[i]
+            if i == 0:
+                result.append(("class:logo-magenta", "  ║"))
+                result.append(("class:logo-purple", "║"))
+                result.append(("class:logo-blue", "║"))
+                result.append(("class:logo-cyan", "║"))
+                result.append(("class:logo-teal", "║"))
+                result.append(("", line[7:] + "\n"))
+            elif i == 1:
+                result.append(("class:logo-magenta", "  ║"))
+                result.append(("class:logo-purple", "║"))
+                result.append(("class:logo-blue", "║"))
+                result.append(("class:logo-cyan", "║"))
+                result.append(("class:logo-teal", "║  "))
+                result.append(("class:logo-virtus", "██╗   ██╗██╗██████╗ ████████╗██╗   ██╗███████╗"))
+                result.append(("class:logo-cc", "     ██████╗ ██████╗ \n"))
+            elif i == 2:
+                result.append(("class:logo-magenta", " ╔╝"))
+                result.append(("class:logo-purple", "║"))
+                result.append(("class:logo-blue", "║"))
+                result.append(("class:logo-cyan", "║"))
+                result.append(("class:logo-teal", "║  "))
+                result.append(("class:logo-virtus", "██║   ██║██║██╔══██╗╚══██╔══╝██║   ██║██╔════╝"))
+                result.append(("class:logo-cc", "    ██╔════╝██╔════╝ \n"))
+            elif i == 3:
+                result.append(("class:logo-magenta", " ║ "))
+                result.append(("class:logo-purple", "║"))
+                result.append(("class:logo-blue", "║"))
+                result.append(("class:logo-cyan", "║"))
+                result.append(("class:logo-teal", "║  "))
+                result.append(("class:logo-virtus", "██║   ██║██║██████╔╝   ██║   ██║   ██║███████╗"))
+                result.append(("class:logo-cc", "    ██║     ██║      \n"))
+            elif i == 4:
+                result.append(("class:logo-magenta", " ║ "))
+                result.append(("class:logo-purple", "║"))
+                result.append(("class:logo-blue", "╚╝"))
+                result.append(("class:logo-cyan", "║  "))
+                result.append(("class:logo-virtus", "╚██╗ ██╔╝██║██╔══██╗   ██║   ██║   ██║╚════██║"))
+                result.append(("class:logo-cc", "    ██║     ██║      \n"))
+            elif i == 5:
+                result.append(("class:logo-magenta", " ╚╗"))
+                result.append(("class:logo-purple", "║  "))
+                result.append(("class:logo-cyan", "╚╗ "))
+                result.append(("class:logo-virtus", " ╚████╔╝ ██║██║  ██║   ██║   ╚██████╔╝███████║"))
+                result.append(("class:logo-cc", "    ╚██████╗╚██████╗ \n"))
+            elif i == 6:
+                result.append(("class:logo-magenta", "  ╚╝"))
+                result.append(("class:logo-cyan", "  ╚╝  "))
+                result.append(("class:logo-virtus", " ╚═══╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚══════╝"))
+                result.append(("class:logo-cc", "     ╚═════╝ ╚═════╝ \n"))
+        else:
+            result.append(("", "\n"))
+    
+    return result
 
 # ===========================
 # Estado
@@ -331,10 +416,8 @@ def help_text():
 # Componentes
 # ===========================
 title_window = Window(
-    content=FormattedTextControl(
-        lambda: [("class:title", TITLE)]
-    ),
-    height=8,
+    content=FormattedTextControl(get_title_formatted),
+    height=10,
     always_hide_cursor=True,
 )
 
@@ -485,7 +568,15 @@ style = Style.from_dict(
         "error": "fg:#ef4444 bold",
         "warning": "fg:#ffffff",
         "success": "fg:#10b981",
-        "scroll-indicator": "fg:#c084fc bold",  # Amarelo/dourado para os indicadores de scroll
+        "scroll-indicator": "fg:#c084fc bold",
+        # Cores do logo Virtus CC
+        "logo-magenta": "fg:#e91e8c bold",  # Magenta/rosa
+        "logo-purple": "fg:#9333ea bold",   # Roxo
+        "logo-blue": "fg:#3b82f6 bold",     # Azul
+        "logo-cyan": "fg:#06b6d4 bold",     # Ciano
+        "logo-teal": "fg:#14b8a6 bold",     # Teal/verde-água
+        "logo-virtus": "fg:#1e3a5f bold",   # Azul escuro (VIRTUS)
+        "logo-cc": "fg:#14b8a6 bold",       # Teal (CC)
     }
 )
 
