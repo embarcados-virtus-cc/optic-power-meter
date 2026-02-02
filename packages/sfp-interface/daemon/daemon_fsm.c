@@ -13,6 +13,8 @@
  * ============================================ */
 bool daemon_fsm_init_to_absent(sfp_daemon_state_data_t *state, bool presence_detected)
 {
+    (void)presence_detected; /* Não usado - sempre vai para ABSENT primeiro */
+    
     if (!state) {
         return false;
     }
@@ -24,15 +26,14 @@ bool daemon_fsm_init_to_absent(sfp_daemon_state_data_t *state, bool presence_det
         return false;
     }
     
-    if (!presence_detected) {
-        state->state = SFP_STATE_ABSENT;
-        syslog(LOG_INFO, "State transition: INIT -> ABSENT");
-        pthread_mutex_unlock(&state->mutex);
-        return true;
-    }
+    /* De INIT sempre vamos para ABSENT primeiro.
+     * O loop principal cuida da transição ABSENT → PRESENT
+     * quando detectar presença de SFP. */
+    state->state = SFP_STATE_ABSENT;
+    syslog(LOG_INFO, "State transition: INIT -> ABSENT");
     
     pthread_mutex_unlock(&state->mutex);
-    return false;
+    return true;
 }
 
 /* ============================================
