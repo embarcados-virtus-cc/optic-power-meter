@@ -87,7 +87,7 @@ def create_image(width, height, ip_address):
     
     # Tenta carregar e desenhar o logo FULL WIDTH
     try:
-        logo_path = "packages/display/assets/virtus-cc.png"
+        logo_path = "./assets/virtus-cc.png"
         logo = Image.open(logo_path).convert("RGBA")
         
         # Redimensiona para largura total (240px) mantendo aspect ratio
@@ -119,18 +119,18 @@ def create_image(width, height, ip_address):
     # --- Informações ---
     
     # IP
-    draw.text((10, y_start), "IP Address:", font=font_small, fill=(148, 163, 184))
+    draw.text((10, y_start), "IP Address:", font=font_small, fill=(255, 255, 255))
     draw.text((10, y_start + 18), ip_address, font=font_text, fill=(255, 255, 255))
     
     # URL Frontend
     y_start += 50
-    draw.text((10, y_start), "Frontend:", font=font_small, fill=(148, 163, 184))
-    draw.text((10, y_start + 18), f"http://{ip_address}:3000", font=font_small, fill=(100, 255, 100))
+    draw.text((10, y_start), "Dashboard WEB:", font=font_small, fill=(255, 255, 255))
+    draw.text((10, y_start + 18), f"http://{ip_address}:3000", font=font_small, fill=(255, 255, 255))
     
     # URL API
     y_start += 50
-    draw.text((10, y_start), "API:", font=font_small, fill=(148, 163, 184))
-    draw.text((10, y_start + 18), f"http://{ip_address}:8000", font=font_small, fill=(100, 255, 100))
+    draw.text((10, y_start), "API:", font=font_small, fill=(255, 255, 255))
+    draw.text((10, y_start + 18), f"http://{ip_address}:8000", font=font_small, fill=(255, 255, 255))
 
     return image
 
