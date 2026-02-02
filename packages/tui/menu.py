@@ -59,9 +59,7 @@ def get_title_formatted():
             
             result.append(("class:logo-virtus-white", virtus_part))
             result.append(("class:logo-cc-cyan", cc_part + "\n"))
-        else:
-            result.append(("", "\n"))
-    
+   
     return result
 
 # ===========================
@@ -375,7 +373,7 @@ def help_text():
 # ===========================
 title_window = Window(
     content=FormattedTextControl(get_title_formatted),
-    height=10,
+    height=8,
     always_hide_cursor=True,
 )
 
@@ -527,8 +525,8 @@ style = Style.from_dict(
         "warning": "fg:#ffffff",
         "success": "fg:#10b981",
         "scroll-indicator": "fg:#c084fc bold",
-        "logo-virtus-white": "fg:#172554 bold",
-        "logo-cc-cyan": "fg:#0369a1 bold",    
+        "logo-virtus-white": "fg:#1d4ed8 bold",
+        "logo-cc-cyan": "fg:#0ea5e9 bold",    
     }
 )
 
