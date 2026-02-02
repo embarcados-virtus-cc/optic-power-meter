@@ -1,4 +1,4 @@
-"""Configurações da API"""
+"""Configurações da TUI"""
 
 import os
 from pydantic_settings import BaseSettings
