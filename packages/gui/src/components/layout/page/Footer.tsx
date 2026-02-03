@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { Github } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
+import { useStore } from '@tanstack/react-store'
+import { themeStore } from '@/stores/themeStore'
 
 export function Footer() {
   const [isLoading, setIsLoading] = useState(true)
+  const theme = useStore(themeStore)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -45,7 +48,11 @@ export function Footer() {
               <div className="flex items-center gap-2">
                 <div className="mr-2">
                   <img
-                    src="/logo-power-meter.png"
+                    src={
+                      theme === 'light'
+                        ? '/logo-power-meter-light.png'
+                        : '/logo-power-meter.png'
+                    }
                     alt="Logo do Medidor de Potência Óptica"
                     className="h-20 w-20 rounded-md"
                   />

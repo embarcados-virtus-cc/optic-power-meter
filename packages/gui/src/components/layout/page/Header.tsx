@@ -11,10 +11,14 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { About } from '@/components/about/page/Sidebar'
 import { ThemeToggle } from './ThemeToggle'
 
+import { useStore } from '@tanstack/react-store'
+import { themeStore } from '@/stores/themeStore'
+
 export function Header() {
   const [isLoading, setIsLoading] = useState(true)
   const [isAboutOpen, setIsAboutOpen] = useState(false)
   const location = useLocation()
+  const theme = useStore(themeStore)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -40,7 +44,11 @@ export function Header() {
               <Link to="/">
                 <span className="text-xl font-bold text-foreground cursor-pointer flex items-center">
                   <img
-                    src="/logo-power-meter.png"
+                    src={
+                      theme === 'light'
+                        ? '/logo-power-meter-light.png'
+                        : '/logo-power-meter.png'
+                    }
                     alt="Logo"
                     className="h-12 w-12 mr-4"
                   />
