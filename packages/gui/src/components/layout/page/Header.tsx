@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/navigation-menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import { About } from '@/components/about/page/Sidebar'
+import { ThemeToggle } from './ThemeToggle'
 
 export function Header() {
   const [isLoading, setIsLoading] = useState(true)
@@ -28,16 +29,16 @@ export function Header() {
   }
 
   return (
-    <header className="p-5 flex items-center bg-zinc-950 shadow-lg border-zinc-800 border-b-[0.5px]">
+    <header className="p-5 flex items-center bg-background shadow-lg border-border border-b-[0.5px]">
       <div className="container mx-auto">
         <div className="flex items-center justify-between">
           {/* Logo do Projeto (alinhado a esquerda) */}
           <div className="flex items-center gap-2">
             {isLoading ? (
-              <Skeleton className="h-12 w-95 bg-zinc-800" />
+              <Skeleton className="h-12 w-95 bg-muted" />
             ) : (
               <Link to="/">
-                <span className="text-xl font-bold text-slate-300 cursor-pointer flex items-center">
+                <span className="text-xl font-bold text-foreground cursor-pointer flex items-center">
                   <img
                     src="/logo-power-meter.png"
                     alt="Logo"
@@ -58,10 +59,11 @@ export function Header() {
           {isLoading ? (
             // Skeleton da Navbar
             <div className="ml-auto flex gap-2">
-              <Skeleton className="h-9 w-46 bg-zinc-800" />
-              <Skeleton className="h-9 w-49 bg-zinc-800" />
-              <Skeleton className="h-9 w-38 bg-zinc-800" />
-              <Skeleton className="h-9 w-24 bg-zinc-800" />
+              <Skeleton className="h-9 w-46 bg-muted" />
+              <Skeleton className="h-9 w-49 bg-muted" />
+              <Skeleton className="h-9 w-38 bg-muted" />
+              <Skeleton className="h-9 w-24 bg-muted" />
+              <Skeleton className="h-9 w-9 bg-muted" />
             </div>
           ) : (
             <NavigationMenu className="ml-auto">
@@ -72,14 +74,14 @@ export function Header() {
                     className={`
                       flex flex-row items-center justify-start gap-2
                       text-left cursor-pointer
-                      ${isActive('/') ? 'text-zinc-700' : 'text-slate-300'}
+                      ${isActive('/') ? 'text-muted-foreground' : 'text-foreground'}
                       transition-colors
                       px-3 py-2 rounded-md
                     `}
                   >
                     <Activity
                       className={
-                        isActive('/') ? 'text-zinc-700' : 'text-slate-300'
+                        isActive('/') ? 'text-muted-foreground' : 'text-foreground'
                       }
                       size={20}
                     />
@@ -93,14 +95,14 @@ export function Header() {
                     className={`
                       flex flex-row items-center justify-start gap-2
                       text-left cursor-pointer
-                      ${isActive('/alarms') ? 'text-zinc-700' : 'text-slate-300'}
+                      ${isActive('/alarms') ? 'text-muted-foreground' : 'text-foreground'}
                       transition-colors
                       px-3 py-2 rounded-md
                     `}
                   >
                     <AlarmClock
                       className={
-                        isActive('/alarms') ? 'text-zinc-700' : 'text-slate-300'
+                        isActive('/alarms') ? 'text-muted-foreground' : 'text-foreground'
                       }
                       size={20}
                     />
@@ -114,14 +116,14 @@ export function Header() {
                     className={`
                       flex flex-row items-center justify-start gap-2
                       text-left cursor-pointer
-                      ${isActive('/tuning') ? 'text-zinc-700' : 'text-slate-300'}
+                      ${isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground'}
                       transition-colors
                       px-3 py-2 rounded-md
                     `}
                   >
                     <Toolbox
                       className={
-                        isActive('/tuning') ? 'text-zinc-700' : 'text-slate-300'
+                        isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground'
                       }
                       size={20}
                     />
@@ -135,14 +137,18 @@ export function Header() {
                     className="
                       flex flex-row items-center justify-start gap-2
                       text-left cursor-pointer
-                      text-slate-300
+                      text-foreground
                       transition-colors
                       px-3 py-2 rounded-md
                     "
                   >
-                    <Users className="text-slate-300" size={20} />
+                    <Users className="text-foreground" size={20} />
                     Sobre
                   </button>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <ThemeToggle />
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>

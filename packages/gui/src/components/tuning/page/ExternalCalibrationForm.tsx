@@ -51,15 +51,15 @@ export function ExternalCalibrationForm({
   }
 
   return (
-    <Card className="bg-zinc-900 border-zinc-800 h-full shadow-lg flex flex-col">
+    <Card className="bg-secondary/20 border-border h-full shadow-lg flex flex-col">
       <CardHeader className="text-center pb-8 pt-8">
         {isLoading ? (
           <div className="flex gap-2 justify-center">
-            <Skeleton className="w-6 h-6 bg-zinc-800 rounded-md" />
-            <Skeleton className="w-64 h-6 bg-zinc-800 rounded-md" />
+            <Skeleton className="w-6 h-6 bg-muted rounded-md" />
+            <Skeleton className="w-64 h-6 bg-muted rounded-md" />
           </div>
         ) : (
-          <CardTitle className="flex gap-2 justify-center text-slate-300 text-xl font-bold uppercase">
+          <CardTitle className="flex gap-2 justify-center text-foreground text-xl font-bold uppercase">
             <SquareSigma />
             <span className="mt-0.5">Coeficientes de Calibração</span>
           </CardTitle>
@@ -70,48 +70,48 @@ export function ExternalCalibrationForm({
           <>
             {/* RX Power Section Skeleton */}
             <div className="space-y-3">
-              <Skeleton className="w-24 h-5 bg-zinc-800 rounded-md" />
+              <Skeleton className="w-24 h-5 bg-muted rounded-md" />
               <div className="grid grid-cols-4 gap-3">
-                <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
-                <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
-                <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
-                <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
+                <Skeleton className="w-full h-10 bg-muted rounded-md" />
+                <Skeleton className="w-full h-10 bg-muted rounded-md" />
+                <Skeleton className="w-full h-10 bg-muted rounded-md" />
+                <Skeleton className="w-full h-10 bg-muted rounded-md" />
               </div>
             </div>
 
             {/* TX Power Section Skeleton */}
             <div className="space-y-3">
-              <Skeleton className="w-24 h-5 bg-zinc-800 rounded-md" />
+              <Skeleton className="w-24 h-5 bg-muted rounded-md" />
               <div className="grid grid-cols-4 gap-3">
-                <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
+                <Skeleton className="w-full h-10 bg-muted rounded-md" />
                 <div className="col-span-2">
-                  <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
+                  <Skeleton className="w-full h-10 bg-muted rounded-md" />
                 </div>
               </div>
             </div>
 
             {/* Temperature Section Skeleton */}
             <div className="space-y-3">
-              <Skeleton className="w-32 h-5 bg-zinc-800 rounded-md" />
+              <Skeleton className="w-32 h-5 bg-muted rounded-md" />
               <div className="grid grid-cols-4 gap-3">
-                <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
+                <Skeleton className="w-full h-10 bg-muted rounded-md" />
                 <div className="col-span-2">
-                  <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
+                  <Skeleton className="w-full h-10 bg-muted rounded-md" />
                 </div>
               </div>
             </div>
 
             {/* Module Info Section Skeleton */}
-            <div className="pt-6 border-t border-zinc-800/50 space-y-3">
+            <div className="pt-6 border-t border-border/50 space-y-3">
               <div className="flex gap-2 justify-center pb-5">
-                <Skeleton className="w-6 h-5 bg-zinc-800 rounded-md" />
-                <Skeleton className="w-48 h-5 bg-zinc-800 rounded-md" />
+                <Skeleton className="w-6 h-5 bg-muted rounded-md" />
+                <Skeleton className="w-48 h-5 bg-muted rounded-md" />
               </div>
               <div className="grid grid-cols-4 gap-2">
-                <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
-                <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
-                <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
-                <Skeleton className="w-full h-10 bg-zinc-800 rounded-md" />
+                <Skeleton className="w-full h-10 bg-muted rounded-md" />
+                <Skeleton className="w-full h-10 bg-muted rounded-md" />
+                <Skeleton className="w-full h-10 bg-muted rounded-md" />
+                <Skeleton className="w-full h-10 bg-muted rounded-md" />
               </div>
             </div>
           </>
@@ -119,7 +119,7 @@ export function ExternalCalibrationForm({
           <>
             {/* RX Power Section */}
             <div className="space-y-3">
-              <div className="text-[0.9rem] font-bold text-slate-500 uppercase tracking-widest pl-1">
+              <div className="text-[0.9rem] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                 RX Power
               </div>
               <div className="grid grid-cols-4 gap-3">
@@ -140,7 +140,7 @@ export function ExternalCalibrationForm({
 
             {/* TX Power Section */}
             <div className="space-y-3">
-              <div className="text-[0.9rem] font-bold text-slate-500 uppercase tracking-widest pl-1">
+              <div className="text-[0.9rem] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                 TX Power
               </div>
               <div className="grid grid-cols-4 gap-3">
@@ -161,7 +161,7 @@ export function ExternalCalibrationForm({
 
             {/* Temperature Section */}
             <div className="space-y-3">
-              <div className="text-[0.9rem] font-bold text-slate-500 uppercase tracking-widest pl-1">
+              <div className="text-[0.9rem] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                 Temperatura
               </div>
               <div className="grid grid-cols-4 gap-3">
@@ -186,41 +186,41 @@ export function ExternalCalibrationForm({
 
             {/* Module Info Section (Moved from Selector) */}
             {info && (
-              <div className="pt-6 border-t border-zinc-800/50 space-y-3">
-                <h4 className="flex gap-2 justify-center text-[0.9rem] pb-5 font-bold text-slate-500 uppercase tracking-widest text-center mb-2">
+              <div className="pt-6 border-t border-border/50 space-y-3">
+                <h4 className="flex gap-2 justify-center text-[0.9rem] pb-5 font-bold text-muted-foreground uppercase tracking-widest text-center mb-2">
                   <BookText />
                   Informações do Módulo
                 </h4>
                 <div className="grid grid-cols-4 gap-2">
                   <div className="text-center">
-                    <Label className="text-[12px] text-zinc-500 uppercase font-bold tracking-wider block mb-0.5">
+                    <Label className="text-[12px] text-muted-foreground uppercase font-bold tracking-wider block mb-0.5">
                       Tipo DDM
                     </Label>
-                    <div className="font-mono text-xs text-slate-300">
+                    <div className="font-mono text-xs text-foreground">
                       {info.ddmType}
                     </div>
                   </div>
                   <div className="text-center">
-                    <Label className="text-[12px] text-zinc-500 uppercase font-bold tracking-wider block mb-0.5">
+                    <Label className="text-[12px] text-muted-foreground uppercase font-bold tracking-wider block mb-0.5">
                       Versão
                     </Label>
-                    <div className="font-mono text-xs text-slate-300">
+                    <div className="font-mono text-xs text-foreground">
                       {info.version}
                     </div>
                   </div>
                   <div className="text-center">
-                    <Label className="text-[12px] text-zinc-500 uppercase font-bold tracking-wider block mb-0.5">
+                    <Label className="text-[12px] text-muted-foreground uppercase font-bold tracking-wider block mb-0.5">
                       RX Pwr Type
                     </Label>
-                    <div className="font-mono text-xs text-slate-300">
+                    <div className="font-mono text-xs text-foreground">
                       {info.rxPowerType}
                     </div>
                   </div>
                   <div className="text-center">
-                    <Label className="text-[12px] text-zinc-500 uppercase font-bold tracking-wider block mb-0.5">
+                    <Label className="text-[12px] text-muted-foreground uppercase font-bold tracking-wider block mb-0.5">
                       Endereçamento
                     </Label>
-                    <div className="font-mono text-xs text-slate-300">
+                    <div className="font-mono text-xs text-foreground">
                       {info.addressChange}
                     </div>
                   </div>
@@ -276,14 +276,14 @@ function InputGroup({
 
   return (
     <div className="space-y-0.5 flex flex-col">
-      <Label className="text-[13px] text-slate-500 font-normal ml-0.5">
+      <Label className="text-[13px] text-muted-foreground font-normal ml-0.5">
         {label}
       </Label>
       <div className="flex gap-2 relative">
         <Input
           ref={inputRef}
-          className={`bg-zinc-800/40 border-zinc-800 text-slate-300 h-8 text-xs font-medium
-             ${isEditing ? 'border-zinc-600 ring-1 ring-zinc-700' : ''}
+          className={`bg-secondary/40 border-border text-foreground h-8 text-xs font-medium
+             ${isEditing ? 'border-primary ring-1 ring-primary/50' : ''}
           `}
           placeholder={pl}
           value={isEditing ? tempValue : val}
@@ -293,9 +293,9 @@ function InputGroup({
         {hasEdit && !isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="h-8 w-8 flex shrink-0 items-center justify-center bg-zinc-800/40 rounded border border-zinc-800 hover:bg-zinc-700/50 cursor-pointer transition-colors"
+            className="h-8 w-8 flex shrink-0 items-center justify-center bg-secondary/40 rounded border border-border hover:bg-secondary/60 cursor-pointer transition-colors"
           >
-            <SquarePen className="w-4.5 h-4.5 text-slate-400" />
+            <SquarePen className="w-4.5 h-4.5 text-muted-foreground" />
           </button>
         )}
         {hasEdit && isEditing && (

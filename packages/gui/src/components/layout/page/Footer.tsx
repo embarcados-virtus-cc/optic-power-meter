@@ -15,7 +15,7 @@ export function Footer() {
   }, [])
 
   return (
-    <footer className="p-5 bg-zinc-950 shadow-lg border-zinc-800 border-t-[0.5px]">
+    <footer className="p-5 bg-background shadow-lg border-border border-t-[0.5px]">
       <div className="container mx-auto">
         {isLoading ? (
           // Skeleton do Footer
@@ -23,18 +23,18 @@ export function Footer() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div>
-                  <Skeleton className="h-20 w-20 bg-zinc-800" />
+                  <Skeleton className="h-20 w-20 bg-muted" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Skeleton className="h-6 w-70 bg-zinc-800" />
-                  <Skeleton className="h-6 w-90 bg-zinc-800" />
+                  <Skeleton className="h-6 w-70 bg-muted" />
+                  <Skeleton className="h-6 w-90 bg-muted" />
                 </div>
               </div>
               <div className="flex gap-3">
-                <Skeleton className="h-9 w-9 rounded-md bg-zinc-800" />
+                <Skeleton className="h-9 w-9 rounded-md bg-muted" />
               </div>
             </div>
-            <Separator className="bg-zinc-800" />
+            <Separator className="bg-border" />
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -51,10 +51,10 @@ export function Footer() {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <span className="text-lg font-bold text-slate-300">
+                  <span className="text-lg font-bold text-foreground">
                     Medidor de Potência Óptica (2026)
                   </span>
-                  <span className="text-sm text-slate-400">
+                  <span className="text-sm text-muted-foreground">
                     Sistema de Monitoramento de Potência Óptica
                   </span>
                 </div>
@@ -70,16 +70,16 @@ export function Footer() {
               {/* Links Sociais */}
               <div className="flex gap-3">
                 <a
-                  href="https://github.com/embarcados-virtus-cc/optic-power-meter-gui"
+                  href="https://github.com/embarcados-virtus-cc/optic-power-meter"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="
                     group
                     p-2 rounded-md
-                    text-slate-400
+                    text-muted-foreground
                     bg-transparent
-                    hover:bg-zinc-800
-                    hover:text-slate-100
+                    hover:bg-accent
+                    hover:text-foreground
                     transition-colors
                     cursor-pointer
                   "
@@ -88,8 +88,8 @@ export function Footer() {
                   <Github
                     size={20}
                     className="
-                      text-slate-400
-                      group-hover:text-slate-100
+                      text-muted-foreground
+                      group-hover:text-foreground
                       transition-colors
                     "
                   />
@@ -97,7 +97,7 @@ export function Footer() {
               </div>
             </div>
 
-            <Separator className="bg-zinc-800" />
+            <Separator className="bg-border" />
           </div>
         )}
       </div>

@@ -45,13 +45,13 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
             <div className="flex items-center gap-3">
               {isLoading ? (
                 <>
-                  <Skeleton className="w-6 h-6 bg-zinc-800 rounded-md" />
-                  <Skeleton className="w-48 h-6 bg-zinc-800 rounded-md" />
+                  <Skeleton className="w-6 h-6 bg-muted rounded-md" />
+                  <Skeleton className="w-48 h-6 bg-muted rounded-md" />
                 </>
               ) : (
                 <>
-                  <BatteryMedium className="text-slate-300" size={24} />
-                  <Label className="text-lg font-bold uppercase tracking-wider text-slate-300">
+                  <BatteryMedium className="text-foreground" size={24} />
+                  <Label className="text-lg font-bold uppercase tracking-wider text-foreground">
                     Potência Óptica (RX)
                   </Label>
                 </>
@@ -60,11 +60,11 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
 
             <div className="flex items-center gap-2">
               {/* View Mode Selector */}
-              <div className="flex items-center p-1 bg-zinc-900/50 rounded-md border border-zinc-800">
+              <div className="flex items-center p-1 bg-secondary/50 rounded-md border border-border">
                 {isLoading ? (
                   <div className="flex items-center gap-1">
-                    <Skeleton className="w-[52px] h-[22px] rounded-sm bg-zinc-800" />
-                    <Skeleton className="w-[52px] h-[22px] rounded-sm bg-zinc-800" />
+                    <Skeleton className="w-[52px] h-[22px] rounded-sm bg-muted" />
+                    <Skeleton className="w-[52px] h-[22px] rounded-sm bg-muted" />
                   </div>
                 ) : (
                   <>
@@ -73,8 +73,8 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
                       className={cn(
                         'px-3 py-1 text-[10px] font-bold uppercase transition-all rounded-sm',
                         viewMode === 'gauge'
-                          ? 'bg-zinc-800 text-slate-300 shadow-sm'
-                          : 'text-slate-400 hover:text-slate-400',
+                          ? 'bg-secondary text-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-muted-foreground',
                       )}
                     >
                       Medidor
@@ -84,8 +84,8 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
                       className={cn(
                         'px-3 py-1 text-[10px] font-bold uppercase transition-all rounded-sm',
                         viewMode === 'digital'
-                          ? 'bg-zinc-800 text-slate-300 shadow-sm'
-                          : 'text-slate-400 hover:text-slate-400',
+                          ? 'bg-secondary text-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-muted-foreground',
                       )}
                     >
                       Digital
@@ -100,22 +100,22 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
             {isLoading
               ? Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="w-10 h-5 rounded bg-zinc-800" />
-                ))
+                <Skeleton key={i} className="w-10 h-5 rounded bg-muted" />
+              ))
               : (['dBm', 'dB', 'mW', 'µW', 'nW'] as const).map((u) => (
-                  <button
-                    key={u}
-                    onClick={() => setUnit(u)}
-                    className={cn(
-                      'px-2 py-0.5 text-[11px] font-black uppercase border transition-all rounded',
-                      unit === u
-                        ? 'bg-slate-300 text-zinc-950 border-slate-300'
-                        : 'bg-transparent text-slate-400 border-zinc-800 hover:border-zinc-700',
-                    )}
-                  >
-                    {u}
-                  </button>
-                ))}
+                <button
+                  key={u}
+                  onClick={() => setUnit(u)}
+                  className={cn(
+                    'px-2 py-0.5 text-[11px] font-black uppercase border transition-all rounded',
+                    unit === u
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'bg-transparent text-muted-foreground border-border hover:border-muted-foreground',
+                  )}
+                >
+                  {u}
+                </button>
+              ))}
           </div>
         </div>
       </CardHeaderComponent>
@@ -124,7 +124,7 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center gap-4">
             <div className="relative w-64 flex items-center justify-center">
-              <Skeleton className="w-56 h-56 rounded-full bg-zinc-800" />
+              <Skeleton className="w-56 h-56 rounded-full bg-muted" />
             </div>
           </div>
         ) : (
@@ -138,7 +138,8 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
                       cy="50"
                       r="42"
                       fill="none"
-                      stroke="#1e1e24"
+                      stroke="currentColor"
+                      className="text-zinc-200 dark:text-zinc-800"
                       strokeWidth="6"
                       strokeDasharray="1 2"
                     />
@@ -147,17 +148,17 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
                       cy="50"
                       r="42"
                       fill="none"
-                      stroke="rgb(203 213 225)"
+                      stroke="currentColor"
+                      className="text-foreground"
                       strokeWidth="6"
                       strokeDasharray={`${(Math.max(0, 20 + powerValue) / 20) * 263.89} 263.89`}
-                      className="transition-all duration-1000"
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl font-bold text-slate-300 tracking-tighter">
+                    <span className="text-4xl font-bold text-foreground tracking-tighter">
                       {getDisplayValue()}
                     </span>
-                    <span className="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">
+                    <span className="text-xs text-muted-foreground font-bold uppercase tracking-[0.2em] mt-1">
                       {unit}
                     </span>
                   </div>
@@ -167,29 +168,29 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
               <div className="flex flex-col items-center justify-center p-8 w-full animate-in fade-in duration-300">
                 <div className="flex flex-col items-center gap-4">
                   <div className="flex flex-col items-center">
-                    <span className="text-7xl font-bold text-slate-300 tracking-tighter leading-none">
+                    <span className="text-7xl font-bold text-foreground tracking-tighter leading-none">
                       {getDisplayValue()}
                     </span>
-                    <span className="text-xl font-bold text-slate-400 tracking-widest uppercase mt-2">
+                    <span className="text-xl font-bold text-muted-foreground tracking-widest uppercase mt-2">
                       {unit}
                     </span>
                   </div>
-                  <div className="h-px w-48 bg-zinc-800" />
+                  <div className="h-px w-48 bg-border" />
 
                   <div className="grid grid-cols-2 gap-x-12 gap-y-2">
                     <div className="flex flex-col items-center">
-                      <span className="text-[9px] text-zinc-600 uppercase font-black tracking-widest">
+                      <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">
                         dBm
                       </span>
-                      <span className="text-xs font-bold text-slate-400">
+                      <span className="text-xs font-bold text-muted-foreground">
                         {powerValue.toFixed(2)}
                       </span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <span className="text-[9px] text-zinc-600 uppercase font-black tracking-widest">
+                      <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">
                         Linear
                       </span>
-                      <span className="text-xs font-bold text-slate-400">
+                      <span className="text-xs font-bold text-muted-foreground">
                         {powerInMW >= 1
                           ? `${powerInMW.toFixed(2)} mW`
                           : `${(powerInMW * 1000).toFixed(1)} µW`}

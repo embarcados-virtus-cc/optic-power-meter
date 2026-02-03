@@ -14,7 +14,7 @@ function App() {
   const isLoading = useStore(loadingStore)
 
   return (
-    <div className="min-h-max bg-zinc-950">
+    <div className="min-h-max bg-background">
       <main className="container mx-auto p-6">
         <div className="space-y-6">
           {/* Primeira Linha: RxPower + Parameters */}

@@ -9,9 +9,9 @@ import {
 
 // Mock resize observer
 global.ResizeObserver = class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  observe() { }
+  unobserve() { }
+  disconnect() { }
 }
 
 describe('Header', () => {
@@ -52,6 +52,21 @@ describe('Header', () => {
       expect(screen.getByText(/Alarmes e Avisos/i)).toBeInTheDocument()
       expect(screen.getByText(/Calibração/i)).toBeInTheDocument()
       expect(screen.getByText(/Sobre/i)).toBeInTheDocument()
+    })
+  })
+
+  it('renders theme toggle button', async () => {
+    const rootRoute = createRootRoute({
+      component: () => <Header />,
+    })
+    const router = createRouter({ routeTree: rootRoute })
+
+    render(<RouterProvider router={router} />)
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /ativar modo/i }),
+      ).toBeInTheDocument()
     })
   })
 })

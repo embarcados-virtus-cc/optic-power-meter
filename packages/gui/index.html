@@ -18,6 +18,14 @@
     <link rel="apple-touch-icon" href="/logo-power-meter.png" />
     <link rel="manifest" href="/manifest.json" />
     <title>Medidor de Potência Óptica</title>
+    <script>
+      (function() {
+        var theme = localStorage.getItem('theme') || 'dark';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

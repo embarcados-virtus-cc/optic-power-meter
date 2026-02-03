@@ -20,7 +20,7 @@ function RouteComponent() {
   const isLoading = useStore(loadingStore)
 
   return (
-    <div className="min-h-max bg-zinc-950">
+    <div className="min-h-max bg-background">
       <main className="container mx-auto p-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Col 1: Selector (3 cols) */}

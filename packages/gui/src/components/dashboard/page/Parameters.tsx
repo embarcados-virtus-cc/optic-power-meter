@@ -45,13 +45,13 @@ export function Parameters({ isLoading }: { isLoading: boolean }) {
         <div className="flex items-center gap-3">
           {isLoading ? (
             <>
-              <Skeleton className="w-6 h-6 bg-zinc-800 rounded-md" />
-              <Skeleton className="w-48 h-6 bg-zinc-800 rounded-md" />
+              <Skeleton className="w-6 h-6 bg-muted rounded-md" />
+              <Skeleton className="w-48 h-6 bg-muted rounded-md" />
             </>
           ) : (
             <>
-              <FileText className="text-slate-300" size={24} />
-              <Label className="text-lg font-bold uppercase tracking-wider text-slate-300">
+              <FileText className="text-foreground" size={24} />
+              <Label className="text-lg font-bold uppercase tracking-wider text-foreground">
                 Parâmetros do Módulo
               </Label>
             </>
@@ -64,15 +64,15 @@ export function Parameters({ isLoading }: { isLoading: boolean }) {
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-6 bg-zinc-800 rounded-lg h-full min-h-24"
+                className="flex items-center justify-between p-6 bg-secondary rounded-lg h-full min-h-24"
               >
                 <div className="flex flex-col gap-2">
-                  <Skeleton className="w-6 h-6 bg-zinc-800" />
-                  <Skeleton className="w-20 h-4 bg-zinc-800" />
+                  <Skeleton className="w-6 h-6 bg-muted" />
+                  <Skeleton className="w-20 h-4 bg-muted" />
                 </div>
                 <div className="flex items-baseline gap-1">
-                  <Skeleton className="w-12 h-8 bg-zinc-800" />
-                  <Skeleton className="w-8 h-5 bg-zinc-800" />
+                  <Skeleton className="w-12 h-8 bg-muted" />
+                  <Skeleton className="w-8 h-5 bg-muted" />
                 </div>
               </div>
             ))}
@@ -82,20 +82,20 @@ export function Parameters({ isLoading }: { isLoading: boolean }) {
             {params.map((param, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-6 bg-zinc-800 rounded-lg min-h-24"
+                className="flex items-center justify-between p-6 bg-secondary rounded-lg min-h-24"
               >
                 <div className="flex flex-col gap-2">
-                  <param.icon className="text-slate-300" size={24} />
-                  <Label className="text-xs uppercase tracking-wide text-slate-300">
+                  <param.icon className="text-foreground" size={24} />
+                  <Label className="text-xs uppercase tracking-wide text-foreground">
                     {param.label}
                   </Label>
                 </div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-slate-300">
+                  <span className="text-2xl font-bold text-foreground">
                     {param.value}
                   </span>
                   {param.unit && (
-                    <span className="text-sm text-slate-300">{param.unit}</span>
+                    <span className="text-sm text-foreground">{param.unit}</span>
                   )}
                 </div>
               </div>

@@ -177,13 +177,13 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
         <div className="flex items-center gap-3">
           {isLoading ? (
             <>
-              <Skeleton className="w-7 h-7 bg-zinc-800 rounded-md" />
-              <Skeleton className="w-72 h-7 bg-zinc-800 rounded-md" />
+              <Skeleton className="w-7 h-7 bg-muted rounded-md" />
+              <Skeleton className="w-72 h-7 bg-muted rounded-md" />
             </>
           ) : (
             <>
-              <Settings className="text-slate-100" size={28} />
-              <Label className="text-xl font-bold uppercase tracking-wider text-slate-100">
+              <Settings className="text-foreground" size={28} />
+              <Label className="text-xl font-bold uppercase tracking-wider text-foreground">
                 Limites dos Alarmes e Avisos
               </Label>
             </>
@@ -193,19 +193,19 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
 
       <CardContentComponent className="flex-1">
         {isLoading ? (
-          <div className="w-full border border-zinc-800 rounded-lg overflow-hidden">
+          <div className="w-full border border-border rounded-lg overflow-hidden">
             {/* Skeleton Header */}
-            <div className="grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] bg-zinc-800/50">
-              <div className="flex items-center justify-center px-3 py-2 border-r border-zinc-800">
-                <Skeleton className="w-24 h-5 bg-zinc-800 rounded" />
+            <div className="grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] bg-secondary/50">
+              <div className="flex items-center justify-center px-3 py-2 border-r border-border">
+                <Skeleton className="w-24 h-5 bg-muted rounded" />
               </div>
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex flex-col items-center justify-center py-2 border-r border-zinc-800 gap-1"
+                  className="flex flex-col items-center justify-center py-2 border-r border-border gap-1"
                 >
-                  <Skeleton className="w-12 h-4 bg-zinc-800 rounded" />
-                  <Skeleton className="w-10 h-4 bg-zinc-800 rounded" />
+                  <Skeleton className="w-12 h-4 bg-muted rounded" />
+                  <Skeleton className="w-10 h-4 bg-muted rounded" />
                 </div>
               ))}
               <div className="flex items-center justify-center">
@@ -217,60 +217,60 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className={`grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] ${i < 3 ? 'border-b border-zinc-800' : ''}`}
+                className={`grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] ${i < 3 ? 'border-b border-border' : ''}`}
               >
                 {/* Parameter */}
-                <div className="px-3 py-4 border-r border-zinc-800 flex items-center gap-2">
-                  <Skeleton className="w-32 h-5 bg-zinc-800 rounded" />
+                <div className="px-3 py-4 border-r border-border flex items-center gap-2">
+                  <Skeleton className="w-32 h-5 bg-muted rounded" />
                 </div>
 
                 {/* Values columns */}
                 {Array.from({ length: 4 }).map((__, j) => (
                   <div
                     key={j}
-                    className="flex items-center justify-center py-4 px-2 border-r border-zinc-800"
+                    className="flex items-center justify-center py-4 px-2 border-r border-border"
                   >
-                    <Skeleton className="w-full h-7 bg-zinc-800 rounded" />
+                    <Skeleton className="w-full h-7 bg-muted rounded" />
                   </div>
                 ))}
 
                 {/* Action */}
                 <div className="flex items-center justify-center py-2">
-                  <Skeleton className="w-6 h-6 bg-zinc-800 rounded" />
+                  <Skeleton className="w-6 h-6 bg-muted rounded" />
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="w-full border border-zinc-800 rounded-lg overflow-hidden">
+          <div className="w-full border border-border rounded-lg overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] bg-zinc-800/50">
-              <div className="flex items-center justify-center px-3 py-2 border-r border-zinc-800">
-                <span className="text-base font-semibold text-slate-400">
+            <div className="grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] bg-secondary/50">
+              <div className="flex items-center justify-center px-3 py-2 border-r border-border">
+                <span className="text-base font-semibold text-muted-foreground">
                   Parâmetro
                 </span>
               </div>
-              <div className="flex flex-col items-center justify-center py-2 border-r border-zinc-800">
-                <span className="text-sm font-bold text-slate-400">Alarme</span>
-                <div className="px-2 py-0.5 bg-red-900 text-slate-100 rounded text-xs font-black uppercase mt-1">
+              <div className="flex flex-col items-center justify-center py-2 border-r border-border">
+                <span className="text-sm font-bold text-muted-foreground">Alarme</span>
+                <div className="px-2 py-0.5 bg-red-900 text-white rounded text-xs font-black uppercase mt-1">
                   ALTO
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center py-2 border-r border-zinc-800">
-                <span className="text-sm font-bold text-slate-400">Aviso</span>
-                <div className="px-2 py-0.5 bg-yellow-600 text-slate-100 rounded text-xs font-black uppercase mt-1">
+              <div className="flex flex-col items-center justify-center py-2 border-r border-border">
+                <span className="text-sm font-bold text-muted-foreground">Aviso</span>
+                <div className="px-2 py-0.5 bg-yellow-500 text-zinc-900 rounded text-xs font-black uppercase mt-1">
                   ALTO
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center py-2 border-r border-zinc-800">
-                <span className="text-sm font-bold text-slate-400">Aviso</span>
-                <div className="px-2 py-0.5 bg-yellow-600 text-slate-100 rounded text-xs font-black uppercase mt-1">
+              <div className="flex flex-col items-center justify-center py-2 border-r border-border">
+                <span className="text-sm font-bold text-muted-foreground">Aviso</span>
+                <div className="px-2 py-0.5 bg-yellow-500 text-zinc-900 rounded text-xs font-black uppercase mt-1">
                   BAIXO
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center py-2 border-r border-zinc-800">
-                <span className="text-sm font-bold text-slate-400">Alarme</span>
-                <div className="px-2 py-0.5 bg-red-900 text-slate-100 rounded text-xs font-black uppercase mt-1">
+              <div className="flex flex-col items-center justify-center py-2 border-r border-border">
+                <span className="text-sm font-bold text-muted-foreground">Alarme</span>
+                <div className="px-2 py-0.5 bg-red-900 text-white rounded text-xs font-black uppercase mt-1">
                   BAIXO
                 </div>
               </div>
@@ -291,11 +291,11 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
               return (
                 <div
                   key={limit.id}
-                  className={`grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] ${!isLast ? 'border-b border-zinc-800' : ''} hover:bg-zinc-800/30 transition-colors`}
+                  className={`grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] ${!isLast ? 'border-b border-border' : ''} hover:bg-secondary/30 transition-colors`}
                 >
                   {/* Parameter Name */}
-                  <div className="px-3 py-4 border-r border-zinc-800 flex items-center gap-2">
-                    <span className="text-base font-medium text-slate-100">
+                  <div className="px-3 py-4 border-r border-border flex items-center gap-2">
+                    <span className="text-base font-medium text-foreground">
                       {limit.parameter.replace(/\([^)]*\)/, `(${displayUnit})`)}
                     </span>
                     {isRxPower && !isEditing && (
@@ -307,16 +307,16 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
                       >
                         <SelectTrigger
                           size="sm"
-                          className="h-6 px-2 py-0 text-xs bg-zinc-700 border-zinc-600 text-slate-100 min-w-[60px]"
+                          className="h-6 px-2 py-0 text-xs bg-secondary border-border text-foreground min-w-[60px]"
                         >
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-zinc-800 border-zinc-800">
+                        <SelectContent className="bg-background border-border">
                           {RX_POWER_UNITS.map((unit) => (
                             <SelectItem
                               key={unit}
                               value={unit}
-                              className="text-slate-100 focus:bg-zinc-700 focus:text-slate-100"
+                              className="text-foreground focus:bg-accent focus:text-accent-foreground"
                             >
                               {unit}
                             </SelectItem>
@@ -327,7 +327,7 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
                   </div>
 
                   {/* Alarme Alto */}
-                  <div className="flex items-center justify-center py-4 px-2 border-r border-zinc-800">
+                  <div className="flex items-center justify-center py-4 px-2 border-r border-border">
                     {isEditing ? (
                       <input
                         type="number"
@@ -340,10 +340,10 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
                             limit.unit,
                           )
                         }
-                        className="w-full px-1 py-1 bg-red-900 text-slate-100 rounded text-base font-bold text-center border border-red-800 focus:outline-none focus:border-red-600"
+                        className="w-full px-1 py-1 bg-red-900 text-white rounded text-base font-bold text-center border border-red-800 focus:outline-none focus:border-red-600"
                       />
                     ) : (
-                      <div className="w-full px-2 py-1 bg-red-900 text-slate-100 rounded text-base font-bold text-center">
+                      <div className="w-full px-2 py-1 bg-red-900 text-white rounded text-base font-bold text-center">
                         {formatValue(
                           getDisplayValue(limit.alarmHigh, limit.unit),
                           displayUnit,
@@ -353,7 +353,7 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
                   </div>
 
                   {/* Aviso Alto */}
-                  <div className="flex items-center justify-center py-4 px-2 border-r border-zinc-800">
+                  <div className="flex items-center justify-center py-4 px-2 border-r border-border">
                     {isEditing ? (
                       <input
                         type="number"
@@ -366,10 +366,10 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
                             limit.unit,
                           )
                         }
-                        className="w-full px-1 py-1 bg-yellow-600 text-slate-100 rounded text-base font-bold text-center border border-yellow-300 focus:outline-none focus:border-yellow-200"
+                        className="w-full px-1 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center border border-yellow-300 focus:outline-none focus:border-yellow-200"
                       />
                     ) : (
-                      <div className="w-full px-2 py-1 bg-yellow-600 text-slate-100 rounded text-base font-bold text-center">
+                      <div className="w-full px-2 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center">
                         {formatValue(
                           getDisplayValue(limit.warningHigh, limit.unit),
                           displayUnit,
@@ -379,7 +379,7 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
                   </div>
 
                   {/* Aviso Baixo */}
-                  <div className="flex items-center justify-center py-4 px-2 border-r border-zinc-800">
+                  <div className="flex items-center justify-center py-4 px-2 border-r border-border">
                     {isEditing ? (
                       <input
                         type="number"
@@ -392,10 +392,10 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
                             limit.unit,
                           )
                         }
-                        className="w-full px-1 py-1 bg-yellow-600 text-slate-100 rounded text-base font-bold text-center border border-yellow-300 focus:outline-none focus:border-yellow-200"
+                        className="w-full px-1 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center border border-yellow-300 focus:outline-none focus:border-yellow-200"
                       />
                     ) : (
-                      <div className="w-full px-2 py-1 bg-yellow-600 text-slate-100 rounded text-base font-bold text-center">
+                      <div className="w-full px-2 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center">
                         {formatValue(
                           getDisplayValue(limit.warningLow, limit.unit),
                           displayUnit,
@@ -405,7 +405,7 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
                   </div>
 
                   {/* Alarme Baixo */}
-                  <div className="flex items-center justify-center py-4 px-2 border-r border-zinc-800">
+                  <div className="flex items-center justify-center py-4 px-2 border-r border-border">
                     {isEditing ? (
                       <input
                         type="number"
@@ -418,10 +418,10 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
                             limit.unit,
                           )
                         }
-                        className="w-full px-1 py-1 bg-red-900 text-slate-100 rounded text-base font-bold text-center border border-red-800 focus:outline-none focus:border-red-600"
+                        className="w-full px-1 py-1 bg-red-900 text-white rounded text-base font-bold text-center border border-red-800 focus:outline-none focus:border-red-600"
                       />
                     ) : (
-                      <div className="w-full px-2 py-1 bg-red-900 text-slate-100 rounded text-base font-bold text-center">
+                      <div className="w-full px-2 py-1 bg-red-900 text-white rounded text-base font-bold text-center">
                         {formatValue(
                           getDisplayValue(limit.alarmLow, limit.unit),
                           displayUnit,
@@ -452,7 +452,7 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
                     ) : (
                       <button
                         onClick={() => handleEdit(limit)}
-                        className="flex items-center justify-center w-6 h-6 rounded hover:bg-zinc-700 transition-colors text-slate-400 hover:text-slate-100"
+                        className="flex items-center justify-center w-6 h-6 rounded hover:bg-zinc-700 transition-colors text-muted-foreground hover:text-foreground"
                         aria-label="Editar limites"
                       >
                         <SquarePen size={20} />
@@ -466,16 +466,16 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
         )}
       </CardContentComponent>
 
-      <CardFooterComponent className="flex flex-col gap-3 items-end pt-6 border-t border-zinc-800">
+      <CardFooterComponent className="flex flex-col gap-3 items-end pt-6 border-t border-border">
         {isLoading ? (
           <>
             <div className="flex items-center gap-3">
-              <Skeleton className="w-64 h-4 bg-zinc-800 rounded" />
-              <Skeleton className="w-9 h-5 bg-zinc-800 rounded-full" />
+              <Skeleton className="w-64 h-4 bg-muted rounded" />
+              <Skeleton className="w-9 h-5 bg-muted rounded-full" />
             </div>
             <div className="flex items-center gap-3">
-              <Skeleton className="w-80 h-4 bg-zinc-800 rounded" />
-              <Skeleton className="w-9 h-5 bg-zinc-800 rounded-full" />
+              <Skeleton className="w-80 h-4 bg-muted rounded" />
+              <Skeleton className="w-9 h-5 bg-muted rounded-full" />
             </div>
           </>
         ) : (
@@ -483,7 +483,7 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
             <div className="flex items-center gap-3">
               <Label
                 htmlFor="global-notifications"
-                className="text-sm font-medium text-slate-100 text-right cursor-pointer"
+                className="text-sm font-medium text-foreground text-right cursor-pointer"
               >
                 Ativar notificações de flags em toda a dashboard
               </Label>
@@ -492,7 +492,7 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
             <div className="flex items-center gap-3">
               <Label
                 htmlFor="auto-calibration"
-                className="text-sm font-medium text-slate-100 text-right cursor-pointer"
+                className="text-sm font-medium text-foreground text-right cursor-pointer"
               >
                 Realizar calibração automática ao exceder limites
               </Label>

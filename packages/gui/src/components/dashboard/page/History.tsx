@@ -18,7 +18,7 @@ import { historyStore } from '@/stores/dataStores'
 const chartConfig = {
   power: {
     label: 'Potência',
-    color: 'rgb(203 213 225)',
+    color: 'hsl(var(--foreground))',
   },
 }
 
@@ -70,13 +70,13 @@ export function History({ isLoading }: { isLoading: boolean }) {
         <div className="flex items-center gap-3">
           {isLoading ? (
             <>
-              <Skeleton className="w-6 h-6 bg-zinc-800 rounded-md" />
-              <Skeleton className="w-64 h-6 bg-zinc-800 rounded-md" />
+              <Skeleton className="w-6 h-6 bg-muted rounded-md" />
+              <Skeleton className="w-64 h-6 bg-muted rounded-md" />
             </>
           ) : (
             <>
-              <FolderClock className="text-slate-300" size={24} />
-              <Label className="text-lg font-bold uppercase tracking-wider text-slate-300">
+              <FolderClock className="text-foreground" size={24} />
+              <Label className="text-lg font-bold uppercase tracking-wider text-foreground">
                 Histórico de Potência Óptica Recebida (RX)
               </Label>
             </>
@@ -97,7 +97,7 @@ export function History({ isLoading }: { isLoading: boolean }) {
                 return (
                   <Skeleton
                     key={i}
-                    className="flex-1 bg-zinc-800 rounded-t"
+                    className="flex-1 bg-muted rounded-t"
                     style={{
                       height: `${heightPercent}%`,
                       alignSelf: 'flex-end',
@@ -111,46 +111,46 @@ export function History({ isLoading }: { isLoading: boolean }) {
           <div className="w-full h-60 px-6 pb-6">
             <ChartContainer
               config={chartConfig}
-              className="w-full h-full [&_.recharts-bar-rectangle]:hover:fill-slate-200 [&_.recharts-bar-rectangle]:transition-all [&_.recharts-bar-rectangle]:cursor-pointer"
+              className="w-full h-full [&_.recharts-bar-rectangle]:hover:opacity-80 [&_.recharts-bar-rectangle]:transition-all [&_.recharts-bar-rectangle]:cursor-pointer"
             >
               <BarChart
                 data={chartData}
                 margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="rgb(51 65 85)" />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                 <XAxis
                   dataKey="time"
-                  tick={{ fill: 'rgb(203 213 225)' }}
-                  tickLine={{ stroke: 'rgb(203 213 225)' }}
+                  className="[&_text]:fill-foreground [&_line]:stroke-foreground"
+                  tickLine={{ stroke: 'currentColor' }}
                   label={{
                     value: 'Tempo (s)',
                     position: 'insideBottom',
                     offset: -5,
-                    fill: 'rgb(203 213 225)',
+                    className: 'fill-foreground',
                   }}
                   tickFormatter={(value) => `${value}s`}
                   interval={historyData.length > 15 ? 2 : 0}
                 />
                 <YAxis
                   domain={[yAxisTop, yAxisBottom]}
-                  tick={{ fill: 'rgb(203 213 225)' }}
-                  tickLine={{ stroke: 'rgb(203 213 225)' }}
+                  className="[&_text]:fill-foreground [&_line]:stroke-foreground"
+                  tickLine={{ stroke: 'currentColor' }}
                   label={{
                     value: 'dBm',
                     angle: -90,
                     position: 'insideLeft',
-                    fill: 'rgb(203 213 225)',
+                    className: 'fill-foreground',
                   }}
                   allowDataOverflow={false}
                 />
                 <ChartTooltip
                   content={<ChartTooltipContent />}
-                  cursor={{ fill: 'rgba(203, 213, 225, 0.1)' }}
+                  cursor={{ fill: 'hsl(var(--muted))' }}
                   labelFormatter={(value) => `Tempo: ${value}s`}
                 />
                 <Bar
                   dataKey="power"
-                  fill="rgb(203 213 225)"
+                  className="fill-foreground"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
