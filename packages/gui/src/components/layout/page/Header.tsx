@@ -44,6 +44,11 @@ export function Header() {
                     className="h-12 w-12 mr-4"
                   />
                   MEDIDOR DE POTÊNCIA ÓPTICA
+                  <img
+                    src="/logo-virtus-cc.png"
+                    alt="Logo Virtus CC"
+                    className="h-16 w-60 ml-4"
+                  />
                 </span>
               </Link>
             )}

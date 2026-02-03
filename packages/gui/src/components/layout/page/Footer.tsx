@@ -58,6 +58,13 @@ export function Footer() {
                     Sistema de Monitoramento de Potência Óptica
                   </span>
                 </div>
+                <div className="ml-2">
+                  <img
+                    src="/logo-virtus-cc.png"
+                    alt="Logo Virtus CC"
+                    className="h-20 w-76 ml-4"
+                  />
+                </div>
               </div>
 
               {/* Links Sociais */}
