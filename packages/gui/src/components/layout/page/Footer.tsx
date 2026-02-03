@@ -42,11 +42,11 @@ export function Footer() {
         ) : (
           <div className="flex flex-col gap-4">
             {/* Linha Principal */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
               {/* Info do Projeto */}
 
-              <div className="flex items-center gap-2">
-                <div className="mr-2">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-2 text-center sm:text-left">
+                <div className="sm:mr-2">
                   <img
                     src={
                       theme === 'light'
@@ -54,22 +54,22 @@ export function Footer() {
                         : '/logo-power-meter.png'
                     }
                     alt="Logo do Medidor de Potência Óptica"
-                    className="h-20 w-20 rounded-md"
+                    className="h-16 w-16 sm:h-20 sm:w-20 rounded-md"
                   />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <span className="text-lg font-bold text-foreground">
+                <div className="flex flex-col gap-1 sm:gap-2">
+                  <span className="text-base sm:text-lg font-bold text-foreground">
                     Medidor de Potência Óptica (2026)
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Sistema de Monitoramento de Potência Óptica
                   </span>
                 </div>
-                <div className="ml-2">
+                <div className="sm:ml-2">
                   <img
                     src="/logo-virtus-cc.png"
                     alt="Logo Virtus CC"
-                    className="h-20 w-76 ml-4"
+                    className="h-12 w-auto sm:h-20 sm:w-auto ml-0 sm:ml-4"
                   />
                 </div>
               </div>

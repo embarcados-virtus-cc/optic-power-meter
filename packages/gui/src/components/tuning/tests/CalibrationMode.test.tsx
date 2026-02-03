@@ -4,7 +4,13 @@ import { CalibrationMode } from '../page/CalibrationMode'
 
 describe('CalibrationMode', () => {
   it('renders with active internal mode', () => {
-    render(<CalibrationMode activeMode="internal" onModeChange={() => {}} />)
+    render(
+      <CalibrationMode
+        activeMode="internal"
+        onModeChange={() => { }}
+        isLoading={false}
+      />,
+    )
     expect(screen.getByText('CALIBRAÇÃO INTERNA')).toBeInTheDocument()
     // Check for active style or element if necessary
   })
@@ -12,7 +18,11 @@ describe('CalibrationMode', () => {
   it('calls onModeChange when clicking external', () => {
     const onModeChange = vi.fn()
     render(
-      <CalibrationMode activeMode="internal" onModeChange={onModeChange} />,
+      <CalibrationMode
+        activeMode="internal"
+        onModeChange={onModeChange}
+        isLoading={false}
+      />,
     )
 
     fireEvent.click(screen.getByText('CALIBRAÇÃO EXTERNA'))
@@ -30,8 +40,9 @@ describe('CalibrationMode', () => {
     render(
       <CalibrationMode
         activeMode="internal"
-        onModeChange={() => {}}
+        onModeChange={() => { }}
         status={status}
+        isLoading={false}
       />,
     )
 

@@ -4,7 +4,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routes import current
+from app.routes import current, static_info
 
 # Configuração de logging
 logging.basicConfig(
@@ -32,6 +32,7 @@ app.add_middleware(
 
 # Registra rotas
 app.include_router(current.router)
+app.include_router(static_info.router)
 
 
 @app.get("/")

@@ -242,226 +242,228 @@ export function Limits({ isLoading }: { isLoading: boolean }) {
             ))}
           </div>
         ) : (
-          <div className="w-full border border-border rounded-lg overflow-hidden">
-            {/* Table Header */}
-            <div className="grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] bg-secondary/50">
-              <div className="flex items-center justify-center px-3 py-2 border-r border-border">
-                <span className="text-base font-semibold text-muted-foreground">
-                  Parâmetro
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center py-2 border-r border-border">
-                <span className="text-sm font-bold text-muted-foreground">Alarme</span>
-                <div className="px-2 py-0.5 bg-red-900 text-white rounded text-xs font-black uppercase mt-1">
-                  ALTO
+          <div className="w-full border border-border rounded-lg overflow-x-auto">
+            <div className="min-w-[800px]">
+              {/* Table Header */}
+              <div className="grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] bg-secondary/50">
+                <div className="flex items-center justify-center px-3 py-2 border-r border-border">
+                  <span className="text-base font-semibold text-muted-foreground">
+                    Parâmetro
+                  </span>
+                </div>
+                <div className="flex flex-col items-center justify-center py-2 border-r border-border">
+                  <span className="text-sm font-bold text-muted-foreground">Alarme</span>
+                  <div className="px-2 py-0.5 bg-red-900 text-white rounded text-xs font-black uppercase mt-1">
+                    ALTO
+                  </div>
+                </div>
+                <div className="flex flex-col items-center justify-center py-2 border-r border-border">
+                  <span className="text-sm font-bold text-muted-foreground">Aviso</span>
+                  <div className="px-2 py-0.5 bg-yellow-500 text-zinc-900 rounded text-xs font-black uppercase mt-1">
+                    ALTO
+                  </div>
+                </div>
+                <div className="flex flex-col items-center justify-center py-2 border-r border-border">
+                  <span className="text-sm font-bold text-muted-foreground">Aviso</span>
+                  <div className="px-2 py-0.5 bg-yellow-500 text-zinc-900 rounded text-xs font-black uppercase mt-1">
+                    BAIXO
+                  </div>
+                </div>
+                <div className="flex flex-col items-center justify-center py-2 border-r border-border">
+                  <span className="text-sm font-bold text-muted-foreground">Alarme</span>
+                  <div className="px-2 py-0.5 bg-red-900 text-white rounded text-xs font-black uppercase mt-1">
+                    BAIXO
+                  </div>
+                </div>
+                <div className="flex items-center justify-center">
+                  {/* Empty header for actions */}
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center py-2 border-r border-border">
-                <span className="text-sm font-bold text-muted-foreground">Aviso</span>
-                <div className="px-2 py-0.5 bg-yellow-500 text-zinc-900 rounded text-xs font-black uppercase mt-1">
-                  ALTO
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center py-2 border-r border-border">
-                <span className="text-sm font-bold text-muted-foreground">Aviso</span>
-                <div className="px-2 py-0.5 bg-yellow-500 text-zinc-900 rounded text-xs font-black uppercase mt-1">
-                  BAIXO
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center py-2 border-r border-border">
-                <span className="text-sm font-bold text-muted-foreground">Alarme</span>
-                <div className="px-2 py-0.5 bg-red-900 text-white rounded text-xs font-black uppercase mt-1">
-                  BAIXO
-                </div>
-              </div>
-              <div className="flex items-center justify-center">
-                {/* Empty header for actions */}
-              </div>
+
+              {/* Table Body */}
+              {limits.map((limit, index) => {
+                const isEditing = editingId === limit.id
+                const currentValues = isEditing ? editValues! : limit
+                const displayUnit = getDisplayUnit(limit.unit)
+                const isRxPower = ['dBm', 'dB', 'mW', 'nW'].includes(limit.unit)
+                const step = getStep(limit.unit)
+                const isLast = index === limits.length - 1
+
+                return (
+                  <div
+                    key={limit.id}
+                    className={`grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] ${!isLast ? 'border-b border-border' : ''} hover:bg-secondary/30 transition-colors`}
+                  >
+                    {/* Parameter Name */}
+                    <div className="px-3 py-4 border-r border-border flex items-center gap-2">
+                      <span className="text-base font-medium text-foreground">
+                        {limit.parameter.replace(/\([^)]*\)/, `(${displayUnit})`)}
+                      </span>
+                      {isRxPower && !isEditing && (
+                        <Select
+                          value={rxPowerUnit}
+                          onValueChange={(value) =>
+                            setRxPowerUnit(value as RxPowerUnit)
+                          }
+                        >
+                          <SelectTrigger
+                            size="sm"
+                            className="h-6 px-2 py-0 text-xs bg-secondary border-border text-foreground min-w-[60px]"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background border-border">
+                            {RX_POWER_UNITS.map((unit) => (
+                              <SelectItem
+                                key={unit}
+                                value={unit}
+                                className="text-foreground focus:bg-accent focus:text-accent-foreground"
+                              >
+                                {unit}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+
+                    {/* Alarme Alto */}
+                    <div className="flex items-center justify-center py-4 px-2 border-r border-border">
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          step={step}
+                          value={currentValues.alarmHigh}
+                          onChange={(e) =>
+                            handleInputChange(
+                              'alarmHigh',
+                              e.target.value,
+                              limit.unit,
+                            )
+                          }
+                          className="w-full px-1 py-1 bg-red-900 text-white rounded text-base font-bold text-center border border-red-800 focus:outline-none focus:border-red-600"
+                        />
+                      ) : (
+                        <div className="w-full px-2 py-1 bg-red-900 text-white rounded text-base font-bold text-center">
+                          {formatValue(
+                            getDisplayValue(limit.alarmHigh, limit.unit),
+                            displayUnit,
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Aviso Alto */}
+                    <div className="flex items-center justify-center py-4 px-2 border-r border-border">
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          step={step}
+                          value={currentValues.warningHigh}
+                          onChange={(e) =>
+                            handleInputChange(
+                              'warningHigh',
+                              e.target.value,
+                              limit.unit,
+                            )
+                          }
+                          className="w-full px-1 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center border border-yellow-300 focus:outline-none focus:border-yellow-200"
+                        />
+                      ) : (
+                        <div className="w-full px-2 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center">
+                          {formatValue(
+                            getDisplayValue(limit.warningHigh, limit.unit),
+                            displayUnit,
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Aviso Baixo */}
+                    <div className="flex items-center justify-center py-4 px-2 border-r border-border">
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          step={step}
+                          value={currentValues.warningLow}
+                          onChange={(e) =>
+                            handleInputChange(
+                              'warningLow',
+                              e.target.value,
+                              limit.unit,
+                            )
+                          }
+                          className="w-full px-1 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center border border-yellow-300 focus:outline-none focus:border-yellow-200"
+                        />
+                      ) : (
+                        <div className="w-full px-2 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center">
+                          {formatValue(
+                            getDisplayValue(limit.warningLow, limit.unit),
+                            displayUnit,
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Alarme Baixo */}
+                    <div className="flex items-center justify-center py-4 px-2 border-r border-border">
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          step={step}
+                          value={currentValues.alarmLow}
+                          onChange={(e) =>
+                            handleInputChange(
+                              'alarmLow',
+                              e.target.value,
+                              limit.unit,
+                            )
+                          }
+                          className="w-full px-1 py-1 bg-red-900 text-white rounded text-base font-bold text-center border border-red-800 focus:outline-none focus:border-red-600"
+                        />
+                      ) : (
+                        <div className="w-full px-2 py-1 bg-red-900 text-white rounded text-base font-bold text-center">
+                          {formatValue(
+                            getDisplayValue(limit.alarmLow, limit.unit),
+                            displayUnit,
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-center py-2">
+                      {isEditing ? (
+                        <div className="flex flex-col gap-1">
+                          <button
+                            onClick={handleSave}
+                            className="flex items-center justify-center w-5 h-5 rounded hover:bg-green-900/30 transition-colors text-green-500 hover:text-green-400"
+                            aria-label="Salvar"
+                          >
+                            <Check size={20} />
+                          </button>
+                          <button
+                            onClick={handleCancel}
+                            className="flex items-center justify-center w-5 h-5 rounded hover:bg-red-900/30 transition-colors text-red-500 hover:text-red-400"
+                            aria-label="Cancelar"
+                          >
+                            <X size={20} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleEdit(limit)}
+                          className="flex items-center justify-center w-6 h-6 rounded hover:bg-zinc-700 transition-colors text-muted-foreground hover:text-foreground"
+                          aria-label="Editar limites"
+                        >
+                          <SquarePen size={20} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-
-            {/* Table Body */}
-            {limits.map((limit, index) => {
-              const isEditing = editingId === limit.id
-              const currentValues = isEditing ? editValues! : limit
-              const displayUnit = getDisplayUnit(limit.unit)
-              const isRxPower = ['dBm', 'dB', 'mW', 'nW'].includes(limit.unit)
-              const step = getStep(limit.unit)
-              const isLast = index === limits.length - 1
-
-              return (
-                <div
-                  key={limit.id}
-                  className={`grid grid-cols-[220px_1fr_1fr_1fr_1fr_50px] ${!isLast ? 'border-b border-border' : ''} hover:bg-secondary/30 transition-colors`}
-                >
-                  {/* Parameter Name */}
-                  <div className="px-3 py-4 border-r border-border flex items-center gap-2">
-                    <span className="text-base font-medium text-foreground">
-                      {limit.parameter.replace(/\([^)]*\)/, `(${displayUnit})`)}
-                    </span>
-                    {isRxPower && !isEditing && (
-                      <Select
-                        value={rxPowerUnit}
-                        onValueChange={(value) =>
-                          setRxPowerUnit(value as RxPowerUnit)
-                        }
-                      >
-                        <SelectTrigger
-                          size="sm"
-                          className="h-6 px-2 py-0 text-xs bg-secondary border-border text-foreground min-w-[60px]"
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-background border-border">
-                          {RX_POWER_UNITS.map((unit) => (
-                            <SelectItem
-                              key={unit}
-                              value={unit}
-                              className="text-foreground focus:bg-accent focus:text-accent-foreground"
-                            >
-                              {unit}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-
-                  {/* Alarme Alto */}
-                  <div className="flex items-center justify-center py-4 px-2 border-r border-border">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        step={step}
-                        value={currentValues.alarmHigh}
-                        onChange={(e) =>
-                          handleInputChange(
-                            'alarmHigh',
-                            e.target.value,
-                            limit.unit,
-                          )
-                        }
-                        className="w-full px-1 py-1 bg-red-900 text-white rounded text-base font-bold text-center border border-red-800 focus:outline-none focus:border-red-600"
-                      />
-                    ) : (
-                      <div className="w-full px-2 py-1 bg-red-900 text-white rounded text-base font-bold text-center">
-                        {formatValue(
-                          getDisplayValue(limit.alarmHigh, limit.unit),
-                          displayUnit,
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Aviso Alto */}
-                  <div className="flex items-center justify-center py-4 px-2 border-r border-border">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        step={step}
-                        value={currentValues.warningHigh}
-                        onChange={(e) =>
-                          handleInputChange(
-                            'warningHigh',
-                            e.target.value,
-                            limit.unit,
-                          )
-                        }
-                        className="w-full px-1 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center border border-yellow-300 focus:outline-none focus:border-yellow-200"
-                      />
-                    ) : (
-                      <div className="w-full px-2 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center">
-                        {formatValue(
-                          getDisplayValue(limit.warningHigh, limit.unit),
-                          displayUnit,
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Aviso Baixo */}
-                  <div className="flex items-center justify-center py-4 px-2 border-r border-border">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        step={step}
-                        value={currentValues.warningLow}
-                        onChange={(e) =>
-                          handleInputChange(
-                            'warningLow',
-                            e.target.value,
-                            limit.unit,
-                          )
-                        }
-                        className="w-full px-1 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center border border-yellow-300 focus:outline-none focus:border-yellow-200"
-                      />
-                    ) : (
-                      <div className="w-full px-2 py-1 bg-yellow-500 text-zinc-900 rounded text-base font-bold text-center">
-                        {formatValue(
-                          getDisplayValue(limit.warningLow, limit.unit),
-                          displayUnit,
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Alarme Baixo */}
-                  <div className="flex items-center justify-center py-4 px-2 border-r border-border">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        step={step}
-                        value={currentValues.alarmLow}
-                        onChange={(e) =>
-                          handleInputChange(
-                            'alarmLow',
-                            e.target.value,
-                            limit.unit,
-                          )
-                        }
-                        className="w-full px-1 py-1 bg-red-900 text-white rounded text-base font-bold text-center border border-red-800 focus:outline-none focus:border-red-600"
-                      />
-                    ) : (
-                      <div className="w-full px-2 py-1 bg-red-900 text-white rounded text-base font-bold text-center">
-                        {formatValue(
-                          getDisplayValue(limit.alarmLow, limit.unit),
-                          displayUnit,
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-center py-2">
-                    {isEditing ? (
-                      <div className="flex flex-col gap-1">
-                        <button
-                          onClick={handleSave}
-                          className="flex items-center justify-center w-5 h-5 rounded hover:bg-green-900/30 transition-colors text-green-500 hover:text-green-400"
-                          aria-label="Salvar"
-                        >
-                          <Check size={20} />
-                        </button>
-                        <button
-                          onClick={handleCancel}
-                          className="flex items-center justify-center w-5 h-5 rounded hover:bg-red-900/30 transition-colors text-red-500 hover:text-red-400"
-                          aria-label="Cancelar"
-                        >
-                          <X size={20} />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleEdit(limit)}
-                        className="flex items-center justify-center w-6 h-6 rounded hover:bg-zinc-700 transition-colors text-muted-foreground hover:text-foreground"
-                        aria-label="Editar limites"
-                      >
-                        <SquarePen size={20} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
           </div>
         )}
       </CardContentComponent>

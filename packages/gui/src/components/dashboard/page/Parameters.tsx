@@ -78,7 +78,7 @@ export function Parameters({ isLoading }: { isLoading: boolean }) {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 h-full items-stretch">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full items-stretch">
             {params.map((param, index) => (
               <div
                 key={index}

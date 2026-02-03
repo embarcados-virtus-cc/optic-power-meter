@@ -11,6 +11,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { About } from '@/components/about/page/Sidebar'
 import { ThemeToggle } from './ThemeToggle'
 
+import { MobileNav } from './MobileNav'
+
 import { useStore } from '@tanstack/react-store'
 import { themeStore } from '@/stores/themeStore'
 
@@ -56,7 +58,7 @@ export function Header() {
                   <img
                     src="/logo-virtus-cc.png"
                     alt="Logo Virtus CC"
-                    className="h-16 w-60 ml-4"
+                    className="h-16 w-60 ml-4 hidden sm:block"
                   />
                 </span>
               </Link>
@@ -66,7 +68,7 @@ export function Header() {
           {/* Navbar Completa (alinhada a direita) */}
           {isLoading ? (
             // Skeleton da Navbar
-            <div className="ml-auto flex gap-2">
+            <div className="ml-auto flex gap-2 hidden md:flex">
               <Skeleton className="h-9 w-46 bg-muted" />
               <Skeleton className="h-9 w-49 bg-muted" />
               <Skeleton className="h-9 w-38 bg-muted" />
@@ -74,92 +76,100 @@ export function Header() {
               <Skeleton className="h-9 w-9 bg-muted" />
             </div>
           ) : (
-            <NavigationMenu className="ml-auto">
-              <NavigationMenuList className="gap-2">
-                <NavigationMenuItem>
-                  <Link
-                    to="/"
-                    className={`
-                      flex flex-row items-center justify-start gap-2
-                      text-left cursor-pointer
-                      ${isActive('/') ? 'text-muted-foreground' : 'text-foreground'}
-                      transition-colors
-                      px-3 py-2 rounded-md
-                    `}
-                  >
-                    <Activity
-                      className={
-                        isActive('/') ? 'text-muted-foreground' : 'text-foreground'
-                      }
-                      size={20}
-                    />
-                    Monitoramento
-                  </Link>
-                </NavigationMenuItem>
+            <>
+              <div className="hidden md:block ml-auto">
+                <NavigationMenu className="ml-auto">
+                  <NavigationMenuList className="gap-2">
+                    <NavigationMenuItem>
+                      <Link
+                        to="/"
+                        className={`
+                        flex flex-row items-center justify-start gap-2
+                        text-left cursor-pointer
+                        ${isActive('/') ? 'text-muted-foreground' : 'text-foreground'}
+                        transition-colors
+                        px-3 py-2 rounded-md
+                        `}
+                      >
+                        <Activity
+                          className={
+                            isActive('/') ? 'text-muted-foreground' : 'text-foreground'
+                          }
+                          size={20}
+                        />
+                        Monitoramento
+                      </Link>
+                    </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <Link
-                    to="/alarms"
-                    className={`
-                      flex flex-row items-center justify-start gap-2
-                      text-left cursor-pointer
-                      ${isActive('/alarms') ? 'text-muted-foreground' : 'text-foreground'}
-                      transition-colors
-                      px-3 py-2 rounded-md
-                    `}
-                  >
-                    <AlarmClock
-                      className={
-                        isActive('/alarms') ? 'text-muted-foreground' : 'text-foreground'
-                      }
-                      size={20}
-                    />
-                    Alarmes e Avisos
-                  </Link>
-                </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <Link
+                        to="/alarms"
+                        className={`
+                        flex flex-row items-center justify-start gap-2
+                        text-left cursor-pointer
+                        ${isActive('/alarms') ? 'text-muted-foreground' : 'text-foreground'}
+                        transition-colors
+                        px-3 py-2 rounded-md
+                        `}
+                      >
+                        <AlarmClock
+                          className={
+                            isActive('/alarms') ? 'text-muted-foreground' : 'text-foreground'
+                          }
+                          size={20}
+                        />
+                        Alarmes e Avisos
+                      </Link>
+                    </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <Link
-                    to="/tuning"
-                    className={`
-                      flex flex-row items-center justify-start gap-2
-                      text-left cursor-pointer
-                      ${isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground'}
-                      transition-colors
-                      px-3 py-2 rounded-md
-                    `}
-                  >
-                    <Toolbox
-                      className={
-                        isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground'
-                      }
-                      size={20}
-                    />
-                    Calibração
-                  </Link>
-                </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <Link
+                        to="/tuning"
+                        className={`
+                        flex flex-row items-center justify-start gap-2
+                        text-left cursor-pointer
+                        ${isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground'}
+                        transition-colors
+                        px-3 py-2 rounded-md
+                        `}
+                      >
+                        <Toolbox
+                          className={
+                            isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground'
+                          }
+                          size={20}
+                        />
+                        Calibração
+                      </Link>
+                    </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <button
-                    onClick={() => setIsAboutOpen(true)}
-                    className="
-                      flex flex-row items-center justify-start gap-2
-                      text-left cursor-pointer
-                      text-foreground
-                      transition-colors
-                      px-3 py-2 rounded-md
-                    "
-                  >
-                    <Users className="text-foreground" size={20} />
-                    Sobre
-                  </button>
-                </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <button
+                        onClick={() => setIsAboutOpen(true)}
+                        className="
+                        flex flex-row items-center justify-start gap-2
+                        text-left cursor-pointer
+                        text-foreground
+                        transition-colors
+                        px-3 py-2 rounded-md
+                        "
+                      >
+                        <Users className="text-foreground" size={20} />
+                        Sobre
+                      </button>
+                    </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <ThemeToggle />
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+                    <NavigationMenuItem>
+                      <ThemeToggle />
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
+              </div>
+
+              <div className="md:hidden ml-auto">
+                <MobileNav />
+              </div>
+            </>
           )}
         </div>
       </div>

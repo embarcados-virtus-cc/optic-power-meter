@@ -4,7 +4,7 @@ import { CalibrationInfoColumn } from '../page/CalibrationInfoColumn'
 
 describe('CalibrationInfoColumn', () => {
   it('renders info cards', () => {
-    render(<CalibrationInfoColumn />)
+    render(<CalibrationInfoColumn isLoading={false} />)
     expect(screen.getByText('Calibração Interna')).toBeInTheDocument()
     expect(screen.getByText('Calibração Externa')).toBeInTheDocument()
   })

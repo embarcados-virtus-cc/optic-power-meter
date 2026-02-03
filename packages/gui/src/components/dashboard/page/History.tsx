@@ -83,9 +83,9 @@ export function History({ isLoading }: { isLoading: boolean }) {
           )}
         </div>
       </CardHeaderComponent>
-      <CardContentComponent className="p-0 min-h-60">
+      <CardContentComponent className="p-0 h-[300px] min-h-[300px]">
         {isLoading ? (
-          <div className="w-full h-60 px-6 pb-6">
+          <div className="w-full h-full px-6 pb-6">
             <div className="w-full h-full flex items-center justify-between gap-1 relative">
               {/* Linha de referência no topo (0 dBm) para range padrão de LANs */}
               <div className="absolute top-0 left-0 right-0 h-px bg-none" />
@@ -108,53 +108,56 @@ export function History({ isLoading }: { isLoading: boolean }) {
             </div>
           </div>
         ) : (
-          <div className="w-full h-60 px-6 pb-6">
-            <ChartContainer
-              config={chartConfig}
-              className="w-full h-full [&_.recharts-bar-rectangle]:hover:opacity-80 [&_.recharts-bar-rectangle]:transition-all [&_.recharts-bar-rectangle]:cursor-pointer"
-            >
-              <BarChart
-                data={chartData}
-                margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+          <div className="w-full h-full overflow-x-auto">
+            <div className="min-w-[600px] h-full px-2 sm:px-6 pb-2 sm:pb-6">
+              <ChartContainer
+                config={chartConfig}
+                className="w-full h-full [&_.recharts-bar-rectangle]:hover:opacity-80 [&_.recharts-bar-rectangle]:transition-all [&_.recharts-bar-rectangle]:cursor-pointer"
               >
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis
-                  dataKey="time"
-                  className="[&_text]:fill-foreground [&_line]:stroke-foreground"
-                  tickLine={{ stroke: 'currentColor' }}
-                  label={{
-                    value: 'Tempo (s)',
-                    position: 'insideBottom',
-                    offset: -5,
-                    className: 'fill-foreground',
-                  }}
-                  tickFormatter={(value) => `${value}s`}
-                  interval={historyData.length > 15 ? 2 : 0}
-                />
-                <YAxis
-                  domain={[yAxisTop, yAxisBottom]}
-                  className="[&_text]:fill-foreground [&_line]:stroke-foreground"
-                  tickLine={{ stroke: 'currentColor' }}
-                  label={{
-                    value: 'dBm',
-                    angle: -90,
-                    position: 'insideLeft',
-                    className: 'fill-foreground',
-                  }}
-                  allowDataOverflow={false}
-                />
-                <ChartTooltip
-                  content={<ChartTooltipContent />}
-                  cursor={{ fill: 'hsl(var(--muted))' }}
-                  labelFormatter={(value) => `Tempo: ${value}s`}
-                />
-                <Bar
-                  dataKey="power"
-                  className="fill-foreground"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ChartContainer>
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis
+                    dataKey="time"
+                    className="[&_text]:fill-foreground [&_line]:stroke-foreground"
+                    tickLine={{ stroke: 'currentColor' }}
+                    label={{
+                      value: 'Tempo (s)',
+                      position: 'insideBottom',
+                      offset: -5,
+                      className: 'fill-foreground',
+                    }}
+                    tickFormatter={(value) => `${value}s`}
+                    interval={historyData.length > 15 ? 2 : 0}
+                  />
+                  <YAxis
+                    domain={[yAxisTop, yAxisBottom]}
+                    className="[&_text]:fill-foreground [&_line]:stroke-foreground"
+                    tickLine={{ stroke: 'currentColor' }}
+                    label={{
+                      value: 'dBm',
+                      angle: -90,
+                      position: 'insideLeft',
+                      className: 'fill-foreground',
+                    }}
+                    allowDataOverflow={false}
+                    width={40}
+                  />
+                  <ChartTooltip
+                    content={<ChartTooltipContent />}
+                    cursor={{ fill: 'hsl(var(--muted))' }}
+                    labelFormatter={(value) => `Tempo: ${value}s`}
+                  />
+                  <Bar
+                    dataKey="power"
+                    className="fill-foreground"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ChartContainer>
+            </div>
           </div>
         )}
       </CardContentComponent>

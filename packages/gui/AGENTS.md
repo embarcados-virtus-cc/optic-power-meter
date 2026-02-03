@@ -220,3 +220,49 @@ function App() {
 
 export default App
 ```
+
+## Temas e Estilização Avançada
+
+A aplicação suporta temas Claro (Light) e Escuro (Dark). O controle do tema é feito através do `themeStore` (baseado no TanStack Store) e persistido no `localStorage`.
+
+### Variáveis CSS e Tailwind
+
+As cores são definidas no arquivo `src/styles.css` usando variáveis CSS com o espaço de cor Oklch para melhor consistência visual. O Tailwind está configurado para usar essas variáveis.
+
+Para suportar o modo escuro, utilizamos a classe `.dark` no elemento html raiz. No CSS, as variáveis são redefinidas dentro do seletor `.dark`.
+
+Exemplo de uso de cores no Tailwind:
+- `bg-background`: Fundo principal da página.
+- `text-foreground`: Cor principal do texto.
+- `bg-muted`: Fundo para elementos secundários/desabilitados.
+
+### Adicionando suporte a Dark Mode em componentes
+
+O Tailwind já está configurado com `darkMode: 'class'`, então você pode usar o modificador `dark:` para estilos específicos:
+
+```tsx
+<div className="bg-white dark:bg-zinc-950 text-black dark:text-white">
+  Conteúdo
+</div>
+```
+
+No entanto, **prefira usar as variáveis semânticas** (`bg-background`, `text-foreground`) que já se adaptam automaticamente ao tema, evitando a necessidade de escrever `dark:` repetidamente.
+
+## Responsividade
+
+A aplicação deve ser responsiva e funcionar bem em dispositivos móveis. Utilizamos a abordagem **Mobile-First** com os breakpoints padrão do Tailwind:
+
+- `sm`: 640px
+- `md`: 768px
+- `lg`: 1024px
+- `xl`: 1280px
+
+### Padrões de Responsividade
+
+1.  **Grid Layouts**: Use `grid-cols-1` por padrão e aumente em telas maiores.
+    ```tsx
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">...</div>
+    ```
+2.  **Navegação**: Em telas menores (`< lg`), o menu de navegação deve ser colapsado em um menu "hambúrguer" ou similar (Sheet/Drawer).
+3.  **Gráficos**: Devem se ajustar à largura do container pai. O `ResponsiveContainer` do Recharts (ou `ChartContainer` do shadcn) já lida com isso, mas verifique se o container pai tem largura definida ou flexível.
+

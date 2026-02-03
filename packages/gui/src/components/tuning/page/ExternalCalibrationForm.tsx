@@ -71,7 +71,7 @@ export function ExternalCalibrationForm({
             {/* RX Power Section Skeleton */}
             <div className="space-y-3">
               <Skeleton className="w-24 h-5 bg-muted rounded-md" />
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <Skeleton className="w-full h-10 bg-muted rounded-md" />
                 <Skeleton className="w-full h-10 bg-muted rounded-md" />
                 <Skeleton className="w-full h-10 bg-muted rounded-md" />
@@ -82,9 +82,9 @@ export function ExternalCalibrationForm({
             {/* TX Power Section Skeleton */}
             <div className="space-y-3">
               <Skeleton className="w-24 h-5 bg-muted rounded-md" />
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <Skeleton className="w-full h-10 bg-muted rounded-md" />
-                <div className="col-span-2">
+                <div className="col-span-1 lg:col-span-2">
                   <Skeleton className="w-full h-10 bg-muted rounded-md" />
                 </div>
               </div>
@@ -93,9 +93,9 @@ export function ExternalCalibrationForm({
             {/* Temperature Section Skeleton */}
             <div className="space-y-3">
               <Skeleton className="w-32 h-5 bg-muted rounded-md" />
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <Skeleton className="w-full h-10 bg-muted rounded-md" />
-                <div className="col-span-2">
+                <div className="col-span-1 lg:col-span-2">
                   <Skeleton className="w-full h-10 bg-muted rounded-md" />
                 </div>
               </div>
@@ -107,7 +107,7 @@ export function ExternalCalibrationForm({
                 <Skeleton className="w-6 h-5 bg-muted rounded-md" />
                 <Skeleton className="w-48 h-5 bg-muted rounded-md" />
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                 <Skeleton className="w-full h-10 bg-muted rounded-md" />
                 <Skeleton className="w-full h-10 bg-muted rounded-md" />
                 <Skeleton className="w-full h-10 bg-muted rounded-md" />
@@ -122,7 +122,7 @@ export function ExternalCalibrationForm({
               <div className="text-[0.9rem] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                 RX Power
               </div>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <InputGroup label="Offset" pl="0" val={rxPower.offset} />
                 <InputGroup label="Slope" pl="1" val={rxPower.slope} />
                 <InputGroup label="RX_pwr(4)" pl="0" val={rxPower.pwr4} />
@@ -143,11 +143,11 @@ export function ExternalCalibrationForm({
               <div className="text-[0.9rem] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                 TX Power
               </div>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="col-span-1">
                   <InputGroup label="Offset" pl="0" val={txPower.offset} />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-1 lg:col-span-2">
                   <InputGroup
                     label="Slope"
                     pl="1"
@@ -164,7 +164,7 @@ export function ExternalCalibrationForm({
               <div className="text-[0.9rem] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                 Temperatura
               </div>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="col-span-1">
                   <InputGroup
                     label="Offset (°C)"
@@ -172,7 +172,7 @@ export function ExternalCalibrationForm({
                     val={temperature.offset}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-1 lg:col-span-2">
                   <InputGroup
                     label="Slope"
                     pl="1"
@@ -191,7 +191,7 @@ export function ExternalCalibrationForm({
                   <BookText />
                   Informações do Módulo
                 </h4>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                   <div className="text-center">
                     <Label className="text-[12px] text-muted-foreground uppercase font-bold tracking-wider block mb-0.5">
                       Tipo DDM

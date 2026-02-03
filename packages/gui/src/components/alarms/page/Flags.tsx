@@ -84,57 +84,85 @@ export function Flags({ isLoading }: { isLoading: boolean }) {
                 <div
                   key={flag.id}
                   className={cn(
-                    'flex items-center gap-3 p-4 bg-secondary/50 rounded-lg border border-border hover:border-muted-foreground transition-all',
+                    'flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-secondary/50 rounded-lg border border-border hover:border-muted-foreground transition-all',
                   )}
                 >
-                  {/* Ícone de Warning */}
-                  <div
-                    className={cn(
-                      'flex items-center justify-center w-10 h-10 rounded-md flex-shrink-0',
-                      getTypeStyles(flag.type),
-                    )}
-                  >
-                    <TriangleAlert size={20} />
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    {/* Ícone de Warning */}
+                    <div
+                      className={cn(
+                        'flex items-center justify-center w-10 h-10 rounded-md flex-shrink-0',
+                        getTypeStyles(flag.type),
+                      )}
+                    >
+                      <TriangleAlert size={20} />
+                    </div>
+
+                    {/* Nome do parâmetro e timestamp (Mobile) */}
+                    <div className="flex-1 min-w-0 sm:hidden">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-base font-bold text-foreground truncate">
+                          {flag.parameter}
+                        </span>
+                        <span className="text-xs text-muted-foreground font-mono">
+                          {flag.timestamp}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Botão de deletar (Mobile) */}
+                    <button
+                      onClick={() => handleDelete(flag.id)}
+                      className="flex sm:hidden items-center justify-center w-8 h-8 rounded hover:bg-zinc-800 transition-colors text-muted-foreground hover:text-red-400 flex-shrink-0 ml-auto"
+                      aria-label="Remover flag"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
 
-                  {/* Nome do parâmetro e timestamp */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-base font-bold text-foreground truncate">
-                        {flag.parameter}
-                      </span>
-                      <span className="text-xs text-muted-foreground font-mono">
-                        {flag.timestamp}
-                      </span>
+                  {/* Desktop Content & Common Values */}
+                  <div className="flex items-center gap-3 w-full">
+                    {/* Nome e Timestamp (Desktop) */}
+                    <div className="flex-1 min-w-0 hidden sm:block">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-base font-bold text-foreground truncate">
+                          {flag.parameter}
+                        </span>
+                        <span className="text-xs text-muted-foreground font-mono">
+                          {flag.timestamp}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 ml-auto sm:ml-0">
+                      {/* Valor */}
+                      <div className="text-base font-bold text-foreground flex-shrink-0">
+                        {typeof flag.value === 'number'
+                          ? flag.value.toFixed(2)
+                          : flag.value}
+                        °
+                      </div>
+
+                      {/* Badge do tipo */}
+                      <div
+                        className={cn(
+                          'px-2 py-1 rounded text-xs font-black uppercase flex-shrink-0',
+                          getTypeStyles(flag.type),
+                        )}
+                      >
+                        {flag.type}
+                      </div>
+
+                      {/* Botão de deletar (Desktop) */}
+                      <button
+                        onClick={() => handleDelete(flag.id)}
+                        className="hidden sm:flex items-center justify-center w-8 h-8 rounded hover:bg-zinc-800 transition-colors text-muted-foreground hover:text-red-400 flex-shrink-0"
+                        aria-label="Remover flag"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   </div>
-
-                  {/* Valor */}
-                  <div className="text-base font-bold text-foreground flex-shrink-0">
-                    {typeof flag.value === 'number'
-                      ? flag.value.toFixed(2)
-                      : flag.value}
-                    °
-                  </div>
-
-                  {/* Badge do tipo */}
-                  <div
-                    className={cn(
-                      'px-2 py-1 rounded text-xs font-black uppercase flex-shrink-0',
-                      getTypeStyles(flag.type),
-                    )}
-                  >
-                    {flag.type}
-                  </div>
-
-                  {/* Botão de deletar */}
-                  <button
-                    onClick={() => handleDelete(flag.id)}
-                    className="flex items-center justify-center w-8 h-8 rounded hover:bg-zinc-800 transition-colors text-muted-foreground hover:text-red-400 flex-shrink-0"
-                    aria-label="Remover flag"
-                  >
-                    <Trash2 size={16} />
-                  </button>
                 </div>
               ))}
             </div>
