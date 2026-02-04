@@ -975,6 +975,37 @@ bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char **vendor_pn)
     return true;
 }
 
+
+/* ============================================
+ * Byte 56-59 — Vendor Rev
+ * ============================================ */
+void sfp_parse_a0_base_vendor_rev(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0)
+        return;
+
+    memcpy (a0->vendor_rev, &a0_base_data[56], 4);
+}
+
+bool sfp_a0_get_vendor_rev(const sfp_a0h_base_t *a0, char *vendor_rev)
+{
+    if (!a0 || !vendor_rev) {
+        if (vendor_rev) {
+            *vendor_rev = '\0';
+        }
+        return false;
+    }
+
+    if (vendor_rev) {
+        strcpy(vendor_rev, a0->vendor_rev);
+    }
+    return true;
+}
+
+
+/* ============================================
+ * Byte 60-61 — Wavelength
+ * ============================================ */
 static sfp_variant_t sfp_detect_variant(uint8_t byte8)
 {
     bool passive = (byte8 & (1 << 2)) != 0;

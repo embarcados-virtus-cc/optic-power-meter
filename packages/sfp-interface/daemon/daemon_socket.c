@@ -29,7 +29,7 @@ bool daemon_socket_init(daemon_socket_server_t *server, const daemon_config_t *c
     if (!server || !config) {
         return false;
     }
-    
+
     memset(server, 0, sizeof(daemon_socket_server_t));
     size_t path_len = strlen(config->socket_path);
     size_t copy_len = (path_len < sizeof(server->socket_path) - 1) ? path_len : sizeof(server->socket_path) - 1;
@@ -37,34 +37,34 @@ bool daemon_socket_init(daemon_socket_server_t *server, const daemon_config_t *c
     server->socket_path[copy_len] = '\0';
     server->server_fd = -1;
     server->num_clients = 0;
-    
+
     for (int i = 0; i < DAEMON_MAX_CONNECTIONS; i++) {
         server->client_fds[i] = -1;
     }
-    
+
     /* Cria diretório do socket se não existir */
     char dir_path[256];
     size_t dir_path_len = strlen(server->socket_path);
     size_t dir_path_copy_len = (dir_path_len < sizeof(dir_path) - 1) ? dir_path_len : sizeof(dir_path) - 1;
     memcpy(dir_path, server->socket_path, dir_path_copy_len);
     dir_path[dir_path_copy_len] = '\0';
-    
+
     char *last_slash = strrchr(dir_path, '/');
     if (last_slash) {
         *last_slash = '\0';
         mkdir(dir_path, 0755);
     }
-    
+
     /* Remove socket antigo se existir */
     unlink(server->socket_path);
-    
+
     /* Cria socket UNIX */
     server->server_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (server->server_fd < 0) {
         syslog(LOG_ERR, "Failed to create socket: %s", strerror(errno));
         return false;
     }
-    
+
     /* Configura endereço */
     struct sockaddr_un addr;
     memset(&addr, 0, sizeof(addr));
@@ -73,28 +73,28 @@ bool daemon_socket_init(daemon_socket_server_t *server, const daemon_config_t *c
     size_t sun_path_copy_len = (sun_path_len < sizeof(addr.sun_path) - 1) ? sun_path_len : sizeof(addr.sun_path) - 1;
     memcpy(addr.sun_path, server->socket_path, sun_path_copy_len);
     addr.sun_path[sun_path_copy_len] = '\0';
-    
+
     /* Bind */
     if (bind(server->server_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         syslog(LOG_ERR, "Failed to bind socket: %s", strerror(errno));
         close(server->server_fd);
         return false;
     }
-    
+
     /* Configura permissões */
     chmod(server->socket_path, DAEMON_DEFAULT_SOCKET_PERMISSIONS);
-    
+
     /* Listen */
     if (listen(server->server_fd, DAEMON_MAX_CONNECTIONS) < 0) {
         syslog(LOG_ERR, "Failed to listen: %s", strerror(errno));
         close(server->server_fd);
         return false;
     }
-    
+
     /* Non-blocking */
     int flags = fcntl(server->server_fd, F_GETFL, 0);
     fcntl(server->server_fd, F_SETFL, flags | O_NONBLOCK);
-    
+
     syslog(LOG_INFO, "Socket server initialized: %s", server->socket_path);
     return true;
 }
@@ -107,7 +107,7 @@ void daemon_socket_cleanup(daemon_socket_server_t *server)
     if (!server) {
         return;
     }
-    
+
     /* Fecha clientes */
     for (int i = 0; i < DAEMON_MAX_CONNECTIONS; i++) {
         if (server->client_fds[i] >= 0) {
@@ -115,16 +115,16 @@ void daemon_socket_cleanup(daemon_socket_server_t *server)
             server->client_fds[i] = -1;
         }
     }
-    
+
     /* Fecha servidor */
     if (server->server_fd >= 0) {
         close(server->server_fd);
         server->server_fd = -1;
     }
-    
+
     /* Remove socket */
     unlink(server->socket_path);
-    
+
     syslog(LOG_INFO, "Socket server cleaned up");
 }
 
@@ -136,11 +136,11 @@ bool daemon_socket_accept(daemon_socket_server_t *server)
     if (!server || server->server_fd < 0) {
         return false;
     }
-    
+
     if (server->num_clients >= DAEMON_MAX_CONNECTIONS) {
         return false;  /* Limite atingido */
     }
-    
+
     int client_fd = accept(server->server_fd, NULL, NULL);
     if (client_fd < 0) {
         if (errno != EAGAIN && errno != EWOULDBLOCK) {
@@ -148,11 +148,11 @@ bool daemon_socket_accept(daemon_socket_server_t *server)
         }
         return false;
     }
-    
+
     /* Non-blocking */
     int flags = fcntl(client_fd, F_GETFL, 0);
     fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
-    
+
     /* Adiciona à lista */
     for (int i = 0; i < DAEMON_MAX_CONNECTIONS; i++) {
         if (server->client_fds[i] < 0) {
@@ -162,7 +162,7 @@ bool daemon_socket_accept(daemon_socket_server_t *server)
             return true;
         }
     }
-    
+
     /* Não há espaço */
     close(client_fd);
     return false;
@@ -176,11 +176,11 @@ static void daemon_socket_process_client_command(int client_fd, sfp_daemon_state
     if (!command || !state) {
         return;
     }
-    
+
     char *json_response = NULL;
     int status_code = 200;
     const char *status_msg = "OK";
-    
+
     /* Remove newline */
     char cmd[256];
     size_t cmd_len = strlen(command);
@@ -189,11 +189,11 @@ static void daemon_socket_process_client_command(int client_fd, sfp_daemon_state
     cmd[cmd_copy_len] = '\0';
     char *nl = strchr(cmd, '\n');
     if (nl) *nl = '\0';
-    
+
     /* Remove espaços */
     char *p = cmd;
     while (*p == ' ' || *p == '\t') p++;
-    
+
     /* Processa comando */
     if (strcmp(p, "GET CURRENT") == 0) {
         json_response = daemon_socket_serialize_current(state);
@@ -234,7 +234,7 @@ static void daemon_socket_process_client_command(int client_fd, sfp_daemon_state
         json_response = cJSON_Print(json);
         cJSON_Delete(json);
     }
-    
+
     /* Envia resposta */
     if (json_response) {
         char status_line[256];
@@ -254,17 +254,17 @@ int daemon_socket_process_commands(daemon_socket_server_t *server, sfp_daemon_st
     if (!server || !state) {
         return 0;
     }
-    
+
     int processed = 0;
-    
+
     for (int i = 0; i < DAEMON_MAX_CONNECTIONS; i++) {
         if (server->client_fds[i] < 0) {
             continue;
         }
-        
+
         char buffer[1024];
         ssize_t bytes_read = recv(server->client_fds[i], buffer, sizeof(buffer) - 1, 0);
-        
+
         if (bytes_read < 0) {
             if (errno != EAGAIN && errno != EWOULDBLOCK) {
                 /* Erro ou conexão fechada */
@@ -274,7 +274,7 @@ int daemon_socket_process_commands(daemon_socket_server_t *server, sfp_daemon_st
             }
             continue;
         }
-        
+
         if (bytes_read == 0) {
             /* Conexão fechada */
             close(server->client_fds[i]);
@@ -282,12 +282,12 @@ int daemon_socket_process_commands(daemon_socket_server_t *server, sfp_daemon_st
             server->num_clients--;
             continue;
         }
-        
+
         buffer[bytes_read] = '\0';
         daemon_socket_process_client_command(server->client_fds[i], state, buffer, daemon_uptime);
         processed++;
     }
-    
+
     return processed;
 }
 
@@ -299,7 +299,7 @@ void daemon_socket_close_inactive(daemon_socket_server_t *server)
     if (!server) {
         return;
     }
-    
+
     /* Implementação futura: timeout de conexões */
     /* Por enquanto, conexões são fechadas apenas quando cliente desconecta */
 }
@@ -312,7 +312,7 @@ void daemon_socket_close_inactive(daemon_socket_server_t *server)
 static void serialize_compliance_codes(cJSON *obj, const sfp_compliance_decoded_t *dc)
 {
     if (!obj || !dc) return;
-    
+
     cJSON *byte3 = cJSON_CreateObject();
     cJSON_AddBoolToObject(byte3, "eth_10g_base_sr", dc->eth_10g_base_sr);
     cJSON_AddBoolToObject(byte3, "eth_10g_base_lr", dc->eth_10g_base_lr);
@@ -323,7 +323,7 @@ static void serialize_compliance_codes(cJSON *obj, const sfp_compliance_decoded_
     cJSON_AddBoolToObject(byte3, "infiniband_1x_copper_active", dc->infiniband_1x_copper_active);
     cJSON_AddBoolToObject(byte3, "infiniband_1x_copper_passive", dc->infiniband_1x_copper_passive);
     cJSON_AddItemToObject(obj, "byte3_ethernet_infiniband", byte3);
-    
+
     cJSON *byte4 = cJSON_CreateObject();
     cJSON_AddBoolToObject(byte4, "escon_mmf", dc->escon_mmf);
     cJSON_AddBoolToObject(byte4, "escon_smf", dc->escon_smf);
@@ -334,7 +334,7 @@ static void serialize_compliance_codes(cJSON *obj, const sfp_compliance_decoded_
     cJSON_AddBoolToObject(byte4, "oc_48_ir", dc->oc_48_ir);
     cJSON_AddBoolToObject(byte4, "oc_48_sr", dc->oc_48_sr);
     cJSON_AddItemToObject(obj, "byte4_escon_sonet", byte4);
-    
+
     cJSON *byte5 = cJSON_CreateObject();
     cJSON_AddBoolToObject(byte5, "oc_12_sm_lr", dc->oc_12_sm_lr);
     cJSON_AddBoolToObject(byte5, "oc_12_sm_ir", dc->oc_12_sm_ir);
@@ -343,7 +343,7 @@ static void serialize_compliance_codes(cJSON *obj, const sfp_compliance_decoded_
     cJSON_AddBoolToObject(byte5, "oc_3_sm_ir", dc->oc_3_sm_ir);
     cJSON_AddBoolToObject(byte5, "oc_3_sr", dc->oc_3_sr);
     cJSON_AddItemToObject(obj, "byte5_sonet", byte5);
-    
+
     cJSON *byte6 = cJSON_CreateObject();
     cJSON_AddBoolToObject(byte6, "eth_base_px", dc->eth_base_px);
     cJSON_AddBoolToObject(byte6, "eth_base_bx_10", dc->eth_base_bx_10);
@@ -354,7 +354,7 @@ static void serialize_compliance_codes(cJSON *obj, const sfp_compliance_decoded_
     cJSON_AddBoolToObject(byte6, "eth_1000_base_lx", dc->eth_1000_base_lx);
     cJSON_AddBoolToObject(byte6, "eth_1000_base_sx", dc->eth_1000_base_sx);
     cJSON_AddItemToObject(obj, "byte6_ethernet_1g", byte6);
-    
+
     cJSON *byte7 = cJSON_CreateObject();
     cJSON_AddBoolToObject(byte7, "fc_very_long_distance", dc->fc_very_long_distance);
     cJSON_AddBoolToObject(byte7, "fc_short_distance", dc->fc_short_distance);
@@ -365,7 +365,7 @@ static void serialize_compliance_codes(cJSON *obj, const sfp_compliance_decoded_
     cJSON_AddBoolToObject(byte7, "longwave_laser_lc", dc->longwave_laser_lc);
     cJSON_AddBoolToObject(byte7, "electrical_inter_enclosure", dc->electrical_inter_enclosure);
     cJSON_AddItemToObject(obj, "byte7_fc_link_length", byte7);
-    
+
     cJSON *byte8 = cJSON_CreateObject();
     cJSON_AddBoolToObject(byte8, "electrical_intra_enclosure", dc->electrical_intra_enclosure);
     cJSON_AddBoolToObject(byte8, "shortwave_laser_sn", dc->shortwave_laser_sn);
@@ -374,7 +374,7 @@ static void serialize_compliance_codes(cJSON *obj, const sfp_compliance_decoded_
     cJSON_AddBoolToObject(byte8, "active_cable", dc->active_cable);
     cJSON_AddBoolToObject(byte8, "passive_cable", dc->passive_cable);
     cJSON_AddItemToObject(obj, "byte8_fc_technology", byte8);
-    
+
     cJSON *byte9 = cJSON_CreateObject();
     cJSON_AddBoolToObject(byte9, "twin_axial_pair", dc->twin_axial_pair);
     cJSON_AddBoolToObject(byte9, "twisted_pair", dc->twisted_pair);
@@ -384,7 +384,7 @@ static void serialize_compliance_codes(cJSON *obj, const sfp_compliance_decoded_
     cJSON_AddBoolToObject(byte9, "multimode_m5", dc->multimode_m5);
     cJSON_AddBoolToObject(byte9, "single_mode", dc->single_mode);
     cJSON_AddItemToObject(obj, "byte9_fc_transmission_media", byte9);
-    
+
     cJSON *byte10 = cJSON_CreateObject();
     cJSON_AddBoolToObject(byte10, "cs_1200_mbps", dc->cs_1200_mbps);
     cJSON_AddBoolToObject(byte10, "cs_800_mbps", dc->cs_800_mbps);
@@ -528,41 +528,41 @@ static const char* ext_compliance_to_string(sfp_extended_spec_compliance_code_t 
 static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
 {
     if (!a0_obj || !a0) return;
-    
+
     /* Byte 0 - Identifier */
     uint8_t identifier = sfp_a0_get_identifier(a0);
     cJSON_AddNumberToObject(a0_obj, "identifier", identifier);
     cJSON_AddStringToObject(a0_obj, "identifier_type", identifier_type_to_string((sfp_identifier_t)identifier));
-    
+
     /* Byte 1 - Extended Identifier */
     uint8_t ext_identifier = sfp_a0_get_ext_identifier(a0);
     bool ext_id_valid = sfp_validate_ext_identifier(a0);
     cJSON_AddNumberToObject(a0_obj, "ext_identifier", ext_identifier);
     cJSON_AddBoolToObject(a0_obj, "ext_identifier_valid", ext_id_valid);
-    
+
     /* Byte 2 - Connector */
     sfp_connector_type_t connector = sfp_a0_get_connector(a0);
     const char *connector_str = sfp_connector_to_string(connector);
     cJSON_AddNumberToObject(a0_obj, "connector", connector);
     cJSON_AddStringToObject(a0_obj, "connector_type", connector_str);
-    
+
     /* Bytes 3-10 - Compliance Codes */
     serialize_compliance_codes(a0_obj, &a0->dc);
-    
+
     /* Byte 11 - Encoding */
     sfp_encoding_codes_t encoding = sfp_a0_get_encoding(a0);
     cJSON_AddNumberToObject(a0_obj, "encoding", encoding);
-    
+
     /* Byte 12 - Nominal Rate */
     sfp_nominal_rate_status_t nominal_rate_status;
     uint8_t nominal_rate = sfp_a0_get_nominal_rate_mbd(a0, &nominal_rate_status);
     cJSON_AddNumberToObject(a0_obj, "nominal_rate_mbd", nominal_rate);
     cJSON_AddNumberToObject(a0_obj, "nominal_rate_status", nominal_rate_status);
-    
+
     /* Byte 13 - Rate Identifier */
     sfp_rate_select rate_id = sfp_a0_get_rate_identifier(a0);
     cJSON_AddNumberToObject(a0_obj, "rate_identifier", rate_id);
-    
+
     /* Byte 14 - SMF Length or Copper Attenuation */
     sfp_smf_length_status_t smf_status;
     uint16_t smf_len = sfp_a0_get_smf_length_m(a0, &smf_status);
@@ -570,36 +570,36 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
     cJSON_AddNumberToObject(a0_obj, "smf_length_km", smf_len);
     cJSON_AddNumberToObject(a0_obj, "smf_length_status", smf_status);
     cJSON_AddNumberToObject(a0_obj, "smf_attenuation_db_per_100m", smf_attenuation);
-    
+
     /* Byte 16 - OM2 Length */
     sfp_om2_length_status_t om2_status;
     uint16_t om2_len = sfp_a0_get_om2_length_m(a0, &om2_status);
     cJSON_AddNumberToObject(a0_obj, "om2_length_m", om2_len);
     cJSON_AddNumberToObject(a0_obj, "om2_length_status", om2_status);
-    
+
     /* Byte 17 - OM1 Length */
     sfp_om1_length_status_t om1_status;
     uint16_t om1_len = sfp_a0_get_om1_length_m(a0, &om1_status);
     cJSON_AddNumberToObject(a0_obj, "om1_length_m", om1_len);
     cJSON_AddNumberToObject(a0_obj, "om1_length_status", om1_status);
-    
+
     /* Byte 18 - OM4 or Copper Length */
     sfp_om4_length_status_t om4_status;
     uint16_t om4_copper_len = sfp_a0_get_om4_copper_or_length_m(a0, &om4_status);
     cJSON_AddNumberToObject(a0_obj, "om4_or_copper_length_m", om4_copper_len);
     cJSON_AddNumberToObject(a0_obj, "om4_or_copper_length_status", om4_status);
-    
+
     /* Bytes 20-35 - Vendor Name */
     char vendor_name[SFP_A0_LEN_VENDOR_NAME + 1] = {0};
     bool vendor_name_valid = sfp_a0_get_vendor_name(a0, vendor_name);
     cJSON_AddStringToObject(a0_obj, "vendor_name", vendor_name_valid && vendor_name[0] ? vendor_name : "");
     cJSON_AddBoolToObject(a0_obj, "vendor_name_valid", vendor_name_valid);
-    
+
     /* Byte 36 - Extended Compliance */
     sfp_extended_spec_compliance_code_t ext_compliance = sfp_a0_get_ext_compliance(a0);
     cJSON_AddNumberToObject(a0_obj, "ext_compliance_code", ext_compliance);
     cJSON_AddStringToObject(a0_obj, "ext_compliance_desc", ext_compliance_to_string(ext_compliance));
-    
+
     /* Bytes 37-39 - Vendor OUI */
     uint8_t vendor_oui_raw[3] = {0};
     bool vendor_oui_valid = sfp_a0_get_vendor_oui(a0, vendor_oui_raw);
@@ -613,16 +613,19 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
         cJSON_AddItemToObject(a0_obj, "vendor_oui", oui_array);
         cJSON_AddNumberToObject(a0_obj, "vendor_oui_u32", vendor_oui_u32);
     }
-    
+
     /* Bytes 40-55 - Vendor Part Number */
     const char *vendor_pn = NULL;
     bool vendor_pn_valid = sfp_a0_get_vendor_pn(a0, &vendor_pn);
     cJSON_AddStringToObject(a0_obj, "vendor_pn", vendor_pn_valid && vendor_pn ? vendor_pn : "");
     cJSON_AddBoolToObject(a0_obj, "vendor_pn_valid", vendor_pn_valid);
-    
+
     /* Bytes 56-59 - Vendor Revision */
-    cJSON_AddStringToObject(a0_obj, "vendor_rev", a0->vendor_rev[0] ? a0->vendor_rev : "");
-    
+    char *vendor_rev= "";
+    bool vendor_rev_valid = sfp_a0_get_vendor_rev(a0, vendor_rev);
+    cJSON_AddStringToObject(a0_obj, "vendor_rev",  a0->vendor_rev[0] ? a0->vendor_rev : "");
+    cJSON_AddStringToObject(a0_obj, "vendor_rev_valid", vendor_rev_valid ? "valido": "invalido");
+
     /* Bytes 60-61 - Wavelength or Cable Compliance */
     sfp_variant_t variant = sfp_a0_get_variant(a0);
     cJSON_AddNumberToObject(a0_obj, "variant", variant);
@@ -637,14 +640,14 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
             cJSON_AddNumberToObject(a0_obj, "cable_compliance", cable_compliance);
         }
     }
-    
+
     /* Byte 62 - Fibre Channel Speed 2 */
     bool fc_speed_2_valid = sfp_get_a0_fc_speed_2(a0, &a0->dc);
     cJSON_AddBoolToObject(a0_obj, "fc_speed_2_valid", fc_speed_2_valid);
     if (fc_speed_2_valid) {
         cJSON_AddNumberToObject(a0_obj, "fc_speed_2", a0->fc_speed2);
     }
-    
+
     /* Byte 63 - CC_BASE (Checksum) */
     bool cc_base_valid = sfp_a0_get_cc_base_is_valid(a0);
     cJSON_AddBoolToObject(a0_obj, "cc_base_valid", cc_base_valid);
@@ -655,28 +658,28 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
 static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_diagnostics_t *a2)
 {
     if (!a2_obj || !a2) return;
-    
+
     /* Temperature */
     cJSON_AddBoolToObject(a2_obj, "temperature_valid", a2->temperature_valid);
     if (a2->temperature_valid) {
         cJSON_AddNumberToObject(a2_obj, "temperature_c", a2->temperature_c);
         cJSON_AddNumberToObject(a2_obj, "temperature_raw", a2->temperature_raw);
     }
-    
+
     /* Voltage */
     cJSON_AddBoolToObject(a2_obj, "voltage_valid", a2->voltage_valid);
     if (a2->voltage_valid) {
         cJSON_AddNumberToObject(a2_obj, "voltage_v", a2->voltage_v);
         cJSON_AddNumberToObject(a2_obj, "voltage_raw", a2->voltage_raw);
     }
-    
+
     /* Bias Current */
     cJSON_AddBoolToObject(a2_obj, "bias_current_valid", a2->bias_current_valid);
     if (a2->bias_current_valid) {
         cJSON_AddNumberToObject(a2_obj, "bias_current_ma", a2->bias_current_ma);
         cJSON_AddNumberToObject(a2_obj, "bias_current_raw", a2->bias_current_raw);
     }
-    
+
     /* TX Power */
     cJSON_AddBoolToObject(a2_obj, "tx_power_valid", a2->tx_power_valid);
     if (a2->tx_power_valid) {
@@ -684,7 +687,7 @@ static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_diagnostics_t *a
         cJSON_AddNumberToObject(a2_obj, "tx_power_mw", a2->tx_power_mw);
         cJSON_AddNumberToObject(a2_obj, "tx_power_raw", a2->tx_power_raw);
     }
-    
+
     /* RX Power */
     cJSON_AddBoolToObject(a2_obj, "rx_power_valid", a2->rx_power_valid);
     if (a2->rx_power_valid) {
@@ -692,61 +695,61 @@ static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_diagnostics_t *a
         cJSON_AddNumberToObject(a2_obj, "rx_power_mw", a2->rx_power_mw);
         cJSON_AddNumberToObject(a2_obj, "rx_power_raw", a2->rx_power_raw);
     }
-    
+
     /* Alarms */
     cJSON *alarms = cJSON_CreateObject();
     cJSON *temp_alarms = cJSON_CreateObject();
     cJSON_AddBoolToObject(temp_alarms, "high", a2->alarms.temp_alarm_high);
     cJSON_AddBoolToObject(temp_alarms, "low", a2->alarms.temp_alarm_low);
     cJSON_AddItemToObject(alarms, "temperature", temp_alarms);
-    
+
     cJSON *voltage_alarms = cJSON_CreateObject();
     cJSON_AddBoolToObject(voltage_alarms, "high", a2->alarms.voltage_alarm_high);
     cJSON_AddBoolToObject(voltage_alarms, "low", a2->alarms.voltage_alarm_low);
     cJSON_AddItemToObject(alarms, "voltage", voltage_alarms);
-    
+
     cJSON *bias_alarms = cJSON_CreateObject();
     cJSON_AddBoolToObject(bias_alarms, "high", a2->alarms.bias_alarm_high);
     cJSON_AddBoolToObject(bias_alarms, "low", a2->alarms.bias_alarm_low);
     cJSON_AddItemToObject(alarms, "bias_current", bias_alarms);
-    
+
     cJSON *tx_power_alarms = cJSON_CreateObject();
     cJSON_AddBoolToObject(tx_power_alarms, "high", a2->alarms.tx_power_alarm_high);
     cJSON_AddBoolToObject(tx_power_alarms, "low", a2->alarms.tx_power_alarm_low);
     cJSON_AddItemToObject(alarms, "tx_power", tx_power_alarms);
-    
+
     cJSON *rx_power_alarms = cJSON_CreateObject();
     cJSON_AddBoolToObject(rx_power_alarms, "high", a2->alarms.rx_power_alarm_high);
     cJSON_AddBoolToObject(rx_power_alarms, "low", a2->alarms.rx_power_alarm_low);
     cJSON_AddItemToObject(alarms, "rx_power", rx_power_alarms);
-    
+
     /* Warnings */
     cJSON *warnings = cJSON_CreateObject();
     cJSON *temp_warnings = cJSON_CreateObject();
     cJSON_AddBoolToObject(temp_warnings, "high", a2->alarms.temp_warning_high);
     cJSON_AddBoolToObject(temp_warnings, "low", a2->alarms.temp_warning_low);
     cJSON_AddItemToObject(warnings, "temperature", temp_warnings);
-    
+
     cJSON *voltage_warnings = cJSON_CreateObject();
     cJSON_AddBoolToObject(voltage_warnings, "high", a2->alarms.voltage_warning_high);
     cJSON_AddBoolToObject(voltage_warnings, "low", a2->alarms.voltage_warning_low);
     cJSON_AddItemToObject(warnings, "voltage", voltage_warnings);
-    
+
     cJSON *bias_warnings = cJSON_CreateObject();
     cJSON_AddBoolToObject(bias_warnings, "high", a2->alarms.bias_warning_high);
     cJSON_AddBoolToObject(bias_warnings, "low", a2->alarms.bias_warning_low);
     cJSON_AddItemToObject(warnings, "bias_current", bias_warnings);
-    
+
     cJSON *tx_power_warnings = cJSON_CreateObject();
     cJSON_AddBoolToObject(tx_power_warnings, "high", a2->alarms.tx_power_warning_high);
     cJSON_AddBoolToObject(tx_power_warnings, "low", a2->alarms.tx_power_warning_low);
     cJSON_AddItemToObject(warnings, "tx_power", tx_power_warnings);
-    
+
     cJSON *rx_power_warnings = cJSON_CreateObject();
     cJSON_AddBoolToObject(rx_power_warnings, "high", a2->alarms.rx_power_warning_high);
     cJSON_AddBoolToObject(rx_power_warnings, "low", a2->alarms.rx_power_warning_low);
     cJSON_AddItemToObject(warnings, "rx_power", rx_power_warnings);
-    
+
     cJSON_AddItemToObject(a2_obj, "alarms", alarms);
     cJSON_AddItemToObject(a2_obj, "warnings", warnings);
 }
@@ -759,16 +762,16 @@ char *daemon_socket_serialize_current(const sfp_daemon_state_data_t *state)
     if (!state) {
         return NULL;
     }
-    
+
     cJSON *json = cJSON_CreateObject();
     cJSON *timestamps = cJSON_CreateObject();
     cJSON *a0_obj = NULL;
     cJSON *a2_obj = NULL;
-    
+
     /* Obtém cópia thread-safe */
     sfp_daemon_state_data_t state_copy;
     daemon_state_get_copy((sfp_daemon_state_data_t *)state, &state_copy);
-    
+
     /* Status e estado */
     if (state_copy.state == SFP_STATE_ABSENT) {
         cJSON_AddStringToObject(json, "status", "not_found");
@@ -779,16 +782,16 @@ char *daemon_socket_serialize_current(const sfp_daemon_state_data_t *state)
     } else {
         cJSON_AddStringToObject(json, "status", "ok");
     }
-    
+
     cJSON_AddStringToObject(json, "state", daemon_fsm_state_to_string(state_copy.state));
     cJSON_AddNumberToObject(json, "generation_id", (double)state_copy.generation_id);
-    
+
     /* Timestamps */
     cJSON_AddNumberToObject(timestamps, "first_detected", (double)state_copy.first_detected);
     cJSON_AddNumberToObject(timestamps, "last_a0_read", (double)state_copy.last_a0_read);
     cJSON_AddNumberToObject(timestamps, "last_a2_read", (double)state_copy.last_a2_read);
     cJSON_AddItemToObject(json, "timestamps", timestamps);
-    
+
     /* A0h */
     if (state_copy.a0_valid) {
         a0_obj = cJSON_CreateObject();
@@ -800,7 +803,7 @@ char *daemon_socket_serialize_current(const sfp_daemon_state_data_t *state)
         cJSON_AddBoolToObject(a0_obj, "valid", false);
         cJSON_AddItemToObject(json, "a0", a0_obj);
     }
-    
+
     /* A2h */
     if (state_copy.a2_valid) {
         a2_obj = cJSON_CreateObject();
@@ -812,10 +815,10 @@ char *daemon_socket_serialize_current(const sfp_daemon_state_data_t *state)
         cJSON_AddBoolToObject(a2_obj, "valid", false);
         cJSON_AddItemToObject(json, "a2", a2_obj);
     }
-    
+
     char *json_string = cJSON_Print(json);
     cJSON_Delete(json);
-    
+
     return json_string;
 }
 
@@ -827,17 +830,17 @@ char *daemon_socket_serialize_static(const sfp_daemon_state_data_t *state)
     if (!state) {
         return NULL;
     }
-    
+
     cJSON *json = cJSON_CreateObject();
     cJSON *a0_obj = NULL;
-    
+
     /* Obtém cópia thread-safe */
     sfp_daemon_state_data_t state_copy;
     daemon_state_get_copy((sfp_daemon_state_data_t *)state, &state_copy);
-    
+
     cJSON_AddNumberToObject(json, "generation_id", (double)state_copy.generation_id);
     cJSON_AddNumberToObject(json, "last_a0_read", (double)state_copy.last_a0_read);
-    
+
     if (state_copy.a0_valid) {
         a0_obj = cJSON_CreateObject();
         cJSON_AddBoolToObject(a0_obj, "valid", true);
@@ -848,10 +851,10 @@ char *daemon_socket_serialize_static(const sfp_daemon_state_data_t *state)
         cJSON_AddBoolToObject(a0_obj, "valid", false);
         cJSON_AddItemToObject(json, "a0", a0_obj);
     }
-    
+
     char *json_string = cJSON_Print(json);
     cJSON_Delete(json);
-    
+
     return json_string;
 }
 
@@ -863,16 +866,16 @@ char *daemon_socket_serialize_dynamic(const sfp_daemon_state_data_t *state)
     if (!state) {
         return NULL;
     }
-    
+
     cJSON *json = cJSON_CreateObject();
     cJSON *a2_obj = NULL;
-    
+
     /* Obtém cópia thread-safe */
     sfp_daemon_state_data_t state_copy;
     daemon_state_get_copy((sfp_daemon_state_data_t *)state, &state_copy);
-    
+
     cJSON_AddNumberToObject(json, "last_a2_read", (double)state_copy.last_a2_read);
-    
+
     if (state_copy.a2_valid) {
         a2_obj = cJSON_CreateObject();
         cJSON_AddBoolToObject(a2_obj, "valid", true);
@@ -883,10 +886,10 @@ char *daemon_socket_serialize_dynamic(const sfp_daemon_state_data_t *state)
         cJSON_AddBoolToObject(a2_obj, "valid", false);
         cJSON_AddItemToObject(json, "a2", a2_obj);
     }
-    
+
     char *json_string = cJSON_Print(json);
     cJSON_Delete(json);
-    
+
     return json_string;
 }
 
@@ -898,25 +901,25 @@ char *daemon_socket_serialize_state(const sfp_daemon_state_data_t *state)
     if (!state) {
         return NULL;
     }
-    
+
     cJSON *json = cJSON_CreateObject();
     cJSON *timestamps = cJSON_CreateObject();
-    
+
     /* Obtém cópia thread-safe */
     sfp_daemon_state_data_t state_copy;
     daemon_state_get_copy((sfp_daemon_state_data_t *)state, &state_copy);
-    
+
     cJSON_AddStringToObject(json, "state", daemon_fsm_state_to_string(state_copy.state));
     cJSON_AddNumberToObject(json, "generation_id", (double)state_copy.generation_id);
-    
+
     cJSON_AddNumberToObject(timestamps, "first_detected", (double)state_copy.first_detected);
     cJSON_AddNumberToObject(timestamps, "last_a0_read", (double)state_copy.last_a0_read);
     cJSON_AddNumberToObject(timestamps, "last_a2_read", (double)state_copy.last_a2_read);
     cJSON_AddItemToObject(json, "timestamps", timestamps);
-    
+
     char *json_string = cJSON_Print(json);
     cJSON_Delete(json);
-    
+
     return json_string;
 }
 
@@ -928,10 +931,9 @@ char *daemon_socket_serialize_ping(time_t uptime_seconds)
     cJSON *json = cJSON_CreateObject();
     cJSON_AddStringToObject(json, "status", "ok");
     cJSON_AddNumberToObject(json, "uptime", (double)uptime_seconds);
-    
+
     char *json_string = cJSON_Print(json);
     cJSON_Delete(json);
-    
+
     return json_string;
 }
-

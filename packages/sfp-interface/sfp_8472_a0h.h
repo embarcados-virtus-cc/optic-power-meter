@@ -591,6 +591,10 @@ uint32_t sfp_vendor_oui_to_u32(const sfp_a0h_base_t *a0);
 void sfp_parse_a0_base_vendor_pn(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char **vendor_pn);
 
+/*Byte 56-59 Vendor Rev */
+void sfp_parse_a0_base_vendor_rev(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
+bool sfp_a0_get_vendor_rev(const sfp_a0h_base_t *a0, char *vendor_rev);
+
 /* Bytes 60-61 — Wavelength (optical) OU Cable Compliance (active/passive) */
 void sfp_parse_a0_base_media(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 sfp_variant_t sfp_a0_get_variant(const sfp_a0h_base_t *a0);
