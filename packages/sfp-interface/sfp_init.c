@@ -287,7 +287,7 @@ void sfp_info(const sfp_module_t *module)
             break;
     }
 
-    /* Byte 15 — Length SMF */
+    /* Byte 15 — Length SMF (units 100m) */
     sfp_smf_length_status_t smf_status_m;
     uint16_t smf_len_m = sfp_a0_get_smf_length_m(a0, &smf_status_m);
     float smf_attenuation_m = smf_len_m * 0.5f;

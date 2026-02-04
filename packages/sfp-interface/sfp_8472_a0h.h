@@ -569,7 +569,7 @@ sfp_rate_select sfp_a0_get_rate_identifier(const sfp_a0h_base_t *a0);
 void sfp_parse_a0_base_smf_km(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 uint16_t sfp_a0_get_smf_length_km(const sfp_a0h_base_t *a0, sfp_smf_length_status_t *status);
 
-/* Byte 14 SMF Length or Copper Attenuation */
+/* Byte 15 SMF Length or Copper Attenuation (units 100m)*/
 void sfp_parse_a0_base_smf_m(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 uint16_t sfp_a0_get_smf_length_m(const sfp_a0h_base_t *a0, sfp_smf_length_status_t *status);
 

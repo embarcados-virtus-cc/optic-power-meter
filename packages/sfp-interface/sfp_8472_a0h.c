@@ -612,9 +612,24 @@ void sfp_parse_a0_base_smf_km(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
     }
 }
 
+/* ============================================
+ * Função Getter
+ * ============================================ */
+uint16_t sfp_a0_get_smf_length_km(const sfp_a0h_base_t *a0, sfp_smf_length_status_t *status)
+{
+    if (!a0) {
+        if (status)
+            *status = SFP_SMF_LEN_NOT_SUPPORTED;
+        return 0;
+    }
+    if (status)
+        *status = a0->smf_status_km;
+    return a0->smf_length_km;
+}
+
 
 /* =========================================================
- * Byte 14 — Length (SMF) or Attenuation (Copper)
+ * Byte 15 — Length (SMF) or Attenuation (Copper) (Units 100m)
  * =========================================================*/
 void sfp_parse_a0_base_smf_m(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 {
