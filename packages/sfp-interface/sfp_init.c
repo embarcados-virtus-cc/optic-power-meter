@@ -166,7 +166,8 @@ bool sfp_init(sfp_module_t *module, const char *i2c_device)
     sfp_parse_a0_base_connector(module->a0_raw, &module->a0);
     sfp_parse_a0_base_compliance(module->a0_raw, &module->a0.cc);
     sfp_parse_a0_base_encoding(module->a0_raw, &module->a0);
-    sfp_parse_a0_base_smf(module->a0_raw, &module->a0);
+    sfp_parse_a0_base_smf_km(module->a0_raw, &module->a0);
+    sfp_parse_a0_base_smf_m(module->a0_raw, &module->a0);
     sfp_parse_a0_base_om2(module->a0_raw, &module->a0);
     sfp_parse_a0_base_om1(module->a0_raw, &module->a0);
     sfp_parse_a0_base_om4_or_copper(module->a0_raw, &module->a0);
@@ -270,16 +271,33 @@ void sfp_info(const sfp_module_t *module)
     sfp_print_encoding(encoding);
 
     /* Byte 14 — Length SMF */
-    sfp_smf_length_status_t smf_status;
-    uint16_t smf_len = sfp_a0_get_smf_length_m(a0, &smf_status);
-    float smf_attenuation = smf_len * 0.5f;
+    sfp_smf_length_status_t smf_status_km;
+    uint16_t smf_len_km = sfp_a0_get_smf_length_km(a0, &smf_status_km);
+    float smf_attenuation_km = smf_len_km * 0.5f;
     printf("\nByte 14 — Length SMF or Copper Attenuation\n");
-    switch (smf_status) {
+    switch (smf_status_km) {
         case SFP_SMF_LEN_VALID:
-            printf("Alcance SMF: %u km (atenuação: %.1f dB/100m)\n", smf_len, smf_attenuation);
+            printf("Alcance SMF: %u km (atenuação: %.1f dB/100m)\n", smf_len_km, smf_attenuation_km);
             break;
         case SFP_SMF_LEN_EXTENDED:
-            printf("Alcance SMF: >%u km (atenuação > %.1f dB/100m)\n", smf_len, smf_attenuation);
+            printf("Alcance SMF: >%u km (atenuação > %.1f dB/100m)\n", smf_len_km, smf_attenuation_km);
+            break;
+        default:
+            printf("Não especificado\n");
+            break;
+    }
+
+    /* Byte 15 — Length SMF */
+    sfp_smf_length_status_t smf_status_m;
+    uint16_t smf_len_m = sfp_a0_get_smf_length_m(a0, &smf_status_m);
+    float smf_attenuation_m = smf_len_m * 0.5f;
+    printf("\nByte 15 — Length SMF or Copper Attenuation (Units 100m)\n");
+    switch (smf_status_m) {
+        case SFP_SMF_LEN_VALID:
+            printf("Alcance SMF: %u km (atenuação: %.1f dB/100m)\n", smf_len_m, smf_attenuation_m);
+            break;
+        case SFP_SMF_LEN_EXTENDED:
+            printf("Alcance SMF: >%u km (atenuação > %.1f dB/100m)\n", smf_len_m, smf_attenuation_m);
             break;
         default:
             printf("Não especificado\n");

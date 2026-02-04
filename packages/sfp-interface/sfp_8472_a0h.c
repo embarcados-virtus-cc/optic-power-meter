@@ -560,7 +560,7 @@ sfp_rate_select sfp_a0_get_rate_identifier(const sfp_a0h_base_t *a0)
  *    0xFF: Valor superior ao máximo representável (> 254 km ou > 127 dB/100m)
  * =========================================================*/
 
-void sfp_parse_a0_base_smf(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+void sfp_parse_a0_base_smf_km(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 {
     if (!a0_base_data || !a0)
         return;
@@ -579,8 +579,8 @@ void sfp_parse_a0_base_smf(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
          * Fluxo Secundário 2 (caso 00h):
          * Não há informação explícita de alcance SMF ou atenuação de cobre.
          */
-        a0->smf_status   = SFP_SMF_LEN_NOT_SUPPORTED;
-        a0->smf_length_m = 0;
+        a0->smf_status_km   = SFP_SMF_LEN_NOT_SUPPORTED;
+        a0->smf_length_km = 0;
     }
     else if (raw == 0xFF) {
         /*
@@ -592,12 +592,12 @@ void sfp_parse_a0_base_smf(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
          *
          * O valor armazenado representa o limite inferior/superior conhecido.
          */
-        a0->smf_status   = SFP_SMF_LEN_EXTENDED;
+        a0->smf_status_km   = SFP_SMF_LEN_EXTENDED;
 
         if (is_copper)
-            a0->smf_length_m = 254; /* 254 * 0.5 = 127 dB/100m */
+            a0->smf_length_km = 254; /* 254 * 0.5 = 127 dB/100m */
         else
-            a0->smf_length_m = 254; /* 254 km */
+            a0->smf_length_km = 254; /* 254 km */
     }
     else {
         /*
@@ -607,8 +607,41 @@ void sfp_parse_a0_base_smf(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
          * - Fibra SMF: unidade de 1 km (valor direto)
          * - Cabo de cobre: unidade de 0.5 dB/100m (valor * 0.5)
          */
-        a0->smf_status   = SFP_SMF_LEN_VALID;
-        a0->smf_length_m = (uint16_t)raw;
+        a0->smf_status_km   = SFP_SMF_LEN_VALID;
+        a0->smf_length_km = (uint16_t)raw;
+    }
+}
+
+
+/* =========================================================
+ * Byte 14 — Length (SMF) or Attenuation (Copper)
+ * =========================================================*/
+void sfp_parse_a0_base_smf_m(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0)
+        return;
+
+    uint8_t raw = a0_base_data[15];
+
+    uint8_t byte8 = a0_base_data[8];
+
+    bool is_copper = sfp_is_copper(byte8);
+
+    if (raw == 0x00) {
+        a0->smf_status_m = SFP_SMF_LEN_NOT_SUPPORTED;
+        a0->smf_length_m = 0;
+    }
+    else if (raw == 0xFF) {
+        a0->smf_status_m = SFP_SMF_LEN_EXTENDED;
+
+        a0->smf_length_m = 2540;
+    }
+    else {
+        if (is_copper)
+            a0->smf_length_m = raw;
+        else
+            a0->smf_length_m = raw * 100;
+        a0->smf_status_m = SFP_SMF_LEN_VALID;
     }
 }
 
@@ -623,7 +656,7 @@ uint16_t sfp_a0_get_smf_length_m(const sfp_a0h_base_t *a0, sfp_smf_length_status
         return 0;
     }
     if (status)
-        *status = a0->smf_status;
+        *status = a0->smf_status_m;
     return a0->smf_length_m;
 }
 

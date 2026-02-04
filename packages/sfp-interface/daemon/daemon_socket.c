@@ -564,11 +564,11 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
     cJSON_AddNumberToObject(a0_obj, "rate_identifier", rate_id);
 
     /* Byte 14 - SMF Length or Copper Attenuation */
-    sfp_smf_length_status_t smf_status;
-    uint16_t smf_len = sfp_a0_get_smf_length_m(a0, &smf_status);
+    sfp_smf_length_status_t smf_status_km;
+    uint16_t smf_len = sfp_a0_get_smf_length_km(a0, &smf_status_km);
     float smf_attenuation = smf_len * 0.5f;
     cJSON_AddNumberToObject(a0_obj, "smf_length_km", smf_len);
-    cJSON_AddNumberToObject(a0_obj, "smf_length_status", smf_status);
+    cJSON_AddNumberToObject(a0_obj, "smf_length_status", smf_status_km);
     cJSON_AddNumberToObject(a0_obj, "smf_attenuation_db_per_100m", smf_attenuation);
 
     /* Byte 16 - OM2 Length */

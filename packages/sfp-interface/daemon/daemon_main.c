@@ -148,7 +148,7 @@ static void main_loop(void)
                             sfp_parse_a0_base_encoding(g_state.a0_raw, &g_state.a0_parsed);
                             sfp_parse_a0_base_nominal_rate(g_state.a0_raw, &g_state.a0_parsed);
                             sfp_parse_a0_base_rate_identifier(g_state.a0_raw, &g_state.a0_parsed);
-                            sfp_parse_a0_base_smf(g_state.a0_raw, &g_state.a0_parsed);
+                            sfp_parse_a0_base_smf_km(g_state.a0_raw, &g_state.a0_parsed);
                             sfp_parse_a0_base_om2(g_state.a0_raw, &g_state.a0_parsed);
                             sfp_parse_a0_base_om1(g_state.a0_raw, &g_state.a0_parsed);
                             sfp_parse_a0_base_om4_or_copper(g_state.a0_raw, &g_state.a0_parsed);

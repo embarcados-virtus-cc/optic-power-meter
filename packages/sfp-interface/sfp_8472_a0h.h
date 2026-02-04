@@ -463,6 +463,9 @@ typedef struct {
     sfp_compliance_codes_t cc;
     sfp_compliance_decoded_t dc;
 
+    /*Byte 8: Is Copper Cable */
+    bool is_copper;
+
     /* Byte 11: Encoding */
     sfp_encoding_codes_t encoding;
 
@@ -474,8 +477,12 @@ typedef struct {
     sfp_rate_select rate_identifier;
 
     /* Byte 14: SMF Length or Copper Attenuation */
+    uint16_t smf_length_km;
+    sfp_smf_length_status_t smf_status_km;
+
+    /* Byte 15: SMF Length or Copper Attenuation (unit = 100m) */
     uint16_t smf_length_m;
-    sfp_smf_length_status_t smf_status;
+    sfp_smf_length_status_t smf_status_m;
 
     /* Byte 16: 50 um OM2 */
     uint16_t om2_length_m;
@@ -559,7 +566,11 @@ void sfp_parse_a0_base_rate_identifier(const uint8_t *a0_base_date, sfp_a0h_base
 sfp_rate_select sfp_a0_get_rate_identifier(const sfp_a0h_base_t *a0);
 
 /* Byte 14 SMF Length or Copper Attenuation */
-void sfp_parse_a0_base_smf(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
+void sfp_parse_a0_base_smf_km(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
+uint16_t sfp_a0_get_smf_length_km(const sfp_a0h_base_t *a0, sfp_smf_length_status_t *status);
+
+/* Byte 14 SMF Length or Copper Attenuation */
+void sfp_parse_a0_base_smf_m(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 uint16_t sfp_a0_get_smf_length_m(const sfp_a0h_base_t *a0, sfp_smf_length_status_t *status);
 
 /* Byte 16 — OM2 Length Status (50 µm) */
