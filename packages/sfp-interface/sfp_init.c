@@ -173,6 +173,7 @@ bool sfp_init(sfp_module_t *module, const char *i2c_device)
     sfp_parse_a0_base_vendor_name(module->a0_raw, &module->a0);
     sfp_parse_a0_base_ext_compliance(module->a0_raw, &module->a0);
     sfp_parse_a0_base_vendor_oui(module->a0_raw, &module->a0);
+    sfp_parse_a0_base_vendor_rev(module->a0_raw, &module->a0);
     sfp_parse_a0_fc_speed_2(module->a0_raw, &module->a0);
     sfp_parse_a0_base_cc_base(module->a0_raw, &module->a0);
 
@@ -361,6 +362,16 @@ void sfp_info(const sfp_module_t *module)
         printf("Não especificado\n");
     }
 
+    /* Bytes 56–59 — Vendor REV */
+    char *vendor_rev_raw;
+    bool vendor_rev_valid = sfp_a0_get_vendor_oui(a0, vendor_rev_raw);
+
+    printf("\nBytes 56-59 — Vendor REV\n");
+    if (vendor_rev_valid) {
+        printf("REV: %s\n", vendor_rev_raw);
+    } else {
+        printf("Não especificado\n");
+    }
     /* Byte 62 — Fibre Channel Speed 2 */
     bool fc_speed_2_valid = sfp_get_a0_fc_speed_2(a0, &a0->dc);
     printf("\nByte 62 — Fibre Channel Speed 2\n");
