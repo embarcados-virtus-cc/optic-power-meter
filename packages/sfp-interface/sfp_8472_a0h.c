@@ -985,6 +985,7 @@ void sfp_parse_a0_base_vendor_rev(const uint8_t *a0_base_data, sfp_a0h_base_t *a
         return;
 
     memcpy (a0->vendor_rev, &a0_base_data[56], 4);
+    a0->vendor_rev[4] = '\0';
 }
 
 bool sfp_a0_get_vendor_rev(const sfp_a0h_base_t *a0, char *vendor_rev)
@@ -996,9 +997,7 @@ bool sfp_a0_get_vendor_rev(const sfp_a0h_base_t *a0, char *vendor_rev)
         return false;
     }
 
-    if (vendor_rev) {
-        strcpy(vendor_rev, a0->vendor_rev);
-    }
+    strcpy(vendor_rev, a0->vendor_rev);
     return true;
 }
 

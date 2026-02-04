@@ -503,7 +503,7 @@ typedef struct {
     char vendor_pn[16];
 
     /* Bytes 56-59: Vendor Revision (ASCII) */
-    char vendor_rev[4];
+    char vendor_rev[5];
 
     /* Bytes 60–61: Wavelength OR Cable Compliance (Byte 8 decides) */
     union {

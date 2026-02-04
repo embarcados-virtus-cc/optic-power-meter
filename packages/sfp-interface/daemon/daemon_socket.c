@@ -621,9 +621,9 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
     cJSON_AddBoolToObject(a0_obj, "vendor_pn_valid", vendor_pn_valid);
 
     /* Bytes 56-59 - Vendor Revision */
-    char *vendor_rev= "";
+    char vendor_rev[5] = {0};
     bool vendor_rev_valid = sfp_a0_get_vendor_rev(a0, vendor_rev);
-    cJSON_AddStringToObject(a0_obj, "vendor_rev",  a0->vendor_rev[0] ? a0->vendor_rev : "");
+    cJSON_AddStringToObject(a0_obj, "vendor_rev", vendor_rev_valid ? vendor_rev : "");
     cJSON_AddStringToObject(a0_obj, "vendor_rev_valid", vendor_rev_valid ? "valido": "invalido");
 
     /* Bytes 60-61 - Wavelength or Cable Compliance */

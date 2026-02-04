@@ -363,8 +363,8 @@ void sfp_info(const sfp_module_t *module)
     }
 
     /* Bytes 56–59 — Vendor REV */
-    char *vendor_rev_raw;
-    bool vendor_rev_valid = sfp_a0_get_vendor_oui(a0, vendor_rev_raw);
+    char vendor_rev_raw[5];
+    bool vendor_rev_valid = sfp_a0_get_vendor_rev(a0, vendor_rev_raw);
 
     printf("\nBytes 56-59 — Vendor REV\n");
     if (vendor_rev_valid) {
