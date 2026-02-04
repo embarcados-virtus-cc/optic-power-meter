@@ -9,13 +9,17 @@ Cada diretório dentro da pasta packages, representa um package, cada parte da a
 
 ── packages
    ├── api
+   ├── display
+   ├── gui
    ├── sfp-interface
-   └── view
+   └── tui
 
 Onde eles representam:
 
 - api: API REST em Python (FastAPI) que consome o daemon SFP via socket UNIX e expõe endpoints HTTP para a aplicação.
-- sfp-interface: Interface de captura dos dados dos bytes presentes nas páginas a0h e a2h de um módulo transceptor SFP (Small Form-Factor Pluggable). Inclui biblioteca C e daemon residente.
-- view: Interface de visualização da aplicação.
+- display: Aplicação e drivers para controlar o display LCD GMT130-V1.0 na Raspberry Pi.
+- gui: Interface web (Dashboard) construída com React, Shadcn/ui e TanStack Router.
+- sfp-interface: Interface de baixo nível e daemon C para comunicação I²C com o módulo SFP.
+- tui: Interface gráfica via terminal (Text User Interface) para visualização dos dados do SFP.
 
 *Se necessário, crie outro package, como por exemplo, um package para a API, outro para os circuitos, e etc.*
