@@ -16,14 +16,14 @@ CFLAGS += $(CJSON_CFLAGS)
 LDFLAGS += $(CJSON_LDFLAGS)
 
 LIB_TARGET = libsfp.so
-LIB_SRCS = sfp_8472_a0h.c sfp_8472_a2h.c i2c.c
+LIB_SRCS = a0h.c a2h.c i2c.c
 LIB_OBJS = $(LIB_SRCS:.c=.o)
 
 # Para debug, descomente a linha abaixo
 # CFLAGS += -DDEBUG -g
 
 TARGET = sfp-reader
-SRCS = main.c sfp_8472_a0h.c sfp_8472_a2h.c sfp_init.c i2c.c
+SRCS = main.c a0h.c a2h.c sfp_init.c i2c.c
 OBJS = $(SRCS:.c=.o)
 
 # Daemon
@@ -34,8 +34,8 @@ DAEMON_SRCS = daemon/daemon_main.c \
               daemon/daemon_fsm.c \
               daemon/daemon_i2c.c \
               daemon/daemon_socket.c \
-              sfp_8472_a0h.c \
-              sfp_8472_a2h.c \
+              a0h.c \
+              a2h.c \
               sfp_init.c \
               i2c.c
 DAEMON_OBJS = $(DAEMON_SRCS:.c=.o)
@@ -80,16 +80,16 @@ install-daemon: $(DAEMON_TARGET)
 	@echo "Instalado em /usr/local/bin/$(DAEMON_TARGET)"
 
 # Dependências
-main.o: main.c sfp_8472_a0h.h sfp_8472_a2h.h i2c.h
-sfp_8472_a0h.o: sfp_8472_a0h.c sfp_8472_a0h.h
-sfp_8472_a2h.o: sfp_8472_a2h.c sfp_8472_a2h.h
+main.o: main.c a0h.h a2h.h i2c.h
+a0h.o: a0h.c a0h.h
+a2h.o: a2h.c a2h.h
 i2c.o: i2c.c i2c.h
-sfp_init.o: sfp_init.c sfp_init.h sfp_8472_a0h.h sfp_8472_a2h.h i2c.h
+sfp_init.o: sfp_init.c sfp_init.h a0h.h a2h.h i2c.h
 
 # Dependências do daemon
 daemon/daemon_main.o: daemon/daemon_main.c daemon/daemon_config.h daemon/daemon_state.h daemon/daemon_fsm.h daemon/daemon_i2c.h daemon/daemon_socket.h sfp_init.h
 daemon/daemon_config.o: daemon/daemon_config.c daemon/daemon_config.h
-daemon/daemon_state.o: daemon/daemon_state.c daemon/daemon_state.h sfp_8472_a0h.h sfp_8472_a2h.h
+daemon/daemon_state.o: daemon/daemon_state.c daemon/daemon_state.h a0h.h a2h.h
 daemon/daemon_fsm.o: daemon/daemon_fsm.c daemon/daemon_fsm.h daemon/daemon_state.h
-daemon/daemon_i2c.o: daemon/daemon_i2c.c daemon/daemon_i2c.h i2c.h sfp_8472_a0h.h sfp_8472_a2h.h
+daemon/daemon_i2c.o: daemon/daemon_i2c.c daemon/daemon_i2c.h i2c.h a0h.h a2h.h
 daemon/daemon_socket.o: daemon/daemon_socket.c daemon/daemon_socket.h daemon/daemon_state.h daemon/daemon_fsm.h daemon/daemon_config.h

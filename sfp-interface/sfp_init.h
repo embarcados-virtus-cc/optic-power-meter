@@ -8,8 +8,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "sfp_8472_a0h.h"
-#include "sfp_8472_a2h.h"
+#include "a0h.h"
+#include "a2h.h"
 
 /**
  * @brief Estrutura que contém todos os dados lidos de um módulo SFP

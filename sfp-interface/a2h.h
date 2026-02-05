@@ -1,5 +1,5 @@
 /**
- * @file sfp_8472_a2h.h
+ * @file a2h.h
  * @brief Biblioteca de parsing SFF-8472 – Página A2h (Diagnósticos)
  *
  * @author Alexandre Junior
@@ -17,8 +17,8 @@
  *  A página A2h contém os diagnósticos em tempo real (DDM - Digital Diagnostic Monitoring).
  */
 
-#ifndef SFF_8472_A2H_H
-#define SFF_8472_A2H_H
+#ifndef A2H_H
+#define A2H_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -128,4 +128,4 @@ bool sfp_a2h_is_valid(const sfp_a2h_diagnostics_t *diag);
 /* Print diagnostics (for debugging) */
 void sfp_print_a2h_diagnostics(const sfp_a2h_diagnostics_t *diag);
 
-#endif /* SFF_8472_A2H_H */
+#endif /* A2H_H */

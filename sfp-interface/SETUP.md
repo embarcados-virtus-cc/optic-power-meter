@@ -47,7 +47,7 @@ Este guia explica como compilar, instalar e usar o daemon SFP passo a passo.
 ### Compilar o Daemon
 
 ```bash
-cd packages/sfp-interface
+cd sfp-interface
 make daemon
 ```
 

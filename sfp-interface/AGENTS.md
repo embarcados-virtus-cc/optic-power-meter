@@ -6,8 +6,8 @@ O projeto está organizado em duas partes principais:
 
 1. **Biblioteca SFP**: Código de baixo nível para leitura de módulos SFP via I²C
    - `i2c.c/h`: Interface I²C do Linux
-   - `sfp_8472_a0h.c/h`: Parsing da página A0h (dados estáticos)
-   - `sfp_8472_a2h.c/h`: Parsing da página A2h (diagnósticos dinâmicos)
+   - `a0h.c/h`: Parsing da página A0h (dados estáticos)
+   - `a2h.c/h`: Parsing da página A2h (diagnósticos dinâmicos)
    - `sfp_init.c/h`: Inicialização e leitura completa
    - `main.c`: Aplicação standalone de teste
 
@@ -15,7 +15,7 @@ O projeto está organizado em duas partes principais:
    - `daemon/`: Diretório com toda a lógica do daemon
    - Expõe dados via UNIX socket em `/run/sfp-daemon/sfp.sock`
    - Protocolo simples: comandos textuais com respostas JSON
-   - Consumido pela API Python (`packages/api`) que expõe endpoints HTTP REST
+   - Consumido pela API Python (`api`) que expõe endpoints HTTP REST
 
 ## Declaração de Funções
 

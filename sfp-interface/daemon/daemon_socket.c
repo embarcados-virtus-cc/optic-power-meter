@@ -6,8 +6,8 @@
 #include "daemon_socket.h"
 #include "daemon_fsm.h"
 #include "daemon_state.h"
-#include "../sfp_8472_a0h.h"
-#include "../sfp_8472_a2h.h"
+#include "../a0h.h"
+#include "../a2h.h"
 #include <cjson/cJSON.h>
 #include <stdio.h>
 #include <stdlib.h>

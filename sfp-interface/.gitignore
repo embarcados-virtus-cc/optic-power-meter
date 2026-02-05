@@ -1,7 +1,7 @@
 i2c.o
 main.o
-sfp_8472_a0h.o
-sfp_8472_a2h.o
+a0h.o
+a2h.o
 teste
 sfpreader
 sfp-daemon

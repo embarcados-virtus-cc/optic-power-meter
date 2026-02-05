@@ -1,5 +1,5 @@
 /**
- * @file sfp_8472_a0h.h
+ * @file a0h.h
  * @brief Biblioteca de parsing SFF-8472 – Página A0h (Base ID)
  *
  * @author Alexandre Junior
@@ -16,8 +16,8 @@
  *  de módulos SFP/SFP+, conforme a especificação SFF-8472.
  */
 
-#ifndef SFF_8472_A0H_H
-#define SFF_8472_A0H_H
+#ifndef A0H_H
+#define A0H_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -639,4 +639,4 @@ bool sfp_get_a0_fc_speed_2(const sfp_a0h_base_t *a0, const sfp_compliance_decode
 void sfp_parse_a0_base_cc_base(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 bool sfp_a0_get_cc_base_is_valid(const sfp_a0h_base_t *a0);
 
-#endif /* SFF_8472_A0H_H */
+#endif /* A0H_H */

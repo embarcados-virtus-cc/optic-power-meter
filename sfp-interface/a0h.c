@@ -1,5 +1,5 @@
 /**
- * @file sfp_8472_a0h.c
+ * @file a0h.c
  * @brief Biblioteca de parsing SFF-8472 – Página A0h (Base ID)
  *
  * @author Alexandre Junior
@@ -16,7 +16,7 @@
  *  de módulos SFP/SFP+, conforme a especificação SFF-8472.
  */
 
-#include "sfp_8472_a0h.h"
+#include "a0h.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>

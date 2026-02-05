@@ -9,8 +9,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../i2c.h"
-#include "../sfp_8472_a0h.h"
-#include "../sfp_8472_a2h.h"
+#include "../a0h.h"
+#include "../a2h.h"
 
 /* ============================================
  * Funções de Detecção de Presença
@@ -52,4 +52,3 @@ bool daemon_i2c_read_a0h(int i2c_fd, uint8_t *a0_raw);
 bool daemon_i2c_read_a2h(int i2c_fd, uint8_t *a2_raw);
 
 #endif /* DAEMON_I2C_H */
-

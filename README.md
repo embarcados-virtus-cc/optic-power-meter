@@ -9,13 +9,13 @@ O objetivo é fornecer uma ferramenta capaz de ler parâmetros críticos de rede
 
 O projeto é organizado como um monorepo contendo os seguintes pacotes:
 
-### `packages/sfp-interface` (Driver/Backend)
+### `sfp-interface` (Driver/Backend)
 Responsável pela comunicação de baixo nível com o hardware.
 - **Linguagem**: C
 - **Protocolo**: I2C (comunicação direta com endereços 0xA0 e 0xA2 do SFP).
 - **Função**: Leitura bruta da EEPROM, decodificação dos dados conforme norma SFF-8472 e validação de checksums.
 
-### `packages/view` (Frontend)
+### `view` (Frontend)
 Interface gráfica para visualização dos dados.
 - **Linguagem**: TypeScript
 - **Framework**: React, Vite

@@ -47,6 +47,6 @@ Principais pacotes:
 - `main.py`: Aplicação principal. Execute com **sudo**.
 
 ```bash
-cd packages/display
+cd display
 sudo python main.py
 ```
