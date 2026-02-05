@@ -16,16 +16,8 @@ export function CalibrationInfoColumn({
 }: CalibrationInfoColumnProps) {
   return (
     <div className="flex flex-col gap-6 h-full">
-      <InfoCard
-        title="Calibração Interna"
-        description="Utiliza os valores de calibração internos armazenados na EEPROM do módulo SFP+. Os dados são calculados automaticamente pelo firmware do transceptor."
-        isLoading={isLoading}
-      />
-      <InfoCard
-        title="Calibração Externa"
-        description="Permite aplicar coeficientes de calibração externos. Útil para compensar desvios ou calibrar contra um padrão de referência."
-        isLoading={isLoading}
-      />
+      <InfoCard title="Calibração Interna" description="Utiliza os valores de calibração internos armazenados na EEPROM do módulo SFP+. Os dados são calculados automaticamente pelo firmware do transceptor." isLoading={isLoading} />
+      <InfoCard title="Calibração Externa" description="Permite aplicar coeficientes de calibração externos. Útil para compensar desvios ou calibrar contra um padrão de referência." isLoading={isLoading} />
     </div>
   )
 }

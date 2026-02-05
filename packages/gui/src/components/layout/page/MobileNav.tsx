@@ -39,53 +39,22 @@ export function MobileNav() {
                         <SheetTitle>Menu</SheetTitle>
                     </SheetHeader>
                     <nav className="flex flex-col gap-4">
-                        <Link
-                            to="/"
-                            onClick={handleLinkClick}
-                            className={`
-                flex items-center gap-2 px-4 py-2 rounded-md transition-colors
-                ${isActive('/')
-                                    ? 'bg-secondary text-foreground font-medium'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                                }
-              `}
-                        >
+                        <Link to="/" onClick={handleLinkClick} className={` flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${isActive('/') ? 'bg-secondary text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50' } `}>
                             <Activity size={20} />
                             Monitoramento
                         </Link>
 
-                        <Link
-                            to="/alarms"
-                            onClick={handleLinkClick}
-                            className={`
-                flex items-center gap-2 px-4 py-2 rounded-md transition-colors
-                ${isActive('/alarms')
-                                    ? 'bg-secondary text-foreground font-medium'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                                }
-              `}
-                        >
+                        <Link to="/alarms" onClick={handleLinkClick} className={` flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${isActive('/alarms') ? 'bg-secondary text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50' } `}>
                             <AlarmClock size={20} />
                             Alarmes e Avisos
                         </Link>
 
-                        <Link
-                            to="/tuning"
-                            onClick={handleLinkClick}
-                            className={`
-                flex items-center gap-2 px-4 py-2 rounded-md transition-colors
-                ${isActive('/tuning')
-                                    ? 'bg-secondary text-foreground font-medium'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                                }
-              `}
-                        >
+                        <Link to="/tuning" onClick={handleLinkClick} className={` flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${isActive('/tuning') ? 'bg-secondary text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50' } `}>
                             <Toolbox size={20} />
                             Calibração
                         </Link>
 
-                        <button
-                            onClick={() => {
+                        <button onClick={() => {
                                 setOpen(false)
                                 setIsAboutOpen(true)
                             }}

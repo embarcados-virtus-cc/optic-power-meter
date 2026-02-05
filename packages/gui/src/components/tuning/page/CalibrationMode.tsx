@@ -74,15 +74,8 @@ export function CalibrationMode({
           <>
             {/* Selection Buttons Container */}
             <div className="space-y-3">
-              <div
-                onClick={() => onModeChange('internal')}
-                className={`
-                  p-4 rounded-lg border flex items-center justify-between group cursor-pointer transition-all duration-200
-                  ${activeMode === 'internal'
-                    ? 'bg-secondary border-border shadow-md'
-                    : 'bg-background/40 border-border hover:border-foreground/20 hover:bg-secondary/60'
-                  }
-                `}
+              <div onClick={() => onModeChange('internal')}
+                className={` p-4 rounded-lg border flex items-center justify-between group cursor-pointer transition-all duration-200 ${activeMode === 'internal' ? 'bg-secondary border-border shadow-md' : 'bg-background/40 border-border hover:border-foreground/20 hover:bg-secondary/60' } `}
               >
                 <div className="flex items-center gap-4">
                   <div className="relative flex items-center justify-center">
@@ -93,9 +86,7 @@ export function CalibrationMode({
                     )}
                   </div>
                   <div>
-                    <div
-                      className={`font-bold text-base ${activeMode === 'internal' ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}
-                    >
+                    <div className={`font-bold text-base ${activeMode === 'internal' ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
                       CALIBRAÇÃO INTERNA
                     </div>
                     <div className="text-[11px] bg-secondary text-muted-foreground px-1.5 py-0.5 rounded w-fit mt-1 uppercase tracking-wider font-bold">
@@ -105,15 +96,8 @@ export function CalibrationMode({
                 </div>
               </div>
 
-              <div
-                onClick={() => onModeChange('external')}
-                className={`
-                  p-4 rounded-lg border flex items-center justify-between group cursor-pointer transition-all duration-200
-                  ${activeMode === 'external'
-                    ? 'bg-secondary border-border shadow-md'
-                    : 'bg-background/40 border-border hover:border-foreground/20 hover:bg-secondary/60'
-                  }
-                `}
+              <div onClick={() => onModeChange('external')}
+                className={` p-4 rounded-lg border flex items-center justify-between group cursor-pointer transition-all duration-200 ${activeMode === 'external' ? 'bg-secondary border-border shadow-md' : 'bg-background/40 border-border hover:border-foreground/20 hover:bg-secondary/60' } `}
               >
                 <div className="flex items-center gap-4">
                   <div className="relative flex items-center justify-center">
@@ -124,9 +108,7 @@ export function CalibrationMode({
                     )}
                   </div>
                   <div>
-                    <div
-                      className={`font-bold text-base ${activeMode === 'external' ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}
-                    >
+                    <div className={`font-bold text-base ${activeMode === 'external' ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
                       CALIBRAÇÃO EXTERNA
                     </div>
                     <div className="text-[11px] border border-amber-900/30 text-amber-600 px-1.5 py-0.5 rounded w-fit mt-1 uppercase tracking-wider font-bold">

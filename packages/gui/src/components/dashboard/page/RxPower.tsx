@@ -68,25 +68,13 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
                   </div>
                 ) : (
                   <>
-                    <button
-                      onClick={() => setViewMode('gauge')}
-                      className={cn(
-                        'px-3 py-1 text-[10px] font-bold uppercase transition-all rounded-sm',
-                        viewMode === 'gauge'
-                          ? 'bg-secondary text-foreground shadow-sm'
-                          : 'text-muted-foreground hover:text-muted-foreground',
-                      )}
+                    <button onClick={() => setViewMode('gauge')}
+                      className={cn( 'px-3 py-1 text-[10px] font-bold uppercase transition-all rounded-sm', viewMode === 'gauge' ? 'bg-secondary text-foreground shadow-sm' : 'text-muted-foreground hover:text-muted-foreground', )}
                     >
                       Medidor
                     </button>
-                    <button
-                      onClick={() => setViewMode('digital')}
-                      className={cn(
-                        'px-3 py-1 text-[10px] font-bold uppercase transition-all rounded-sm',
-                        viewMode === 'digital'
-                          ? 'bg-secondary text-foreground shadow-sm'
-                          : 'text-muted-foreground hover:text-muted-foreground',
-                      )}
+                    <button onClick={() => setViewMode('digital')}
+                      className={cn( 'px-3 py-1 text-[10px] font-bold uppercase transition-all rounded-sm', viewMode === 'digital' ? 'bg-secondary text-foreground shadow-sm' : 'text-muted-foreground hover:text-muted-foreground', )}
                     >
                       Digital
                     </button>
@@ -103,15 +91,8 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
                 <Skeleton key={i} className="w-10 h-5 rounded bg-muted" />
               ))
               : (['dBm', 'dB', 'mW', 'µW', 'nW'] as const).map((u) => (
-                <button
-                  key={u}
-                  onClick={() => setUnit(u)}
-                  className={cn(
-                    'px-2 py-0.5 text-[11px] font-black uppercase border transition-all rounded',
-                    unit === u
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'bg-transparent text-muted-foreground border-border hover:border-muted-foreground',
-                  )}
+                <button key={u} onClick={() => setUnit(u)}
+                  className={cn( 'px-2 py-0.5 text-[11px] font-black uppercase border transition-all rounded', unit === u ? 'bg-foreground text-background border-foreground' : 'bg-transparent text-muted-foreground border-border hover:border-muted-foreground', )}
                 >
                   {u}
                 </button>
@@ -133,26 +114,8 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
               <div className="flex flex-col items-center justify-center animate-in fade-in duration-300">
                 <div className="relative w-64 flex items-center justify-center">
                   <svg className="w-56 -rotate-90" viewBox="0 0 100 100">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="42"
-                      fill="none"
-                      stroke="currentColor"
-                      className="text-zinc-200 dark:text-zinc-800"
-                      strokeWidth="6"
-                      strokeDasharray="1 2"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="42"
-                      fill="none"
-                      stroke="currentColor"
-                      className="text-foreground"
-                      strokeWidth="6"
-                      strokeDasharray={`${(Math.max(0, 20 + powerValue) / 20) * 263.89} 263.89`}
-                    />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" className="text-zinc-200 dark:text-zinc-800" strokeWidth="6" strokeDasharray="1 2" />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" className="text-foreground" strokeWidth="6" strokeDasharray={`${(Math.max(0, 20 + powerValue) / 20) * 263.89} 263.89`} />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-4xl font-bold text-foreground tracking-tighter">

@@ -21,10 +21,7 @@ function AlarmsPage() {
         </div>
 
         {/* Separator */}
-        <Separator
-          orientation="vertical"
-          className="hidden xl:block h-auto bg-zinc-700"
-        />
+        <Separator orientation="vertical" className="hidden xl:block h-auto bg-zinc-700" />
         <Separator orientation="horizontal" className="xl:hidden bg-zinc-700" />
 
         {/* Limits Section */}

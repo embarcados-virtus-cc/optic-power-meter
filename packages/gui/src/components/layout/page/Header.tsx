@@ -45,21 +45,9 @@ export function Header() {
             ) : (
               <Link to="/">
                 <span className="text-xl font-bold text-foreground cursor-pointer flex items-center">
-                  <img
-                    src={
-                      theme === 'light'
-                        ? '/logo-power-meter-light.png'
-                        : '/logo-power-meter.png'
-                    }
-                    alt="Logo"
-                    className="h-12 w-12 mr-4"
-                  />
+                  <img src={ theme === 'light' ? '/logo-power-meter-light.png' : '/logo-power-meter.png' } alt="Logo" className="h-12 w-12 mr-4" />
                   MEDIDOR DE POTÊNCIA ÓPTICA
-                  <img
-                    src="/logo-virtus-cc.png"
-                    alt="Logo Virtus CC"
-                    className="h-16 w-60 ml-4 hidden sm:block"
-                  />
+                  <img src="/logo-virtus-cc.png" alt="Logo Virtus CC" className="h-16 w-60 ml-4 hidden sm:block" />
                 </span>
               </Link>
             )}
@@ -81,71 +69,28 @@ export function Header() {
                 <NavigationMenu className="ml-auto">
                   <NavigationMenuList className="gap-2">
                     <NavigationMenuItem>
-                      <Link
-                        to="/"
-                        className={`
-                        flex flex-row items-center justify-start gap-2
-                        text-left cursor-pointer
-                        ${isActive('/') ? 'text-muted-foreground' : 'text-foreground'}
-                        transition-colors
-                        px-3 py-2 rounded-md
-                        `}
-                      >
-                        <Activity
-                          className={
-                            isActive('/') ? 'text-muted-foreground' : 'text-foreground'
-                          }
-                          size={20}
-                        />
+                      <Link to="/" className={` flex flex-row items-center justify-start gap-2 text-left cursor-pointer ${isActive('/') ? 'text-muted-foreground' : 'text-foreground'} transition-colors px-3 py-2 rounded-md `}>
+                        <Activity className={ isActive('/') ? 'text-muted-foreground' : 'text-foreground' } size={20} />
                         Monitoramento
                       </Link>
                     </NavigationMenuItem>
 
                     <NavigationMenuItem>
-                      <Link
-                        to="/alarms"
-                        className={`
-                        flex flex-row items-center justify-start gap-2
-                        text-left cursor-pointer
-                        ${isActive('/alarms') ? 'text-muted-foreground' : 'text-foreground'}
-                        transition-colors
-                        px-3 py-2 rounded-md
-                        `}
-                      >
-                        <AlarmClock
-                          className={
-                            isActive('/alarms') ? 'text-muted-foreground' : 'text-foreground'
-                          }
-                          size={20}
-                        />
+                      <Link to="/alarms" className={` flex flex-row items-center justify-start gap-2 text-left cursor-pointer ${isActive('/alarms') ? 'text-muted-foreground' : 'text-foreground'} transition-colors px-3 py-2 rounded-md `}>
+                        <AlarmClock className={ isActive('/alarms') ? 'text-muted-foreground' : 'text-foreground' } size={20} />
                         Alarmes e Avisos
                       </Link>
                     </NavigationMenuItem>
 
                     <NavigationMenuItem>
-                      <Link
-                        to="/tuning"
-                        className={`
-                        flex flex-row items-center justify-start gap-2
-                        text-left cursor-pointer
-                        ${isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground'}
-                        transition-colors
-                        px-3 py-2 rounded-md
-                        `}
-                      >
-                        <Toolbox
-                          className={
-                            isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground'
-                          }
-                          size={20}
-                        />
+                      <Link to="/tuning" className={` flex flex-row items-center justify-start gap-2 text-left cursor-pointer ${isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground'} transition-colors px-3 py-2 rounded-md `}>
+                        <Toolbox className={ isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground' } size={20} />
                         Calibração
                       </Link>
                     </NavigationMenuItem>
 
                     <NavigationMenuItem>
-                      <button
-                        onClick={() => setIsAboutOpen(true)}
+                      <button onClick={() => setIsAboutOpen(true)}
                         className="
                         flex flex-row items-center justify-start gap-2
                         text-left cursor-pointer

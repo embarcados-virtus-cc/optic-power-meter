@@ -127,12 +127,7 @@ export function ExternalCalibrationForm({
                 <InputGroup label="Slope" pl="1" val={rxPower.slope} />
                 <InputGroup label="RX_pwr(4)" pl="0" val={rxPower.pwr4} />
                 <div className="relative">
-                  <InputGroup
-                    label="RX_pwr(3)"
-                    pl="0"
-                    val={rxPower.pwr3}
-                    hasEdit
-                    onSave={(val) => handleUpdate('rxPower', 'pwr3', val)}
+                  <InputGroup label="RX_pwr(3)" pl="0" val={rxPower.pwr3} hasEdit onSave={(val) => handleUpdate('rxPower', 'pwr3', val)}
                   />
                 </div>
               </div>
@@ -148,12 +143,7 @@ export function ExternalCalibrationForm({
                   <InputGroup label="Offset" pl="0" val={txPower.offset} />
                 </div>
                 <div className="col-span-1 lg:col-span-2">
-                  <InputGroup
-                    label="Slope"
-                    pl="1"
-                    val={txPower.slope}
-                    hasEdit
-                    onSave={(val) => handleUpdate('txPower', 'slope', val)}
+                  <InputGroup label="Slope" pl="1" val={txPower.slope} hasEdit onSave={(val) => handleUpdate('txPower', 'slope', val)}
                   />
                 </div>
               </div>
@@ -166,19 +156,10 @@ export function ExternalCalibrationForm({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="col-span-1">
-                  <InputGroup
-                    label="Offset (°C)"
-                    pl="0"
-                    val={temperature.offset}
-                  />
+                  <InputGroup label="Offset (°C)" pl="0" val={temperature.offset} />
                 </div>
                 <div className="col-span-1 lg:col-span-2">
-                  <InputGroup
-                    label="Slope"
-                    pl="1"
-                    val={temperature.slope}
-                    hasEdit
-                    onSave={(val) => handleUpdate('temperature', 'slope', val)}
+                  <InputGroup label="Slope" pl="1" val={temperature.slope} hasEdit onSave={(val) => handleUpdate('temperature', 'slope', val)}
                   />
                 </div>
               </div>
@@ -280,19 +261,11 @@ function InputGroup({
         {label}
       </Label>
       <div className="flex gap-2 relative">
-        <Input
-          ref={inputRef}
-          className={`bg-secondary/40 border-border text-foreground h-8 text-xs font-medium
-             ${isEditing ? 'border-primary ring-1 ring-primary/50' : ''}
-          `}
-          placeholder={pl}
-          value={isEditing ? tempValue : val}
-          onChange={(e) => isEditing && setTempValue(e.target.value)}
+        <Input ref={inputRef} className={`bg-secondary/40 border-border text-foreground h-8 text-xs font-medium ${isEditing ? 'border-primary ring-1 ring-primary/50' : ''} `} placeholder={pl} value={isEditing ? tempValue : val} onChange={(e) => isEditing && setTempValue(e.target.value)}
           readOnly={!isEditing}
         />
         {hasEdit && !isEditing && (
-          <button
-            onClick={() => setIsEditing(true)}
+          <button onClick={() => setIsEditing(true)}
             className="h-8 w-8 flex shrink-0 items-center justify-center bg-secondary/40 rounded border border-border hover:bg-secondary/60 cursor-pointer transition-colors"
           >
             <SquarePen className="w-4.5 h-4.5 text-muted-foreground" />
@@ -300,16 +273,10 @@ function InputGroup({
         )}
         {hasEdit && isEditing && (
           <div className="flex gap-1">
-            <button
-              onClick={handleSave}
-              className="h-8 w-8 flex shrink-0 items-center justify-center bg-green-900/40 rounded border border-green-800 hover:bg-green-900/60 cursor-pointer transition-colors"
-            >
+            <button onClick={handleSave} className="h-8 w-8 flex shrink-0 items-center justify-center bg-green-900/40 rounded border border-green-800 hover:bg-green-900/60 cursor-pointer transition-colors">
               <Check className="w-4 h-4 text-green-400" />
             </button>
-            <button
-              onClick={handleCancel}
-              className="h-8 w-8 flex shrink-0 items-center justify-center bg-red-900/40 rounded border border-red-800 hover:bg-red-900/60 cursor-pointer transition-colors"
-            >
+            <button onClick={handleCancel} className="h-8 w-8 flex shrink-0 items-center justify-center bg-red-900/40 rounded border border-red-800 hover:bg-red-900/60 cursor-pointer transition-colors">
               <X className="w-4 h-4 text-red-400" />
             </button>
           </div>

@@ -36,21 +36,9 @@ export function NotificationToast({ flag, onDismiss }: NotificationToastProps) {
   }
 
   return (
-    <div
-      className={cn(
-        'relative flex items-center gap-3 p-4 rounded-lg border bg-zinc-900 shadow-lg min-w-[300px] max-w-sm transition-all duration-300 ease-in-out',
-        getTypeStyles(flag.type),
-        isVisible
-          ? 'translate-x-0 opacity-100'
-          : 'translate-x-[120%] opacity-0',
-      )}
-      role="alert"
-    >
+    <div className={cn( 'relative flex items-center gap-3 p-4 rounded-lg border bg-zinc-900 shadow-lg min-w-[300px] max-w-sm transition-all duration-300 ease-in-out', getTypeStyles(flag.type), isVisible ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0', )} role="alert">
       <div className="flex-shrink-0">
-        <TriangleAlert
-          size={20}
-          className={flag.type === 'ALTO' ? 'text-red-500' : 'text-yellow-500'}
-        />
+        <TriangleAlert size={20} className={flag.type === 'ALTO' ? 'text-red-500' : 'text-yellow-500'} />
       </div>
 
       <div className="flex-1 min-w-0 pr-6">
@@ -74,11 +62,7 @@ export function NotificationToast({ flag, onDismiss }: NotificationToastProps) {
         </p>
       </div>
 
-      <button
-        onClick={handleDismiss}
-        className="absolute top-2 right-2 p-1 text-slate-500 hover:text-slate-300 transition-colors rounded-sm hover:bg-zinc-800"
-        aria-label="Fechar notificação"
-      >
+      <button onClick={handleDismiss} className="absolute top-2 right-2 p-1 text-slate-500 hover:text-slate-300 transition-colors rounded-sm hover:bg-zinc-800" aria-label="Fechar notificação">
         <X size={14} />
       </button>
     </div>

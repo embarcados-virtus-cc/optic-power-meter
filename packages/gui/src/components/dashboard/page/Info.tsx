@@ -43,11 +43,7 @@ export function Info({ isLoading }: { isLoading: boolean }) {
                   Módulo SFP e Informação de DDM
                 </Label>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                onClick={() => setModalOpen(true)}
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setModalOpen(true)}
               >
                 <Plus size={18} />
               </Button>
@@ -87,10 +83,7 @@ export function Info({ isLoading }: { isLoading: boolean }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {firstSection.map((info, index) => (
                 <div key={index} className="flex flex-col gap-2">
-                  <Badge
-                    variant="outline"
-                    className="w-fit rounded-md bg-secondary border-none text-foreground"
-                  >
+                  <Badge variant="outline" className="w-fit rounded-md bg-secondary border-none text-foreground">
                     {info.label}
                   </Badge>
                   <span className="text-sm font-medium text-foreground">
@@ -107,10 +100,7 @@ export function Info({ isLoading }: { isLoading: boolean }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
               {secondSection.map((info, index) => (
                 <div key={index} className="flex flex-col gap-2">
-                  <Badge
-                    variant="outline"
-                    className="w-fit rounded-md bg-secondary border-none text-foreground"
-                  >
+                  <Badge variant="outline" className="w-fit rounded-md bg-secondary border-none text-foreground">
                     {info.label}
                   </Badge>
                   <span className="text-sm font-medium text-foreground">

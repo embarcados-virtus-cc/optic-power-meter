@@ -52,10 +52,7 @@ export function Flags({ isLoading }: { isLoading: boolean }) {
           <div className="bg-secondary/50 rounded-lg border border-border p-3">
             <div className="flex flex-col gap-2">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 p-4 bg-secondary/50 rounded-lg border border-border"
-                >
+                <div key={i} className="flex items-center gap-3 p-4 bg-secondary/50 rounded-lg border border-border">
                   <Skeleton className="w-10 h-10 rounded-md bg-muted flex-shrink-0" />
                   <div className="flex-1 flex flex-col gap-1 min-w-0">
                     <Skeleton className="w-28 h-5 bg-muted rounded" />
@@ -81,20 +78,10 @@ export function Flags({ isLoading }: { isLoading: boolean }) {
           <div className="bg-secondary/50 rounded-lg border border-border p-3 max-h-[440px] overflow-y-auto custom-scrollbar">
             <div className="flex flex-col gap-2">
               {flags.map((flag) => (
-                <div
-                  key={flag.id}
-                  className={cn(
-                    'flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-secondary/50 rounded-lg border border-border hover:border-muted-foreground transition-all',
-                  )}
-                >
+                <div key={flag.id} className={cn( 'flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-secondary/50 rounded-lg border border-border hover:border-muted-foreground transition-all', )}>
                   <div className="flex items-center gap-3 w-full sm:w-auto">
                     {/* Ícone de Warning */}
-                    <div
-                      className={cn(
-                        'flex items-center justify-center w-10 h-10 rounded-md flex-shrink-0',
-                        getTypeStyles(flag.type),
-                      )}
-                    >
+                    <div className={cn( 'flex items-center justify-center w-10 h-10 rounded-md flex-shrink-0', getTypeStyles(flag.type), )}>
                       <TriangleAlert size={20} />
                     </div>
 
@@ -111,8 +98,7 @@ export function Flags({ isLoading }: { isLoading: boolean }) {
                     </div>
 
                     {/* Botão de deletar (Mobile) */}
-                    <button
-                      onClick={() => handleDelete(flag.id)}
+                    <button onClick={() => handleDelete(flag.id)}
                       className="flex sm:hidden items-center justify-center w-8 h-8 rounded hover:bg-zinc-800 transition-colors text-muted-foreground hover:text-red-400 flex-shrink-0 ml-auto"
                       aria-label="Remover flag"
                     >
@@ -144,18 +130,12 @@ export function Flags({ isLoading }: { isLoading: boolean }) {
                       </div>
 
                       {/* Badge do tipo */}
-                      <div
-                        className={cn(
-                          'px-2 py-1 rounded text-xs font-black uppercase flex-shrink-0',
-                          getTypeStyles(flag.type),
-                        )}
-                      >
+                      <div className={cn( 'px-2 py-1 rounded text-xs font-black uppercase flex-shrink-0', getTypeStyles(flag.type), )}>
                         {flag.type}
                       </div>
 
                       {/* Botão de deletar (Desktop) */}
-                      <button
-                        onClick={() => handleDelete(flag.id)}
+                      <button onClick={() => handleDelete(flag.id)}
                         className="hidden sm:flex items-center justify-center w-8 h-8 rounded hover:bg-zinc-800 transition-colors text-muted-foreground hover:text-red-400 flex-shrink-0"
                         aria-label="Remover flag"
                       >

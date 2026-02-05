@@ -62,10 +62,7 @@ export function Parameters({ isLoading }: { isLoading: boolean }) {
         {isLoading ? (
           <div className="grid grid-cols-2 gap-4 h-full items-stretch">
             {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between p-6 bg-secondary rounded-lg h-full min-h-24"
-              >
+              <div key={i} className="flex items-center justify-between p-6 bg-secondary rounded-lg h-full min-h-24">
                 <div className="flex flex-col gap-2">
                   <Skeleton className="w-6 h-6 bg-muted" />
                   <Skeleton className="w-20 h-4 bg-muted" />
@@ -80,10 +77,7 @@ export function Parameters({ isLoading }: { isLoading: boolean }) {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full items-stretch">
             {params.map((param, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-6 bg-secondary rounded-lg min-h-24"
-              >
+              <div key={index} className="flex items-center justify-between p-6 bg-secondary rounded-lg min-h-24">
                 <div className="flex flex-col gap-2">
                   <param.icon className="text-foreground" size={24} />
                   <Label className="text-xs uppercase tracking-wide text-foreground">

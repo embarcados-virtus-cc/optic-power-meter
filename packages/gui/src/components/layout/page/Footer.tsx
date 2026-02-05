@@ -47,15 +47,7 @@ export function Footer() {
 
               <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-2 text-center sm:text-left">
                 <div className="sm:mr-2">
-                  <img
-                    src={
-                      theme === 'light'
-                        ? '/logo-power-meter-light.png'
-                        : '/logo-power-meter.png'
-                    }
-                    alt="Logo do Medidor de Potência Óptica"
-                    className="h-16 w-16 sm:h-20 sm:w-20 rounded-md"
-                  />
+                  <img src={ theme === 'light' ? '/logo-power-meter-light.png' : '/logo-power-meter.png' } alt="Logo do Medidor de Potência Óptica" className="h-16 w-16 sm:h-20 sm:w-20 rounded-md" />
                 </div>
                 <div className="flex flex-col gap-1 sm:gap-2">
                   <span className="text-base sm:text-lg font-bold text-foreground">
@@ -66,40 +58,14 @@ export function Footer() {
                   </span>
                 </div>
                 <div className="sm:ml-2">
-                  <img
-                    src="/logo-virtus-cc.png"
-                    alt="Logo Virtus CC"
-                    className="h-12 w-auto sm:h-20 sm:w-auto ml-0 sm:ml-4"
-                  />
+                  <img src="/logo-virtus-cc.png" alt="Logo Virtus CC" className="h-12 w-auto sm:h-20 sm:w-auto ml-0 sm:ml-4" />
                 </div>
               </div>
 
               {/* Links Sociais */}
               <div className="flex gap-3">
-                <a
-                  href="https://github.com/embarcados-virtus-cc/optic-power-meter"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="
-                    group
-                    p-2 rounded-md
-                    text-muted-foreground
-                    bg-transparent
-                    hover:bg-accent
-                    hover:text-foreground
-                    transition-colors
-                    cursor-pointer
-                  "
-                  aria-label="GitHub"
-                >
-                  <Github
-                    size={20}
-                    className="
-                      text-muted-foreground
-                      group-hover:text-foreground
-                      transition-colors
-                    "
-                  />
+                <a href="https://github.com/embarcados-virtus-cc/optic-power-meter" target="_blank" rel="noopener noreferrer" className=" group p-2 rounded-md text-muted-foreground bg-transparent hover:bg-accent hover:text-foreground transition-colors cursor-pointer " aria-label="GitHub">
+                  <Github size={20} className=" text-muted-foreground group-hover:text-foreground transition-colors " />
                 </a>
               </div>
             </div>

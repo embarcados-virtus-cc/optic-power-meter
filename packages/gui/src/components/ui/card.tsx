@@ -1,8 +1,5 @@
 export const CardComponent = ({ className = '', ...props }) => (
-  <div
-    className={`rounded-lg bg-card text-card-foreground shadow-sm border border-border ${className}`}
-    {...props}
-  />
+  <div className={`rounded-lg bg-card text-card-foreground shadow-sm border border-border ${className}`} {...props} />
 )
 
 export const CardHeaderComponent = ({ className = '', ...props }) => (
@@ -10,10 +7,7 @@ export const CardHeaderComponent = ({ className = '', ...props }) => (
 )
 
 export const CardTitleComponent = ({ className = '', ...props }) => (
-  <h3
-    className={`text-base font-semibold leading-none tracking-tight text-foreground ${className}`}
-    {...props}
-  />
+  <h3 className={`text-base font-semibold leading-none tracking-tight text-foreground ${className}`} {...props} />
 )
 
 export const CardContentComponent = ({ className = '', ...props }) => (

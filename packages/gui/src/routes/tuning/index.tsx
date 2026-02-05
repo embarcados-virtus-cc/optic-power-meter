@@ -25,12 +25,7 @@ function RouteComponent() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Col 1: Selector (3 cols) */}
           <div className="lg:col-span-3 h-full">
-            <CalibrationMode
-              activeMode={activeMode}
-              onModeChange={setActiveMode}
-              status={status}
-              isLoading={isLoading}
-            />
+            <CalibrationMode activeMode={activeMode} onModeChange={setActiveMode} status={status} isLoading={isLoading} />
           </div>
 
           {/* Col 2: Info (4 cols) */}
@@ -40,13 +35,7 @@ function RouteComponent() {
 
           {/* Col 3: Form (5 cols) */}
           <div className="lg:col-span-5 h-full">
-            <ExternalCalibrationForm
-              rxPower={rxPower}
-              txPower={txPower}
-              temperature={temperature}
-              info={info}
-              isLoading={isLoading}
-            />
+            <ExternalCalibrationForm rxPower={rxPower} txPower={txPower} temperature={temperature} info={info} isLoading={isLoading} />
           </div>
         </div>
       </main>
