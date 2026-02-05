@@ -352,7 +352,7 @@ void sfp_info(const sfp_module_t *module)
             printf("Não especificado\n");
             break;
     }
-    
+
     /* Byte 19 — OM3 / Cable */
     sfp_om3_length_status_t om3_status;
     uint32_t om3_cable_len = sfp_a0_get_om3_cable_length_m(a0, &om3_status);

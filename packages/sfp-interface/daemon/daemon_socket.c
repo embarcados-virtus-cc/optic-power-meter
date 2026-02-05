@@ -565,11 +565,15 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
 
     /* Byte 14 - SMF Length or Copper Attenuation */
     sfp_smf_length_status_t smf_status_km;
-    uint16_t smf_len = sfp_a0_get_smf_length_km(a0, &smf_status_km);
-    float smf_attenuation = smf_len * 0.5f;
-    cJSON_AddNumberToObject(a0_obj, "smf_length_km", smf_len);
-    cJSON_AddNumberToObject(a0_obj, "smf_length_status", smf_status_km);
-    cJSON_AddNumberToObject(a0_obj, "smf_attenuation_db_per_100m", smf_attenuation);
+    uint16_t smf_len_km = sfp_a0_get_smf_length_km(a0, &smf_status_km);
+    cJSON_AddNumberToObject(a0_obj, "smf_length_km", smf_len_km);
+    cJSON_AddNumberToObject(a0_obj, "smf_length_status_km", smf_status_km);
+
+    /* Byte 15 SMF Length or Copper Attenuation (units 100m) */
+    sfp_smf_length_status_t smf_status_m;
+    uint16_t smf_len_m = sfp_a0_get_smf_length_m(a0, &smf_status_m);
+    cJSON_AddNumberToObject(a0_obj, "smf_length_m", smf_len_m);
+    cJSON_AddNumberToObject(a0_obj, "smf_length_status_m", smf_status_m);
 
     /* Byte 16 - OM2 Length */
     sfp_om2_length_status_t om2_status;
@@ -588,6 +592,12 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
     uint16_t om4_copper_len = sfp_a0_get_om4_copper_or_length_m(a0, &om4_status);
     cJSON_AddNumberToObject(a0_obj, "om4_or_copper_length_m", om4_copper_len);
     cJSON_AddNumberToObject(a0_obj, "om4_or_copper_length_status", om4_status);
+
+    /* Byte 19 - OM3 or OM3 or Optical/Cable Physical Interconnect Length */
+    sfp_om4_length_status_t om3_status;
+    uint16_t om3_len = sfp_a0_get_om3_cable_length_m(a0, &om3_status);
+    cJSON_AddNumberToObject(a0_obj, "om3_len", om3_len);
+    cJSON_AddNumberToObject(a0_obj, "om3_len", om3_status);
 
     /* Bytes 20-35 - Vendor Name */
     char vendor_name[SFP_A0_LEN_VENDOR_NAME + 1] = {0};
