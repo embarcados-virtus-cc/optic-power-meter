@@ -1,8 +1,8 @@
 # Makefile para SFP Interface - Raspberry Pi (Linux)
 # Compilação para Linux embarcado usando a interface I2C do kernel
 
-CC = gcc
-CFLAGS = -Wall -Wextra -O2 -std=c11 -fPIC -I. -Idaemon
+CC = /usr/bin/gcc
+CFLAGS = -Wall -Wextra -O2 -std=c11 -fPIC -I. -Idaemon -fno-lto
 LDFLAGS = -lm -lpthread
 
 # Flags específicos para arquivos do daemon

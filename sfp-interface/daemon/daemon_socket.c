@@ -594,10 +594,10 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
     cJSON_AddNumberToObject(a0_obj, "om4_or_copper_length_status", om4_status);
 
     /* Byte 19 - OM3 or OM3 or Optical/Cable Physical Interconnect Length */
-    sfp_om4_length_status_t om3_status;
-    uint16_t om3_len = sfp_a0_get_om3_cable_length_m(a0, &om3_status);
-    cJSON_AddNumberToObject(a0_obj, "om3_len", om3_len);
-    cJSON_AddNumberToObject(a0_obj, "om3_len", om3_status);
+    sfp_om3_length_status_t om3_status;
+    uint32_t om3_len = sfp_a0_get_om3_cable_length_m(a0, &om3_status);
+    cJSON_AddNumberToObject(a0_obj, "om3_length_m", om3_len);
+    cJSON_AddNumberToObject(a0_obj, "om3_length_status", om3_status);
 
     /* Bytes 20-35 - Vendor Name */
     char vendor_name[SFP_A0_LEN_VENDOR_NAME + 1] = {0};
