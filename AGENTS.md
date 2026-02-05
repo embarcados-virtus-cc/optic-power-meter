@@ -7,15 +7,6 @@ Leia sempre o AGENTS.md referente ao package que você irá dar suporte, ficando
 # Packages
 Cada diretório dentro da pasta packages, representa um package, cada parte da aplicação deverá ser dividida em um do mesmo, até o momento essa é a estrutura atual:
 
-── packages
-   ├── api
-   ├── display
-   ├── gui
-   ├── sfp-interface
-   └── tui
-
-Onde eles representam:
-
 - api: API REST em Python (FastAPI) que consome o daemon SFP via socket UNIX e expõe endpoints HTTP para a aplicação.
 - display: Aplicação e drivers para controlar o display LCD GMT130-V1.0 na Raspberry Pi.
 - gui: Interface web (Dashboard) construída com React, Shadcn/ui e TanStack Router.
