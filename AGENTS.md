@@ -7,7 +7,6 @@ Leia sempre o AGENTS.md referente ao package que você irá dar suporte, ficando
 # Packages
 Cada diretório, representa um package, cada parte da aplicação deverá ser dividida em um do mesmo, até o momento essa é a estrutura atual:
 
-- api: API REST em Python (FastAPI) que consome o daemon SFP via socket UNIX e expõe endpoints HTTP para a aplicação.
 - display: Aplicação e drivers para controlar o display LCD GMT130-V1.0 na Raspberry Pi.
 - gui: Interface web (Dashboard) construída com React, Shadcn/ui e TanStack Router.
 - sfp-interface: Interface de baixo nível e daemon C para comunicação I²C com o módulo SFP.
