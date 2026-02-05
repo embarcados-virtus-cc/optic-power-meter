@@ -862,6 +862,61 @@ uint16_t sfp_a0_get_om4_copper_or_length_m(const sfp_a0h_base_t *a0, sfp_om4_len
     return a0->om4_or_copper_length_m;
 }
 
+/* ============================================
+ * Byte 19 — OM3 or Optical/Cable Physical Interconnect Length
+ * ============================================ */
+void sfp_parse_a0_base_om3_or_cable(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
+{
+    if (!a0_base_data || !a0)
+        return;
+
+    uint8_t raw = a0_base_data[19];
+    uint8_t byte8 = a0_base_data[8];
+    bool is_copper = sfp_is_copper(byte8);
+
+    if (!is_copper) {
+        if (raw == 0x00) {
+            a0->om3_or_cable_status = SFP_OM3_LEN_NOT_SUPPORTED;
+            a0->om3_or_cable_length_m = 0;
+        } else if (raw == 0xFF) {
+            a0->om3_or_cable_status = SFP_OM3_LEN_EXTENDED;
+            a0->om3_or_cable_length_m = 2540;
+        } else {
+            a0->om3_or_cable_status = SFP_OM3_LEN_VALID;
+            a0->om3_or_cable_length_m = raw * 10;
+        }
+    } else {
+        uint8_t multiplier_bits = (raw >> 6) & 0x03;
+        uint8_t base_length = raw & 0x3F;
+        float multiplier = 1.0f;
+
+        switch (multiplier_bits) {
+            case 0: multiplier = 0.1f;  break;
+            case 1: multiplier = 1.0f;  break;
+            case 2: multiplier = 10.0f; break;
+            case 3: multiplier = 100.0f; break;
+        }
+
+        a0->om3_or_cable_status = SFP_OM3_LEN_VALID;
+        a0->om3_or_cable_length_m = base_length * multiplier;
+    }
+}
+
+/* ============================================
+ * Função Getter
+ * ============================================ */
+uint32_t sfp_a0_get_om3_cable_length_m(const sfp_a0h_base_t *a0, sfp_om3_length_status_t *status)
+{
+    if (!a0) {
+        if (status)
+            *status = SFP_OM3_LEN_NOT_SUPPORTED;
+        return 0;
+    }
+    if (status)
+        *status = a0->om3_or_cable_status;
+    return a0->om3_or_cable_length_m;
+}
+
 
 /* ============================================
  * Bytes 20-35 — Vendor Name

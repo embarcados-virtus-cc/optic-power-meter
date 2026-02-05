@@ -171,6 +171,7 @@ bool sfp_init(sfp_module_t *module, const char *i2c_device)
     sfp_parse_a0_base_om2(module->a0_raw, &module->a0);
     sfp_parse_a0_base_om1(module->a0_raw, &module->a0);
     sfp_parse_a0_base_om4_or_copper(module->a0_raw, &module->a0);
+    sfp_parse_a0_base_om3_or_cable(module->a0_raw, &module->a0);
     sfp_parse_a0_base_vendor_name(module->a0_raw, &module->a0);
     sfp_parse_a0_base_ext_compliance(module->a0_raw, &module->a0);
     sfp_parse_a0_base_vendor_oui(module->a0_raw, &module->a0);
@@ -346,6 +347,22 @@ void sfp_info(const sfp_module_t *module)
             break;
         case SFP_OM4_LEN_EXTENDED:
             printf("Comprimento: >%u metros\n", om4_copper_len);
+            break;
+        default:
+            printf("Não especificado\n");
+            break;
+    }
+    
+    /* Byte 19 — OM3 / Cable */
+    sfp_om3_length_status_t om3_status;
+    uint32_t om3_cable_len = sfp_a0_get_om3_cable_length_m(a0, &om3_status);
+    printf("\nByte 19 — Length OM3 or Physical Interconnect Length\n");
+    switch (om3_status) {
+        case SFP_OM3_LEN_VALID:
+            printf("Comprimento: %u metros\n", om3_cable_len);
+            break;
+        case SFP_OM3_LEN_EXTENDED:
+            printf("Comprimento: >%u metros\n", om3_cable_len);
             break;
         default:
             printf("Não especificado\n");

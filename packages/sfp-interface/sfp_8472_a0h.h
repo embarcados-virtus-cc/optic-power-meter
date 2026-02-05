@@ -150,6 +150,17 @@ typedef enum {
 } sfp_om4_length_status_t;
 
 /* ==============================
+ * Byte 19 — Status da
+ * informação de alcance OM3 ou
+ * comprimento de cabo
+ * ============================== */
+typedef enum {
+    SFP_OM3_LEN_NOT_SUPPORTED,   /* Byte 19 = 0x00 */
+    SFP_OM3_LEN_VALID,           /* 0x01–0xFE */
+    SFP_OM3_LEN_EXTENDED         /* Byte 19 = 0xFF */
+} sfp_om3_length_status_t;
+
+/* ==============================
  * Bytes 20-35 — Vendor Name
  * ============================== */
 typedef enum {
@@ -496,6 +507,10 @@ typedef struct {
     uint16_t om4_or_copper_length_m;
     sfp_om4_length_status_t om4_or_copper_status;
 
+    /* Byte 19: OM3 or Cable Length */
+    uint32_t om3_or_cable_length_m;
+    sfp_om3_length_status_t om3_or_cable_status;
+
     /* Bytes 20-35: Vendor Name (ASCII) */
     char vendor_name[16];
     bool is_valid_vendor_name;
@@ -561,7 +576,7 @@ void sfp_print_encoding(sfp_encoding_codes_t encoding);
 void sfp_parse_a0_base_nominal_rate(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 uint8_t sfp_a0_get_nominal_rate_mbd(const sfp_a0h_base_t *a0, sfp_nominal_rate_status_t *status);
 
-/*Byte 13: Rate Identifier*/
+/* Byte 13: Rate Identifier*/
 void sfp_parse_a0_base_rate_identifier(const uint8_t *a0_base_date, sfp_a0h_base_t *a0);
 sfp_rate_select sfp_a0_get_rate_identifier(const sfp_a0h_base_t *a0);
 
@@ -584,6 +599,10 @@ uint16_t sfp_a0_get_om1_length_m(const sfp_a0h_base_t *a0, sfp_om1_length_status
 /* Byte 18 — OM4 or Copper Cable */
 void sfp_parse_a0_base_om4_or_copper(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 uint16_t sfp_a0_get_om4_copper_or_length_m(const sfp_a0h_base_t *a0, sfp_om4_length_status_t *status);
+
+/* Byte 19 — OM3 or Optical/Cable Physical Interconnect Length */
+void sfp_parse_a0_base_om3_or_cable(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
+uint32_t sfp_a0_get_om3_cable_length_m(const sfp_a0h_base_t *a0, sfp_om3_length_status_t *status);
 
 /* Bytes 20-35 Vendor Name */
 void sfp_parse_a0_base_vendor_name(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
