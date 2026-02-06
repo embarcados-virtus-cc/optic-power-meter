@@ -30,7 +30,7 @@ void sfp_parse_a0_base_identifier(const uint8_t *a0_base_data, sfp_a0h_base_t *a
     if (!a0_base_data || !a0)
         return;
 
-    a0->identifier = (sfp_identifier_t)a0_base_data[0];
+    a0->identifier = (sfp_identifier_t)a0_base_data[A0_IDENTIFIER];
 }
 
 /* ============================================
@@ -52,7 +52,7 @@ void sfp_parse_a0_base_ext_identifier(const uint8_t *a0_base_data, sfp_a0h_base_
     if (!a0_base_data || !a0)
         return;
 
-    a0->ext_identifier = a0_base_data[1];
+    a0->ext_identifier = a0_base_data[A0_EXT_IDENTIFIER];
 }
 
 /* ============================================
@@ -82,7 +82,7 @@ void sfp_parse_a0_base_connector(const uint8_t *a0_base_data, sfp_a0h_base_t *a0
     if (!a0_base_data || !a0)
         return;
 
-    uint8_t connector_raw = a0_base_data[2];
+    uint8_t connector_raw = a0_base_data[A0_CONNECTOR];
     a0->connector = (sfp_connector_type_t)connector_raw;
 }
 
@@ -150,14 +150,14 @@ void sfp_parse_a0_base_compliance(const uint8_t *a0_base_data, sfp_compliance_co
     if (!a0_base_data || !cc)
         return;
 
-    cc->byte3  = a0_base_data[3];
-    cc->byte4  = a0_base_data[4];
-    cc->byte5  = a0_base_data[5];
-    cc->byte6  = a0_base_data[6];
-    cc->byte7  = a0_base_data[7];
-    cc->byte8  = a0_base_data[8];
-    cc->byte9  = a0_base_data[9];
-    cc->byte10 = a0_base_data[10];
+    cc->byte3  = a0_base_data[A0_TRANSCEIVER + 0];
+    cc->byte4  = a0_base_data[A0_TRANSCEIVER + 1];
+    cc->byte5  = a0_base_data[A0_TRANSCEIVER + 2];
+    cc->byte6  = a0_base_data[A0_TRANSCEIVER + 3];
+    cc->byte7  = a0_base_data[A0_TRANSCEIVER + 4];
+    cc->byte8  = a0_base_data[A0_TRANSCEIVER + 5];
+    cc->byte9  = a0_base_data[A0_TRANSCEIVER + 6];
+    cc->byte10 = a0_base_data[A0_TRANSCEIVER + 7];
 }
 
 /* ============================================
@@ -432,7 +432,7 @@ void sfp_parse_a0_base_encoding(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 {
     if (!a0_base_data || !a0)
         return;
-    a0->encoding = (sfp_encoding_codes_t)a0_base_data[11];
+    a0->encoding = (sfp_encoding_codes_t)a0_base_data[A0_ENCODING];
 }
 
 /* ============================================
@@ -532,7 +532,7 @@ void sfp_parse_a0_base_rate_identifier(const uint8_t *a0_base_date, sfp_a0h_base
     if (!a0_base_date || !a0)
         return;
 
-    a0->rate_identifier = (sfp_rate_select) a0_base_date[13];
+    a0->rate_identifier = (sfp_rate_select) a0_base_date[A0_RATE_IDENTIFIER];
 }
 
 /* ============================================
@@ -566,9 +566,9 @@ void sfp_parse_a0_base_smf_km(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
     if (!a0_base_data || !a0)
         return;
 
-    uint8_t raw = a0_base_data[14];
+    uint8_t raw = a0_base_data[A0_LENGTH_SMF_KM];
 
-    uint8_t byte8 = a0_base_data[8];
+    uint8_t byte8 = a0_base_data[A0_TRANSCEIVER + 5];
 
     bool is_copper = sfp_is_copper(byte8);
 
@@ -637,9 +637,9 @@ void sfp_parse_a0_base_smf_m(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
     if (!a0_base_data || !a0)
         return;
 
-    uint8_t raw = a0_base_data[15];
+    uint8_t raw = a0_base_data[A0_LENGTH_SMF_100M];
 
-    uint8_t byte8 = a0_base_data[8];
+    uint8_t byte8 = a0_base_data[A0_TRANSCEIVER + 5];
 
     bool is_copper = sfp_is_copper(byte8);
 
@@ -684,7 +684,7 @@ void sfp_parse_a0_base_om2(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
     if (!a0_base_data || !a0)
         return;
 
-    uint8_t raw = a0_base_data[16];
+    uint8_t raw = a0_base_data[A0_LENGTH_OM2_10M];
 
     /*
      * Fluxo Principal + Secundários
@@ -739,7 +739,7 @@ void sfp_parse_a0_base_om1(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
     if (!a0_base_data || !a0)
         return;
 
-    uint8_t raw = a0_base_data[17];
+    uint8_t raw = a0_base_data[A0_LENGTH_OM1_10M];
 
     /*
      * Fluxo Principal + Secundários
@@ -796,9 +796,9 @@ void sfp_parse_a0_base_om4_or_copper(const uint8_t *a0_base_data, sfp_a0h_base_t
     if (!a0_base_data || !a0)
         return;
 
-    uint8_t raw_length = a0_base_data[18];
+    uint8_t raw_length = a0_base_data[A0_LENGTH_OM4_10M];
 
-    uint8_t byte8 = a0_base_data[8];
+    uint8_t byte8 = a0_base_data[A0_TRANSCEIVER + 5];
 
     bool is_copper = sfp_is_copper(byte8);
 
@@ -871,8 +871,8 @@ void sfp_parse_a0_base_om3_or_cable(const uint8_t *a0_base_data, sfp_a0h_base_t 
     if (!a0_base_data || !a0)
         return;
 
-    uint8_t raw = a0_base_data[19];
-    uint8_t byte8 = a0_base_data[8];
+    uint8_t raw = a0_base_data[A0_LENGTH_OM3_10M];
+    uint8_t byte8 = a0_base_data[A0_TRANSCEIVER + 5];
     bool is_copper = sfp_is_copper(byte8);
 
     if (!is_copper) {
@@ -999,7 +999,7 @@ void sfp_parse_a0_base_ext_compliance(const uint8_t *a0_base_data, sfp_a0h_base_
 {
     if (!a0_base_data || !a0)
         return;
-    a0->ext_compliance = (sfp_extended_spec_compliance_code_t)a0_base_data[36];
+    a0->ext_compliance = (sfp_extended_spec_compliance_code_t)a0_base_data[A0_EXT_TRANSCEIVER];
 }
 
 /* ============================================
@@ -1022,9 +1022,9 @@ void sfp_parse_a0_base_vendor_oui(const uint8_t *a0_base_data,
         return;
 
     /* Bytes 37–39: Vendor OUI (IEEE Company Identifier) */
-    a0->vendor_oui[0] = a0_base_data[37];
-    a0->vendor_oui[1] = a0_base_data[38];
-    a0->vendor_oui[2] = a0_base_data[39];
+    a0->vendor_oui[0] = a0_base_data[A0_VENDOR_OUI + 0];
+    a0->vendor_oui[1] = a0_base_data[A0_VENDOR_OUI + 1];
+    a0->vendor_oui[2] = a0_base_data[A0_VENDOR_OUI + 2];
 }
 
 /* ============================================
@@ -1066,7 +1066,7 @@ void sfp_parse_a0_base_vendor_pn(const uint8_t *a0_base_data, sfp_a0h_base_t *a0
     if (!a0_base_data || !a0)
         return;
 
-    memcpy (a0->vendor_pn, &a0_base_data[40], 16);
+    memcpy (a0->vendor_pn, &a0_base_data[A0_VENDOR_PN], 16);
 }
 
 bool sfp_a0_get_vendor_pn(const sfp_a0h_base_t *a0, const char **vendor_pn)
@@ -1088,7 +1088,7 @@ void sfp_parse_a0_base_vendor_rev(const uint8_t *a0_base_data, sfp_a0h_base_t *a
     if (!a0_base_data || !a0)
         return;
 
-    memcpy (a0->vendor_rev, &a0_base_data[56], 4);
+    memcpy (a0->vendor_rev, &a0_base_data[A0_VENDOR_REV], 4);
     a0->vendor_rev[4] = '\0';
 }
 
@@ -1124,9 +1124,9 @@ void sfp_parse_a0_base_media(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
     if (!a0_base_data || !a0)
         return;
 
-    uint8_t byte8  = a0_base_data[8];
-    uint8_t byte60 = a0_base_data[60];
-    uint8_t byte61 = a0_base_data[61];
+    uint8_t byte8  = a0_base_data[A0_TRANSCEIVER + 5];
+    uint8_t byte60 = a0_base_data[A0_WAVELENGTH];
+    uint8_t byte61 = a0_base_data[A0_WAVELENGTH + 1];
 
     a0->variant = sfp_detect_variant(byte8);
 
@@ -1176,7 +1176,7 @@ void sfp_parse_a0_fc_speed_2(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
     if (!a0_base_data || !a0)
         return;
 
-    a0->fc_speed2 = a0_base_data[62];
+    a0->fc_speed2 = a0_base_data[A0_FIBRE_CHANNEL_SPD2];
 }
 
 /* ============================================
@@ -1213,7 +1213,7 @@ void sfp_parse_a0_base_cc_base(const uint8_t *a0_base_data, sfp_a0h_base_t *a0)
 
     uint8_t sum_mod256 = (uint8_t)(sum & 0xFF);
 
-    uint8_t checksum_byte = a0_base_data[63];
+    uint8_t checksum_byte = a0_base_data[A0_CC_BASE];
 
     a0->cc_base_is_valid = (sum_mod256 == checksum_byte);
 
@@ -1241,7 +1241,7 @@ void sfp_parse_a0_extended_dmi(const uint8_t *a0_data,sfp_a0h_extended_t *a0) {
     if (!a0_data || !a0) return;
 
     // Obtém o byte de Tipo de Monitoramento de Diagnóstico (Byte 92 do A0h)
-    uint8_t diag_type = a0_data[SFP8472_A0_DIAG_MONITORING_TYPE];
+    uint8_t diag_type = a0_data[A0_DIAG_MONITORING_TYPE];
 
     // Conforme a Tabela 8-5, o Bit 6 indica se o monitoramento digital (A2h)
     // está implementado no transceptor.
@@ -1268,9 +1268,9 @@ bool sfp_a0_get_dmi(const sfp_a0h_extended_t *a0)
 void sfp_parse_a0_extended_change_addr_req(const uint8_t *a0_data,sfp_a0h_extended_t *a0){
   if(!a0_data || !a0) return;
 
-  uint8_t byte92 = a0_data[SFP8472_A0_DIAG_MONITORING_TYPE];
+  uint8_t byte92 = a0_data[A0_DIAG_MONITORING_TYPE];
 
-  bool change_addr_req = (byte92 & (1 << SFP_A0_BIT_ADDR_CHANGE_REQ)); 
+  bool change_addr_req = (byte92 & (1 << SFP_A0_BIT_ADDR_CHANGE_REQ));
 
   a0->change_addr_req = change_addr_req;
 }
@@ -1293,7 +1293,7 @@ void sfp_parse_a0_extended_calibration(const uint8_t *a0_data,sfp_a0h_extended_t
 
   if(!a0_data || !a0) return;
 
-  uint8_t byte92 = a0_data[SFP_A0_BIT_INTERNAL_CAL];
+  uint8_t byte92 = a0_data[A0_DIAG_MONITORING_TYPE];
 
   if (byte92 & (1 << SFP_A0_BIT_INTERNAL_CAL)) {
         a0->calibration = SFP_CAL_INTERNAL;
