@@ -69,7 +69,7 @@ bool daemon_i2c_read_a0h(int i2c_fd, uint8_t *a0_raw)
         SFP_I2C_ADDR_A0,
         0x00,
         a0_raw,
-        SFP_A0_BASE_SIZE
+        SFP_A0_SIZE
     );
     
     if (!success) {
@@ -92,9 +92,9 @@ bool daemon_i2c_read_a2h(int i2c_fd, uint8_t *a2_raw)
     bool success = sfp_read_block(
         i2c_fd,
         SFP_I2C_ADDR_A2,
-        SFP_A2_DIAG_OFFSET,
+        0x00,
         a2_raw,
-        SFP_A2_DIAG_SIZE
+        SFP_A2_SIZE
     );
     
     if (!success) {

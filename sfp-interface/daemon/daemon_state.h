@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <pthread.h>
+#include "../defs.h"
 #include "../a0h.h"
 #include "../a2h.h"
 
@@ -43,13 +44,13 @@ typedef struct {
 
     /* Dados A0h (estáticos - só mudam quando novo SFP é inserido) */
     bool a0_valid;
-    uint8_t a0_raw[SFP_A0_BASE_SIZE];
+    uint8_t a0_raw[SFP_A0_SIZE];
     sfp_a0h_base_t a0_parsed;
 
     /* Dados A2h (dinâmicos - atualizados periodicamente) */
     bool a2_valid;
-    uint8_t a2_raw[SFP_A2_DIAG_SIZE];
-    sfp_a2h_diagnostics_t a2_parsed;
+    uint8_t a2_raw[SFP_A2_SIZE];
+    sfp_a2h_t a2_parsed;
 
     /* Contadores de erro */
     uint32_t i2c_error_count;      /* Contador de erros I²C consecutivos */

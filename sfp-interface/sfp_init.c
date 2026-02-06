@@ -150,7 +150,7 @@ bool sfp_init(sfp_module_t *module, const char *i2c_device)
         SFP_I2C_ADDR_A0,
         0x00,
         module->a0_raw,
-        SFP_A0_BASE_SIZE
+        SFP_A0_SIZE
     );
 
     if (!module->a0_valid) {
@@ -187,16 +187,20 @@ bool sfp_init(sfp_module_t *module, const char *i2c_device)
     module->a2_valid = sfp_read_block(
         module->i2c_fd,
         SFP_I2C_ADDR_A2,
-        SFP_A2_DIAG_OFFSET,
+        0x00,
         module->a2_raw,
-        SFP_A2_DIAG_SIZE
+        SFP_A2_SIZE
     );
 
     if (!module->a2_valid) {
         fprintf(stderr, "AVISO: Falha na leitura do A2h (diagnósticos podem não estar disponíveis)\n");
     } else {
         printf("Leitura A2h OK\n");
-        sfp_parse_a2h_diagnostics(module->a2_raw, &module->a2);
+        float vcc;
+        if (get_sfp_vcc(module->a2_raw, &vcc)) {
+            module->a2.vcc_realtime = vcc;
+        }
+        sfp_parse_a2h_data_ready(module->a2_raw, &module->a2);
     }
 
     return true;
@@ -424,7 +428,8 @@ void sfp_info(const sfp_module_t *module)
     /* Diagnósticos A2h */
     if (module->a2_valid) {
         printf("\n=== Diagnósticos (A2h) ===\n");
-        sfp_print_a2h_diagnostics(&module->a2);
+        printf("Data Ready: %s\n", module->a2.data_ready ? "SIM" : "NÃO");
+        printf("VCC:         %.3f V\n", module->a2.vcc_realtime);
     }
 }
 
@@ -436,7 +441,7 @@ void sfp_dump(const sfp_module_t *module)
 
     if (module->a0_valid) {
         printf("\n=== Dump EEPROM A0h ===");
-        for (int i = 0; i < SFP_A0_BASE_SIZE; i++) {
+        for (int i = 0; i < SFP_A0_SIZE; i++) {
             if (i % 16 == 0)
                 printf("\n%02X: ", i);
             printf("%02X ", module->a0_raw[i]);
@@ -446,7 +451,7 @@ void sfp_dump(const sfp_module_t *module)
 
     if (module->a2_valid) {
         printf("\n=== Dump EEPROM A2h ===");
-        for (int i = 0; i < SFP_A2_DIAG_SIZE; i++) {
+        for (int i = 0; i < SFP_A2_SIZE; i++) {
             if (i % 16 == 0)
                 printf("\n%02X: ", i);
             printf("%02X ", module->a2_raw[i]);

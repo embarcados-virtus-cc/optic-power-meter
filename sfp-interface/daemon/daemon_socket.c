@@ -665,103 +665,18 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
 }
 
 /* Serializa A2h completo */
-static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_diagnostics_t *a2)
+static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_t *a2)
 {
     if (!a2_obj || !a2) return;
 
-    /* Temperature */
-    cJSON_AddBoolToObject(a2_obj, "temperature_valid", a2->temperature_valid);
-    if (a2->temperature_valid) {
-        cJSON_AddNumberToObject(a2_obj, "temperature_c", a2->temperature_c);
-        cJSON_AddNumberToObject(a2_obj, "temperature_raw", a2->temperature_raw);
-    }
-
     /* Voltage */
-    cJSON_AddBoolToObject(a2_obj, "voltage_valid", a2->voltage_valid);
-    if (a2->voltage_valid) {
-        cJSON_AddNumberToObject(a2_obj, "voltage_v", a2->voltage_v);
-        cJSON_AddNumberToObject(a2_obj, "voltage_raw", a2->voltage_raw);
-    }
+    cJSON_AddBoolToObject(a2_obj, "voltage_valid", true);
+    cJSON_AddNumberToObject(a2_obj, "voltage_v", a2->vcc_realtime);
 
-    /* Bias Current */
-    cJSON_AddBoolToObject(a2_obj, "bias_current_valid", a2->bias_current_valid);
-    if (a2->bias_current_valid) {
-        cJSON_AddNumberToObject(a2_obj, "bias_current_ma", a2->bias_current_ma);
-        cJSON_AddNumberToObject(a2_obj, "bias_current_raw", a2->bias_current_raw);
-    }
+    /* Data Ready */
+    cJSON_AddBoolToObject(a2_obj, "data_ready", a2->data_ready);
 
-    /* TX Power */
-    cJSON_AddBoolToObject(a2_obj, "tx_power_valid", a2->tx_power_valid);
-    if (a2->tx_power_valid) {
-        cJSON_AddNumberToObject(a2_obj, "tx_power_dbm", a2->tx_power_dbm);
-        cJSON_AddNumberToObject(a2_obj, "tx_power_mw", a2->tx_power_mw);
-        cJSON_AddNumberToObject(a2_obj, "tx_power_raw", a2->tx_power_raw);
-    }
-
-    /* RX Power */
-    cJSON_AddBoolToObject(a2_obj, "rx_power_valid", a2->rx_power_valid);
-    if (a2->rx_power_valid) {
-        cJSON_AddNumberToObject(a2_obj, "rx_power_dbm", a2->rx_power_dbm);
-        cJSON_AddNumberToObject(a2_obj, "rx_power_mw", a2->rx_power_mw);
-        cJSON_AddNumberToObject(a2_obj, "rx_power_raw", a2->rx_power_raw);
-    }
-
-    /* Alarms */
-    cJSON *alarms = cJSON_CreateObject();
-    cJSON *temp_alarms = cJSON_CreateObject();
-    cJSON_AddBoolToObject(temp_alarms, "high", a2->alarms.temp_alarm_high);
-    cJSON_AddBoolToObject(temp_alarms, "low", a2->alarms.temp_alarm_low);
-    cJSON_AddItemToObject(alarms, "temperature", temp_alarms);
-
-    cJSON *voltage_alarms = cJSON_CreateObject();
-    cJSON_AddBoolToObject(voltage_alarms, "high", a2->alarms.voltage_alarm_high);
-    cJSON_AddBoolToObject(voltage_alarms, "low", a2->alarms.voltage_alarm_low);
-    cJSON_AddItemToObject(alarms, "voltage", voltage_alarms);
-
-    cJSON *bias_alarms = cJSON_CreateObject();
-    cJSON_AddBoolToObject(bias_alarms, "high", a2->alarms.bias_alarm_high);
-    cJSON_AddBoolToObject(bias_alarms, "low", a2->alarms.bias_alarm_low);
-    cJSON_AddItemToObject(alarms, "bias_current", bias_alarms);
-
-    cJSON *tx_power_alarms = cJSON_CreateObject();
-    cJSON_AddBoolToObject(tx_power_alarms, "high", a2->alarms.tx_power_alarm_high);
-    cJSON_AddBoolToObject(tx_power_alarms, "low", a2->alarms.tx_power_alarm_low);
-    cJSON_AddItemToObject(alarms, "tx_power", tx_power_alarms);
-
-    cJSON *rx_power_alarms = cJSON_CreateObject();
-    cJSON_AddBoolToObject(rx_power_alarms, "high", a2->alarms.rx_power_alarm_high);
-    cJSON_AddBoolToObject(rx_power_alarms, "low", a2->alarms.rx_power_alarm_low);
-    cJSON_AddItemToObject(alarms, "rx_power", rx_power_alarms);
-
-    /* Warnings */
-    cJSON *warnings = cJSON_CreateObject();
-    cJSON *temp_warnings = cJSON_CreateObject();
-    cJSON_AddBoolToObject(temp_warnings, "high", a2->alarms.temp_warning_high);
-    cJSON_AddBoolToObject(temp_warnings, "low", a2->alarms.temp_warning_low);
-    cJSON_AddItemToObject(warnings, "temperature", temp_warnings);
-
-    cJSON *voltage_warnings = cJSON_CreateObject();
-    cJSON_AddBoolToObject(voltage_warnings, "high", a2->alarms.voltage_warning_high);
-    cJSON_AddBoolToObject(voltage_warnings, "low", a2->alarms.voltage_warning_low);
-    cJSON_AddItemToObject(warnings, "voltage", voltage_warnings);
-
-    cJSON *bias_warnings = cJSON_CreateObject();
-    cJSON_AddBoolToObject(bias_warnings, "high", a2->alarms.bias_warning_high);
-    cJSON_AddBoolToObject(bias_warnings, "low", a2->alarms.bias_warning_low);
-    cJSON_AddItemToObject(warnings, "bias_current", bias_warnings);
-
-    cJSON *tx_power_warnings = cJSON_CreateObject();
-    cJSON_AddBoolToObject(tx_power_warnings, "high", a2->alarms.tx_power_warning_high);
-    cJSON_AddBoolToObject(tx_power_warnings, "low", a2->alarms.tx_power_warning_low);
-    cJSON_AddItemToObject(warnings, "tx_power", tx_power_warnings);
-
-    cJSON *rx_power_warnings = cJSON_CreateObject();
-    cJSON_AddBoolToObject(rx_power_warnings, "high", a2->alarms.rx_power_warning_high);
-    cJSON_AddBoolToObject(rx_power_warnings, "low", a2->alarms.rx_power_warning_low);
-    cJSON_AddItemToObject(warnings, "rx_power", rx_power_warnings);
-
-    cJSON_AddItemToObject(a2_obj, "alarms", alarms);
-    cJSON_AddItemToObject(a2_obj, "warnings", warnings);
+    /* Omit unrequested fields for now as per user request */
 }
 
 /* ============================================

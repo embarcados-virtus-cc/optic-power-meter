@@ -1,131 +1,106 @@
-/**
- * @file a2h.h
- * @brief Biblioteca de parsing SFF-8472 – Página A2h (Diagnósticos)
- *
- * @author Alexandre Junior
- * @author Carlos Elias
- * @author Melquisedeque Leite
- * @author Miguel Ryan
- * @author Nicholas Gomes
- * @author Pablo Daniel
- * @author Pedro Lucena
- * @author Pedro Wilson
- *
- * @details
- *  Implementa a leitura e interpretação dos campos da EEPROM A2h
- *  de módulos SFP/SFP+, conforme a especificação SFF-8472.
- *  A página A2h contém os diagnósticos em tempo real (DDM - Digital Diagnostic Monitoring).
- */
+#ifndef SFP_A2H_H
+#define SFP_A2H_H
 
-#ifndef A2H_H
-#define A2H_H
-
+#include "defs.h"
 #include <stdint.h>
 #include <stdbool.h>
 
-/************************************
- * Basic Type Definitions
- *************************************/
+#define SFP_I2C_ADDR_A2 0x51
+/*SIZE do Bloco do A2H*/
+#define SFP_A2_SIZE 128
 
-/** @brief Endereço I2C para EEPROM A2h (Diagnósticos) */
-#define SFP_I2C_ADDR_A2     0x51
-
-/** @brief Tamanho total da EEPROM A2h */
-#define SFP_A2_SIZE         256
-
-/** @brief Offset dos diagnósticos na página A2h */
-#define SFP_A2_DIAG_OFFSET  96
-
-/** @brief Tamanho do bloco de diagnósticos (bytes 96-111) */
-#define SFP_A2_DIAG_SIZE    16
-
-/* ==============================
- * Alarm/Status Flags (Bytes 110-111)
- * ============================== */
+// Estrutura para os Limiares de Alarme e Aviso (Bytes 0-55)
 typedef struct {
-    /* Byte 110 - Alarm Flags */
-    bool temp_alarm_high;
-    bool temp_alarm_low;
-    bool voltage_alarm_high;
-    bool voltage_alarm_low;
-    bool bias_alarm_high;
-    bool bias_alarm_low;
-    bool tx_power_alarm_high;
-    bool tx_power_alarm_low;
-    bool rx_power_alarm_high;
-    bool rx_power_alarm_low;
+    uint16_t temp_high_alarm;    // Bytes 00-01
+    uint16_t temp_low_alarm;     // Bytes 02-03
+    uint16_t temp_high_warning;  // Bytes 04-05
+    uint16_t temp_low_warning;   // Bytes 06-07
+    uint16_t voltage_high_alarm; // Bytes 08-09
+    uint16_t voltage_low_alarm;  // Bytes 10-11
+    uint16_t voltage_high_warning;// Bytes 12-13
+    uint16_t voltage_low_warning; // Bytes 14-15
+    uint16_t bias_high_alarm;    // Bytes 16-17
+    uint16_t bias_low_alarm;     // Bytes 18-19
+    uint16_t bias_high_warning;  // Bytes 20-21
+    uint16_t bias_low_warning;   // Bytes 22-23
+    uint16_t tx_power_high_alarm; // Bytes 24-25
+    uint16_t tx_power_low_alarm;  // Bytes 26-27
+    uint16_t tx_power_high_warning;// Bytes 28-29
+    uint16_t tx_power_low_warning; // Bytes 30-31
+    uint16_t rx_power_high_alarm; // Bytes 32-33
+    uint16_t rx_power_low_alarm;  // Bytes 34-35
+    uint16_t rx_power_high_warning;// Bytes 36-37
+    uint16_t rx_power_low_warning; // Bytes 38-39
+    
+    // Limiares Opcionais (DWDM/Laser)
+    uint16_t laser_temp_high_alarm; // Bytes 40-41
+    uint16_t laser_temp_low_alarm;  // Bytes 42-43
+    uint16_t laser_temp_high_warning;// Bytes 44-45
+    uint16_t laser_temp_low_warning; // Bytes 46-47
+    uint16_t tec_current_high_alarm; // Bytes 48-49
+    uint16_t tec_current_low_alarm;  // Bytes 50-51
+    uint16_t tec_current_high_warning;// Bytes 52-53
+    uint16_t tec_current_low_warning; // Bytes 54-55
+} sfp_a2h_thresholds_t;
 
-    /* Byte 111 - Warning Flags */
-    bool temp_warning_high;
-    bool temp_warning_low;
-    bool voltage_warning_high;
-    bool voltage_warning_low;
-    bool bias_warning_high;
-    bool bias_warning_low;
-    bool tx_power_warning_high;
-    bool tx_power_warning_low;
-    bool rx_power_warning_high;
-    bool rx_power_warning_low;
-} sfp_a2h_alarm_flags_t;
 
-/**********************************************
- * A2h Memory Map - Diagnostic Fields
- **********************************************/
+
+// Estrutura principal da Página A2h
 typedef struct {
-    /* Bytes 96-97: Temperature (signed 16-bit, units of 1/256°C) */
-    int16_t temperature_raw;
-    float temperature_c;  /* Converted to Celsius */
+    // 0-55: Limiares
+    sfp_a2h_thresholds_t thresholds;
 
-    /* Bytes 98-99: Voltage (unsigned 16-bit, units of 100 µV = 0.1 mV) */
-    uint16_t voltage_raw;
-    float voltage_v;  /* Converted to Volts */
+    // 56-91: Área Dinâmica (Calibração Externa ou Recursos Avançados)
+    // Depende do Byte 92, bit 4 do endereço A0h
+    union {
+        uint8_t external_cal_constants[8]; // Se Calibração Externa = 1
+        uint8_t enhanced_features[8];      // Se Calibração Externa = 0
+    } calibration_enhanced;
 
-    /* Bytes 100-101: Bias Current (unsigned 16-bit, units of 2 µA) */
-    uint16_t bias_current_raw;
-    float bias_current_ma;  /* Converted to milliamps */
+    //uint8_t reserved_92_94[9];      Bytes 92-94 [10]
+    uint8_t cc_dmi;                 // Byte 95: Checksum dos diagnósticos
 
-    /* Bytes 102-103: TX Power (unsigned 16-bit, units of 0.1 µW) */
-    uint16_t tx_power_raw;
-    float tx_power_mw;  /* Converted to milliwatts */
-    float tx_power_dbm; /* Converted to dBm */
+    // 96-109: Dados de Diagnóstico em Tempo Real [10, 12]
+    double temp_realtime;         // Bytes 96-97
+    double vcc_realtime;          // Bytes 98-99
+    double tx_bias_realtime;      // Bytes 100-101
+    double tx_power_realtime;     // Bytes 102-103
+    double rx_power_realtime;     // Bytes 104-105
+    double laser_temp_wave_opt;   // Bytes 106-107 (Opcional)
+    double tec_current_opt;       // Bytes 108-109 (Opcional)
 
-    /* Bytes 104-105: RX Power (unsigned 16-bit, units of 0.1 µW) */
-    uint16_t rx_power_raw;
-    float rx_power_mw;  /* Converted to milliwatts */
-    float rx_power_dbm; /* Converted to dBm */
+   /* uint8_t status_control;         // Byte 110 */
+    bool data_ready;
+    //uint8_t reserved_111;          Byte 111
+    uint8_t alarm_flags[15];         // Bytes 112-113 
+    uint8_t tx_input_eq_ctrl;       // Byte 114 
+    uint8_t rx_output_emph_ctrl;    // Byte 115
+    uint8_t warning_flags[15];       // Bytes 116-117 
+    uint8_t ext_status_control[15];  // Bytes 118-119
+    uint8_t vendor_specific[20];     // Bytes 120-126
+    uint8_t table_select;           // Byte 127: SELETOR DE PÁGINA
 
-    /* Bytes 110-111: Alarm/Status Flags */
-    sfp_a2h_alarm_flags_t alarms;
+    // 128-255: Memória Paginada (Depende do Byte 127)
+    union {
+        struct {
+            uint8_t user_eeprom[22];   // Bytes 128-247 (Páginas 00h/01h)
+            uint8_t vendor_control[24];  // Bytes 248-255 (Páginas 00h/01h)
+        } page_00_01;
+        
+        uint8_t page_02_tunability[26]; // Página 02h: Tunability e RPM
+        uint8_t page_03_high_accuracy[26]; // Página 03h: Timing Calibrations
+        uint8_t raw_upper_memory[26];
+    } upper_memory;
 
-    /* Validity flags */
-    bool temperature_valid;
-    bool voltage_valid;
-    bool bias_current_valid;
-    bool tx_power_valid;
-    bool rx_power_valid;
-} sfp_a2h_diagnostics_t;
+} sfp_a2h_t;
 
-/**********************************************
- * Function Prototypes
- **********************************************/
 
-/* Parse diagnostic data from A2h page */
-void sfp_parse_a2h_diagnostics(const uint8_t *a2_data, sfp_a2h_diagnostics_t *diag);
+bool check_sfp_a2h_exists(const uint8_t *a2_data);
+bool get_sfp_vcc(const uint8_t *a2_data, float *vcc);
 
-/* Get individual diagnostic values */
-float sfp_a2h_get_temperature_c(const sfp_a2h_diagnostics_t *diag);
-float sfp_a2h_get_voltage_v(const sfp_a2h_diagnostics_t *diag);
-float sfp_a2h_get_bias_current_ma(const sfp_a2h_diagnostics_t *diag);
-float sfp_a2h_get_tx_power_dbm(const sfp_a2h_diagnostics_t *diag);
-float sfp_a2h_get_rx_power_dbm(const sfp_a2h_diagnostics_t *diag);
 
-/* Get alarm flags */
-const sfp_a2h_alarm_flags_t *sfp_a2h_get_alarms(const sfp_a2h_diagnostics_t *diag);
+void sfp_parse_a2h_data_ready(const uint8_t *a2_data, sfp_a2h_t *a2);
+bool sfp_a2h_get_data_ready(const sfp_a2h_t *a2);
 
-/* Check if diagnostics are valid */
-bool sfp_a2h_is_valid(const sfp_a2h_diagnostics_t *diag);
 
-/* Print diagnostics (for debugging) */
-void sfp_print_a2h_diagnostics(const sfp_a2h_diagnostics_t *diag);
-
-#endif /* A2H_H */
+#endif

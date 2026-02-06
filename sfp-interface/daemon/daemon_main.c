@@ -133,12 +133,12 @@ static void main_loop(void)
                     /* Transição ABSENT → PRESENT */
                     if (daemon_fsm_absent_to_present(&g_state)) {
                         /* Lê A0h completo */
-                        uint8_t a0_raw[SFP_A0_BASE_SIZE];
+                        uint8_t a0_raw[SFP_A0_SIZE];
                         if (daemon_i2c_read_a0h(g_i2c_fd, a0_raw)) {
                             pthread_mutex_lock(&g_state.mutex);
 
-                            memcpy(g_state.a0_raw, a0_raw, SFP_A0_BASE_SIZE);
-                            uint32_t new_hash = daemon_state_calculate_a0_hash(a0_raw, SFP_A0_BASE_SIZE);
+                            memcpy(g_state.a0_raw, a0_raw, SFP_A0_SIZE);
+                            uint32_t new_hash = daemon_state_calculate_a0_hash(a0_raw, SFP_A0_SIZE);
 
                             /* Parse A0h */
                             sfp_parse_a0_base_identifier(g_state.a0_raw, &g_state.a0_parsed);
@@ -194,12 +194,16 @@ static void main_loop(void)
 
                 /* Lê A2h periodicamente */
                 if (now - last_a2_read >= (g_config.poll_present_ms / 1000)) {
-                    uint8_t a2_raw[SFP_A2_DIAG_SIZE];
+                    uint8_t a2_raw[SFP_A2_SIZE];
                     if (daemon_i2c_read_a2h(g_i2c_fd, a2_raw)) {
                         pthread_mutex_lock(&g_state.mutex);
 
-                        memcpy(g_state.a2_raw, a2_raw, SFP_A2_DIAG_SIZE);
-                        sfp_parse_a2h_diagnostics(g_state.a2_raw, &g_state.a2_parsed);
+                        memcpy(g_state.a2_raw, a2_raw, SFP_A2_SIZE);
+                        float vcc;
+                        if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
+                            g_state.a2_parsed.vcc_realtime = vcc;
+                        }
+                        sfp_parse_a2h_data_ready(g_state.a2_raw, &g_state.a2_parsed);
 
                         g_state.a2_valid = true;
                         g_state.last_a2_read = now;
@@ -239,12 +243,16 @@ static void main_loop(void)
                     pthread_mutex_unlock(&g_state.mutex);
 
                     /* Tenta ler A2h novamente */
-                    uint8_t a2_raw[SFP_A2_DIAG_SIZE];
+                    uint8_t a2_raw[SFP_A2_SIZE];
                     if (daemon_i2c_read_a2h(g_i2c_fd, a2_raw)) {
                         pthread_mutex_lock(&g_state.mutex);
 
-                        memcpy(g_state.a2_raw, a2_raw, SFP_A2_DIAG_SIZE);
-                        sfp_parse_a2h_diagnostics(g_state.a2_raw, &g_state.a2_parsed);
+                        memcpy(g_state.a2_raw, a2_raw, SFP_A2_SIZE);
+                        float vcc;
+                        if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
+                            g_state.a2_parsed.vcc_realtime = vcc;
+                        }
+                        sfp_parse_a2h_data_ready(g_state.a2_raw, &g_state.a2_parsed);
 
                         g_state.a2_valid = true;
                         g_state.last_a2_read = now;

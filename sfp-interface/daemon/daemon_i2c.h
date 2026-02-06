@@ -38,7 +38,7 @@ bool daemon_i2c_detect_address(int i2c_fd, uint8_t addr);
 /**
  * @brief Lê dados A0h completos
  * @param i2c_fd File descriptor do dispositivo I²C
- * @param a0_raw Buffer para dados brutos (deve ter pelo menos SFP_A0_BASE_SIZE bytes)
+ * @param a0_raw Buffer para dados brutos (deve ter pelo menos SFP_A0_SIZE bytes)
  * @return true se leitura bem-sucedida, false caso contrário
  */
 bool daemon_i2c_read_a0h(int i2c_fd, uint8_t *a0_raw);
@@ -46,7 +46,7 @@ bool daemon_i2c_read_a0h(int i2c_fd, uint8_t *a0_raw);
 /**
  * @brief Lê dados A2h (diagnósticos)
  * @param i2c_fd File descriptor do dispositivo I²C
- * @param a2_raw Buffer para dados brutos (deve ter pelo menos SFP_A2_DIAG_SIZE bytes)
+ * @param a2_raw Buffer para dados brutos (deve ter pelo menos SFP_A2_SIZE bytes)
  * @return true se leitura bem-sucedida, false caso contrário
  */
 bool daemon_i2c_read_a2h(int i2c_fd, uint8_t *a2_raw);

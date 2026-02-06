@@ -1,5 +1,5 @@
 /**
- * @file a0h.h
+ * @file sfp_8472_a0h.h
  * @brief Biblioteca de parsing SFF-8472 – Página A0h (Base ID)
  *
  * @author Alexandre Junior
@@ -29,9 +29,8 @@
 /** @brief Endereço I2C para EEPROM A0h (Base ID e Extended ID) */
 #define SFP_I2C_ADDR_A0     0x50
 
-/** @brief Tamanho do bloco base A0h (Bytes 0-63) */
-#define SFP_A0_BASE_SIZE    64
-
+/** @brief Tamanho do bloco base A0h (Bytes 0-256) */
+#define SFP_A0_SIZE    128
 /** @brief Byte 1 (Extended Identifier) */
 #define SFP_EXT_IDENTIFIER_EXPECTED 0x04
 
@@ -457,6 +456,17 @@ typedef enum {
 
 } sfp_rate_select;
 
+/*=================================================================
+ * Byte 92: Calibration
+ =================================================================*/
+
+typedef enum {
+    SFP_CAL_NOT_SUPPORTED = 0,
+    SFP_CAL_INTERNAL,
+    SFP_CAL_EXTERNAL
+} sfp_cal_type_t;
+
+
 /**********************************************
  * A0h Memory Map (128 bytes) - Base ID Fields
  **********************************************/
@@ -543,6 +553,42 @@ typedef struct {
     /* CC_BASE Validation */
     bool cc_base_is_valid;
 } sfp_a0h_base_t;
+/**
+ * Estrutura para os Extended ID Fields (Endereço A0h, Bytes 64-95)
+ * Conforme SFF-8472 Rev 12.5, Tabela 4-2.
+ */
+typedef struct {
+    /* Bytes 64-65: Indica quais sinais opcionais estão implementados */
+    uint16_t options; 
+
+    /* Byte 66: Margem superior da taxa de sinalização (%) ou taxa nominal (250 MBd) */
+    uint8_t signaling_rate_max; 
+
+    /* Byte 67: Margem inferior da taxa de sinalização (%) */
+    uint8_t signaling_rate_min; 
+
+    /* Bytes 68-83: Número de série do fornecedor (ASCII) */
+    char vendor_sn[3]; 
+
+    /* Bytes 84-91: Código de data de fabricação do fornecedor (ASCII) */
+    char date_code[4]; 
+
+    /* Byte 92: Tipo de monitoramento diagnóstico implementado */
+    /*uint8_t diagnostic_monitoring_type; */
+    bool dmi_implemented;
+    bool change_addr_req;
+    sfp_cal_type_t calibration;
+    
+
+    /* Byte 93: Recursos opcionais aprimorados implementados */
+    uint8_t enhanced_options; 
+
+    /* Byte 94: Revisão da norma SFF-8472 com a qual o módulo é compatível */
+    uint8_t sff_8472_compliance; 
+
+    /* Byte 95: Código de verificação (Checksum) para os bytes 64 a 94 */
+    uint8_t cc_ext; 
+} sfp_a0h_extended_t;
 
 /**********************************************
  * Function Prototypes
@@ -639,4 +685,15 @@ bool sfp_get_a0_fc_speed_2(const sfp_a0h_base_t *a0, const sfp_compliance_decode
 void sfp_parse_a0_base_cc_base(const uint8_t *a0_base_data, sfp_a0h_base_t *a0);
 bool sfp_a0_get_cc_base_is_valid(const sfp_a0h_base_t *a0);
 
-#endif /* A0H_H */
+/*Byte 92 (DDM)*/
+void sfp_parse_a0_extended_dmi(const uint8_t *a0_base_data,sfp_a0h_extended_t *a0);
+bool sfp_a0_get_dmi(const sfp_a0h_extended_t *a0);
+
+/*Byte 92 (Change Address Required for comunication A2H)*/
+void sfp_parse_a0_extended_change_addr_req(const uint8_t *a0_base_data,sfp_a0h_extended_t *a0);
+bool sfp_a0_get_change_addr_req(const sfp_a0h_extended_t *a0);
+
+/*Byte 92 Calibration*/
+void sfp_parse_a0_extended_calibration(const uint8_t *a0_data,sfp_a0h_extended_t *a0);
+sfp_cal_type_t sfp_a0_get_calibration(const sfp_a0h_extended_t *a0);
+#endif /* SFF_8472_A0H_H */

@@ -16,12 +16,12 @@
  */
 typedef struct {
     /* Dados brutos */
-    uint8_t a0_raw[SFP_A0_BASE_SIZE];
-    uint8_t a2_raw[SFP_A2_DIAG_SIZE];
+    uint8_t a0_raw[SFP_A0_SIZE];
+    uint8_t a2_raw[SFP_A2_SIZE];
 
     /* Estruturas interpretadas */
     sfp_a0h_base_t a0;
-    sfp_a2h_diagnostics_t a2;
+    sfp_a2h_t a2;
 
     /* Status de leitura */
     bool a0_valid;
