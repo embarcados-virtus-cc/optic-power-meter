@@ -538,6 +538,20 @@ def format_all_a0h_fields(data: Dict[str, Any]) -> List[Tuple[str, str]]:
         lines.append(("class:value", "N/A\n"))
     lines.append(("", ""))
     
+    # Byte 92 - Extended Fields
+    lines.extend(format_section_header("BYTE 92 - DIAGNOSTIC MONITORING (EXTENDED)"))
+    dmi_implemented = a0.get("dmi_implemented", False)
+    change_addr_req = a0.get("change_addr_req", False)
+    calibration_type = a0.get("calibration_type", "N/A")
+    
+    lines.append(("class:label", "DDM Implemented: "))
+    lines.append(("class:value", f"{format_bool(dmi_implemented)}\n"))
+    lines.append(("class:label", "Change Address Required: "))
+    lines.append(("class:value", f"{format_bool(change_addr_req)}\n"))
+    lines.append(("class:label", "Calibration: "))
+    lines.append(("class:value", f"{calibration_type}\n"))
+    lines.append(("", ""))
+
     # Byte 63 - CC_BASE (Checksum)
     lines.extend(format_section_header("BYTE 63 - CC_BASE (CHECKSUM)"))
     cc_base = a0.get("cc_base")
@@ -633,6 +647,7 @@ def format_all_a0h_template() -> List[Tuple[str, str]]:
         "BYTES 56-59 - VENDOR REVISION",
         "BYTES 60-61 - WAVELENGTH OR CABLE COMPLIANCE",
         "BYTE 62 - FIBRE CHANNEL SPEED 2",
+        "BYTE 92 - DIAGNOSTIC MONITORING (EXTENDED)",
         "BYTE 63 - CC_BASE (CHECKSUM)"
     ]
     

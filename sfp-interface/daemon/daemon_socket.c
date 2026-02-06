@@ -664,6 +664,30 @@ static void serialize_a0h_complete(cJSON *a0_obj, const sfp_a0h_base_t *a0)
     cJSON_AddNumberToObject(a0_obj, "cc_base", a0->cc_base);
 }
 
+/* Helper para serializar extended fields (Byte 92) */
+static void serialize_a0h_extended(cJSON *a0_obj, const sfp_a0h_extended_t *a0_ext)
+{
+    if (!a0_obj || !a0_ext) return;
+
+    /* Byte 92 - DDM Implemented */
+    bool dmi = sfp_a0_get_dmi(a0_ext);
+    cJSON_AddBoolToObject(a0_obj, "dmi_implemented", dmi);
+
+    /* Byte 92 - Change Address Required */
+    bool change_addr = sfp_a0_get_change_addr_req(a0_ext);
+    cJSON_AddBoolToObject(a0_obj, "change_addr_req", change_addr);
+
+    /* Byte 92 - Calibration */
+    sfp_cal_type_t cal = sfp_a0_get_calibration(a0_ext);
+    cJSON_AddNumberToObject(a0_obj, "calibration", cal);
+    
+    const char *cal_str = "Not Supported";
+    if (cal == SFP_CAL_INTERNAL) cal_str = "Internal";
+    else if (cal == SFP_CAL_EXTERNAL) cal_str = "External";
+    
+    cJSON_AddStringToObject(a0_obj, "calibration_type", cal_str);
+}
+
 /* Serializa A2h completo */
 static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_t *a2)
 {
@@ -722,6 +746,7 @@ char *daemon_socket_serialize_current(const sfp_daemon_state_data_t *state)
         a0_obj = cJSON_CreateObject();
         cJSON_AddBoolToObject(a0_obj, "valid", true);
         serialize_a0h_complete(a0_obj, &state_copy.a0_parsed);
+        serialize_a0h_extended(a0_obj, &state_copy.a0_extended);
         cJSON_AddItemToObject(json, "a0", a0_obj);
     } else {
         a0_obj = cJSON_CreateObject();
@@ -770,6 +795,7 @@ char *daemon_socket_serialize_static(const sfp_daemon_state_data_t *state)
         a0_obj = cJSON_CreateObject();
         cJSON_AddBoolToObject(a0_obj, "valid", true);
         serialize_a0h_complete(a0_obj, &state_copy.a0_parsed);
+        serialize_a0h_extended(a0_obj, &state_copy.a0_extended);
         cJSON_AddItemToObject(json, "a0", a0_obj);
     } else {
         a0_obj = cJSON_CreateObject();

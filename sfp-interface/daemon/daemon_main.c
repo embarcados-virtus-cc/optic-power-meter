@@ -164,6 +164,11 @@ static void main_loop(void)
                             sfp_parse_a0_base_cc_base(g_state.a0_raw, &g_state.a0_parsed);
                             sfp_a0_decode_compliance(&g_state.a0_parsed.cc, &g_state.a0_parsed.dc);
 
+                            /* Parse Extended A0h (Byte 92 etc) */
+                            sfp_parse_a0_extended_dmi(g_state.a0_raw, &g_state.a0_extended);
+                            sfp_parse_a0_extended_change_addr_req(g_state.a0_raw, &g_state.a0_extended);
+                            sfp_parse_a0_extended_calibration(g_state.a0_raw, &g_state.a0_extended);
+
                             g_state.a0_valid = true;
                             g_state.a0_hash = new_hash;
                             g_state.last_a0_read = now;
