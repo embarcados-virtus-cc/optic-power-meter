@@ -252,8 +252,6 @@ def format_dynamic_values_only(data: Dict[str, Any]) -> List[Tuple[str, str]]:
         voltage_raw = a2.get("voltage_raw")
         lines.append(("class:label", "Tensão: "))
         lines.append(("class:value", f"{format_float(voltage_v, 3, ' V')}\n"))
-        lines.append(("class:label", "Valor Raw: "))
-        lines.append(("class:value", f"{voltage_raw}\n"))
     else:
         lines.append(("class:label", "Tensão: "))
         lines.append(("class:error", "N/A\n"))
