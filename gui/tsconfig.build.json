@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "exclude": [
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "src/**/stories/**",
+    "src/**/tests/**",
+    ".storybook/**"
+  ],
+  "compilerOptions": {
+    "noEmit": true
+  }
+}
