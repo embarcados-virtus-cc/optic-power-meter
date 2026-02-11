@@ -252,8 +252,6 @@ def format_dynamic_values_only(data: Dict[str, Any]) -> List[Tuple[str, str]]:
         voltage_raw = a2.get("voltage_raw")
         lines.append(("class:label", "Tensão: "))
         lines.append(("class:value", f"{format_float(voltage_v, 3, ' V')}\n"))
-        lines.append(("class:label", "Valor Raw: "))
-        lines.append(("class:value", f"{voltage_raw}\n"))
     else:
         lines.append(("class:label", "Tensão: "))
         lines.append(("class:error", "N/A\n"))
@@ -413,6 +411,17 @@ def format_all_a0h_fields(data: Dict[str, Any]) -> List[Tuple[str, str]]:
         lines.append(("class:label", "Atenuação: "))
         lines.append(("class:value", f"{format_float(smf_attenuation, 2, ' dB/100m')}\n"))
     lines.append(("", ""))
+
+    # Byte 15 - SMF Length (100m)
+    lines.extend(format_section_header("BYTE 15 - SMF LENGTH (100m)"))
+    smf_length_m = a0.get("smf_length_m")
+    smf_length_status_m = a0.get("smf_length_status_m", 0)
+    status_str = {0: "Not Supported", 1: "Valid", 2: "Extended"}.get(smf_length_status_m, "Unknown")
+    lines.append(("class:label", "SMF Length (Byte 15): "))
+    lines.append(("class:value", f"{format_int(smf_length_m)} m\n"))
+    lines.append(("class:label", "Status: "))
+    lines.append(("class:value", f"{smf_length_status_m} - {status_str}\n"))
+    lines.append(("", ""))
     
     # Byte 16 - OM2 Length
     lines.extend(format_section_header("BYTE 16 - OM2 LENGTH"))
@@ -445,6 +454,17 @@ def format_all_a0h_fields(data: Dict[str, Any]) -> List[Tuple[str, str]]:
     lines.append(("class:value", f"{format_int(om4_or_copper_length_m)} m\n"))
     lines.append(("class:label", "Status: "))
     lines.append(("class:value", f"{om4_or_copper_length_status} - {status_str}\n"))
+    lines.append(("", ""))
+
+    # Byte 19 - OM3 Length
+    lines.extend(format_section_header("BYTE 19 - OM3 LENGTH"))
+    om3_length_m = a0.get("om3_length_m")
+    om3_length_status = a0.get("om3_length_status", 0)
+    status_str = {0: "Not Supported", 1: "Valid", 2: "Extended"}.get(om3_length_status, "Unknown")
+    lines.append(("class:label", "OM3 Length (Byte 19): "))
+    lines.append(("class:value", f"{format_int(om3_length_m)} m\n"))
+    lines.append(("class:label", "Status: "))
+    lines.append(("class:value", f"{om3_length_status} - {status_str}\n"))
     lines.append(("", ""))
     
     # Bytes 20-35 - Vendor Name
@@ -538,6 +558,20 @@ def format_all_a0h_fields(data: Dict[str, Any]) -> List[Tuple[str, str]]:
         lines.append(("class:value", "N/A\n"))
     lines.append(("", ""))
     
+    # Byte 92 - Extended Fields
+    lines.extend(format_section_header("BYTE 92 - DIAGNOSTIC MONITORING (EXTENDED)"))
+    dmi_implemented = a0.get("dmi_implemented", False)
+    change_addr_req = a0.get("change_addr_req", False)
+    calibration_type = a0.get("calibration_type", "N/A")
+    
+    lines.append(("class:label", "DDM Implemented: "))
+    lines.append(("class:value", f"{format_bool(dmi_implemented)}\n"))
+    lines.append(("class:label", "Change Address Required: "))
+    lines.append(("class:value", f"{format_bool(change_addr_req)}\n"))
+    lines.append(("class:label", "Calibration: "))
+    lines.append(("class:value", f"{calibration_type}\n"))
+    lines.append(("", ""))
+
     # Byte 63 - CC_BASE (Checksum)
     lines.extend(format_section_header("BYTE 63 - CC_BASE (CHECKSUM)"))
     cc_base = a0.get("cc_base")
@@ -623,9 +657,11 @@ def format_all_a0h_template() -> List[Tuple[str, str]]:
         "BYTE 12 - NOMINAL RATE",
         "BYTE 13 - RATE IDENTIFIER",
         "BYTE 14 - SMF LENGTH / COPPER ATTENUATION",
+        "BYTE 15 - SMF LENGTH (100m)",
         "BYTE 16 - OM2 LENGTH",
         "BYTE 17 - OM1 LENGTH",
         "BYTE 18 - OM4 OR COPPER LENGTH",
+        "BYTE 19 - OM3 LENGTH",
         "BYTES 20-35 - VENDOR NAME",
         "BYTE 36 - EXTENDED COMPLIANCE",
         "BYTES 37-39 - VENDOR OUI",
@@ -633,6 +669,7 @@ def format_all_a0h_template() -> List[Tuple[str, str]]:
         "BYTES 56-59 - VENDOR REVISION",
         "BYTES 60-61 - WAVELENGTH OR CABLE COMPLIANCE",
         "BYTE 62 - FIBRE CHANNEL SPEED 2",
+        "BYTE 92 - DIAGNOSTIC MONITORING (EXTENDED)",
         "BYTE 63 - CC_BASE (CHECKSUM)"
     ]
     

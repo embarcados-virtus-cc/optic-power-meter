@@ -620,9 +620,15 @@ float sfp_a2h_get_rx_power_dbm(const sfp_a2h_t *a2){
  * Byte 110 -Data_Not_Ready
  * ============================================ */
 
-void sfp_parse_a2h_data_ready(const uint8_t *a2_data,sfp_a2h_t *a2){
-   if ((a2_data[STATUS_CONTROL]& (1 << SFP_A2_BIT_DATA_NOT_READY)) == 0) {
-        a2->data_ready = true;  // Dados prontos para leitura
+void sfp_parse_a2h_data_ready(const uint8_t *a2_data, sfp_a2h_t *a2) {
+    if (!a2_data || !a2) return;
+
+    // O bit Data_Not_Ready (bit 0) indica se o módulo tem dados válidos.
+    // 0 = Pronto, 1 = Não pronto
+    if ((a2_data[STATUS_CONTROL] & (1 << SFP_A2_BIT_DATA_NOT_READY)) == 0) {
+        a2->data_ready = true;
+    } else {
+        a2->data_ready = false;
     }
    a2->data_ready = false;
 }
