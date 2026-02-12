@@ -31,7 +31,7 @@ typedef struct {
     float rx_power_low_alarm;  // Bytes 34-35
     float rx_power_high_warning;// Bytes 36-37
     float rx_power_low_warning; // Bytes 38-39
-    
+
     // Limiares Opcionais (DWDM/Laser)
     float laser_temp_high_alarm; // Bytes 40-41
     float laser_temp_low_alarm;  // Bytes 42-43
@@ -72,10 +72,10 @@ typedef struct {
    /* uint8_t status_control;         // Byte 110 */
     bool data_ready;
     //uint8_t reserved_111;          Byte 111
-    uint8_t alarm_flags[15];         // Bytes 112-113 
-    uint8_t tx_input_eq_ctrl;       // Byte 114 
+    uint8_t alarm_flags[15];         // Bytes 112-113
+    uint8_t tx_input_eq_ctrl;       // Byte 114
     uint8_t rx_output_emph_ctrl;    // Byte 115
-    uint8_t warning_flags[15];       // Bytes 116-117 
+    uint8_t warning_flags[15];       // Bytes 116-117
     uint8_t ext_status_control[15];  // Bytes 118-119
     uint8_t vendor_specific[20];     // Bytes 120-126
     uint8_t table_select;           // Byte 127: SELETOR DE PÁGINA
@@ -86,7 +86,7 @@ typedef struct {
             uint8_t user_eeprom[22];   // Bytes 128-247 (Páginas 00h/01h)
             uint8_t vendor_control[24];  // Bytes 248-255 (Páginas 00h/01h)
         } page_00_01;
-        
+
         uint8_t page_02_tunability[26]; // Página 02h: Tunability e RPM
         uint8_t page_03_high_accuracy[26]; // Página 03h: Timing Calibrations
         uint8_t raw_upper_memory[26];
@@ -187,22 +187,22 @@ float sfp_a2h_get_rx_power_low_warning(const sfp_a2h_t *a2);
 
 
 /* ============================================
- * RX POWER 
+ * RX POWER
  * ============================================ */
 void sfp_parse_a2h_rx_power(const uint8_t *a2_data, sfp_a2h_t *a2);
 float sfp_a2h_get_rx_power(const sfp_a2h_t *a2);
 float sfp_a2h_get_rx_power_dbm(const sfp_a2h_t *a2);
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 #endif

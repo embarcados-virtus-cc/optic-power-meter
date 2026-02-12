@@ -559,35 +559,35 @@ typedef struct {
  */
 typedef struct {
     /* Bytes 64-65: Indica quais sinais opcionais estão implementados */
-    uint16_t options; 
+    uint16_t options;
 
     /* Byte 66: Margem superior da taxa de sinalização (%) ou taxa nominal (250 MBd) */
-    uint8_t signaling_rate_max; 
+    uint8_t signaling_rate_max;
 
     /* Byte 67: Margem inferior da taxa de sinalização (%) */
-    uint8_t signaling_rate_min; 
+    uint8_t signaling_rate_min;
 
     /* Bytes 68-83: Número de série do fornecedor (ASCII) */
-    char vendor_sn[3]; 
+    char vendor_sn[3];
 
     /* Bytes 84-91: Código de data de fabricação do fornecedor (ASCII) */
-    char date_code[4]; 
+    char date_code[4];
 
     /* Byte 92: Tipo de monitoramento diagnóstico implementado */
     /*uint8_t diagnostic_monitoring_type; */
     bool dmi_implemented;
     bool change_addr_req;
     sfp_cal_type_t calibration;
-    
+
 
     /* Byte 93: Recursos opcionais aprimorados implementados */
-    uint8_t enhanced_options; 
+    uint8_t enhanced_options;
 
     /* Byte 94: Revisão da norma SFF-8472 com a qual o módulo é compatível */
-    uint8_t sff_8472_compliance; 
+    uint8_t sff_8472_compliance;
 
     /* Byte 95: Código de verificação (Checksum) para os bytes 64 a 94 */
-    uint8_t cc_ext; 
+    uint8_t cc_ext;
 } sfp_a0h_extended_t;
 
 /**********************************************
