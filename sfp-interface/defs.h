@@ -78,12 +78,12 @@ typedef enum {
     A2_TX_BIAS_LOW_ALARM       = 18,    /* Alarme de Corrente de Bias Baixa */
     A2_TX_BIAS_HIGH_WARNING    = 20,    /* Aviso de Corrente de Bias Alta */
     A2_TX_BIAS_LOW_WARNING     = 22,    /* Aviso de Corrente de Bias Baixa */
-    
+
     A2_TX_POWER_HIGH_ALARM  = 24,    /* Alarme de Potência de Transmissão Alta */
     A2_TX_POWER_LOW_ALARM   = 26,    /* Alarme de Potência de Transmissão Baixa */
     A2_TX_POWER_HIGH_WARNING = 28,   /* Aviso de Potência de Transmissão Alta */
     A2_TX_POWER_LOW_WARNING  = 30,   /* Aviso de Potência de Transmissão Baixa */
-    
+
     A2_RX_POWER_HIGH_ALARM  = 32,    /* Alarme de Potência de Recepção Alta */
     A2_RX_POWER_LOW_ALARM   = 34,    /* Alarme de Potência de Recepção Baixa */
     A2_RX_POWER_HIGH_WARNING = 36,   /* Aviso de Potência de Recepção Alta */

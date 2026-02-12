@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:4.4.18
+    container_name: optic-mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - optic_net
+
+  api:
+    image: optic-api:latest
+    container_name: optic-api
+    restart: unless-stopped
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - SFP_DAEMON_SOCKET=/run/sfp-daemon/sfp.sock
+      - SFP_SOCKET_TIMEOUT=3
+    volumes:
+      - type: bind
+        source: /run/sfp-daemon/sfp.sock
+        target: /run/sfp-daemon/sfp.sock
+        read_only: true
+    networks:
+      - optic_net
+
+  gui:
+    image: optic-gui:latest
+    container_name: optic-gui
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+    networks:
+      - optic_net
+
+volumes:
+  mongo_data:
+
+networks:
+  optic_net:
+    driver: bridge

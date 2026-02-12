@@ -11,7 +11,7 @@ void sfp_parse_a2h_temp_high_alarm(const uint8_t *a2_data,sfp_a2h_t *a2){
   }
   uint16_t raw_temp;
 
-  uint8_t msb = a2_data[A2_TEMP_HIGH_ALARM]; 
+  uint8_t msb = a2_data[A2_TEMP_HIGH_ALARM];
   uint8_t lsb = a2_data[A2_TEMP_HIGH_ALARM + 1];/*Deslocando um byte para pegar o msb */
 
   raw_temp = ((msb << 8) | lsb);
@@ -33,7 +33,7 @@ float sfp_a2h_get_temp_high_alarm(const sfp_a2h_t *a2){
 /* ============================================
  * Byte 02-03 -Low Temperature Alarm
  * ============================================ */
- 
+
  void sfp_parse_a2h_temp_low_alarm(const uint8_t *a2_data, sfp_a2h_t *a2){
     if(!a2_data || !a2){
         return;
@@ -72,7 +72,7 @@ float sfp_a2h_get_temp_low_alarm(const sfp_a2h_t *a2){
     raw = (msb << 8) | lsb;
     a2->thresholds.temp_high_warning = TEMP_TO_DEGC(raw);
 }
- 
+
  /* ============================================
  * Função Getter
  * ============================================ */
@@ -188,7 +188,7 @@ float sfp_a2h_get_vcc_high_warning(const sfp_a2h_t *a2){
     }
     return a2->thresholds.vcc_high_warning;
 }
- 
+
 /* ============================================
  * Byte 14-15 - Low Warning VCC
  * ============================================ */
@@ -218,7 +218,7 @@ float sfp_a2h_get_vcc_low_warning(const sfp_a2h_t *a2){
 /* ============================================
  * Byte 16-17 - High Alarm BIAS
  * ============================================ */
- 
+
  void sfp_parse_a2h_tx_bias_high_alarm(const uint8_t *a2_data, sfp_a2h_t *a2){
     if(!a2_data || !a2){
         return;
@@ -565,7 +565,7 @@ bool get_sfp_vcc(const uint8_t *a2_data, float *vcc) {
 /* ============================================
  * Byte 104-105 -RX_POWER
  * ============================================ */
- 
+
 /**
  * Faz o parse da potência de recepção (RX Power) em tempo real.
  * @param a2_data Buffer contendo os dados lidos da página A2h.
@@ -582,7 +582,7 @@ void sfp_parse_a2h_rx_power(const uint8_t *a2_data, sfp_a2h_t *a2) {
 
     raw = (uint16_t)((msb << 8) | lsb);
 
-    /* Converte o valor bruto para microwatts (uW). 
+    /* Converte o valor bruto para microwatts (uW).
        O LSB é definido como 0,1 uW. */
     a2->rx_power = POWER_TO_UW(raw);
 }

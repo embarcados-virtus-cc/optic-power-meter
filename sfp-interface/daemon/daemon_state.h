@@ -46,6 +46,7 @@ typedef struct {
     bool a0_valid;
     uint8_t a0_raw[SFP_A0_SIZE];
     sfp_a0h_base_t a0_parsed;
+    sfp_a0h_extended_t a0_extended;
 
     /* Dados A2h (dinâmicos - atualizados periodicamente) */
     bool a2_valid;

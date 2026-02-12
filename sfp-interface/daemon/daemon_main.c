@@ -164,6 +164,11 @@ static void main_loop(void)
                             sfp_parse_a0_base_cc_base(g_state.a0_raw, &g_state.a0_parsed);
                             sfp_a0_decode_compliance(&g_state.a0_parsed.cc, &g_state.a0_parsed.dc);
 
+                            /* Parse Extended A0h (Byte 92 etc) */
+                            sfp_parse_a0_extended_dmi(g_state.a0_raw, &g_state.a0_extended);
+                            sfp_parse_a0_extended_change_addr_req(g_state.a0_raw, &g_state.a0_extended);
+                            sfp_parse_a0_extended_calibration(g_state.a0_raw, &g_state.a0_extended);
+
                             g_state.a0_valid = true;
                             g_state.a0_hash = new_hash;
                             g_state.last_a0_read = now;
@@ -203,6 +208,7 @@ static void main_loop(void)
                         if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
                             g_state.a2_parsed.vcc_realtime = vcc;
                         }
+                        sfp_parse_a2h_rx_power(g_state.a2_raw, &g_state.a2_parsed);
                         sfp_parse_a2h_data_ready(g_state.a2_raw, &g_state.a2_parsed);
 
                         g_state.a2_valid = true;
@@ -252,6 +258,7 @@ static void main_loop(void)
                         if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
                             g_state.a2_parsed.vcc_realtime = vcc;
                         }
+                        sfp_parse_a2h_rx_power(g_state.a2_raw, &g_state.a2_parsed);
                         sfp_parse_a2h_data_ready(g_state.a2_raw, &g_state.a2_parsed);
 
                         g_state.a2_valid = true;
