@@ -2,6 +2,8 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 RUN corepack enable
+ARG VITE_MOCKS_ALWAYS=false
+ENV VITE_MOCKS_ALWAYS=$VITE_MOCKS_ALWAYS
 COPY pnpm-lock.yaml package.json ./
 RUN corepack prepare pnpm@10.26.2 --activate
 RUN pnpm install --frozen-lockfile
