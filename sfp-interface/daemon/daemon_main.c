@@ -208,6 +208,7 @@ static void main_loop(void)
                         if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
                             g_state.a2_parsed.vcc_realtime = vcc;
                         }
+                        sfp_parse_a2h_rx_power(g_state.a2_raw, &g_state.a2_parsed);
                         sfp_parse_a2h_data_ready(g_state.a2_raw, &g_state.a2_parsed);
 
                         g_state.a2_valid = true;
@@ -257,6 +258,7 @@ static void main_loop(void)
                         if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
                             g_state.a2_parsed.vcc_realtime = vcc;
                         }
+                        sfp_parse_a2h_rx_power(g_state.a2_raw, &g_state.a2_parsed);
                         sfp_parse_a2h_data_ready(g_state.a2_raw, &g_state.a2_parsed);
 
                         g_state.a2_valid = true;

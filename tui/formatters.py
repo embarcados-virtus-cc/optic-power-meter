@@ -229,62 +229,15 @@ def format_dynamic_values_only(data: Dict[str, Any]) -> List[Tuple[str, str]]:
     
     a2 = data.get("a2", {})
     
-    # Temperatura
-    lines.extend(format_section_header("TEMPERATURA"))
-    temp_valid = a2.get("temperature_valid", False)
-    if temp_valid:
-        temp_c = a2.get("temperature_c")
-        temp_raw = a2.get("temperature_raw")
-        lines.append(("class:label", "Temperatura: "))
-        lines.append(("class:value", f"{format_float(temp_c, 2, ' °C')}\n"))
-        lines.append(("class:label", "Valor Raw: "))
-        lines.append(("class:value", f"{temp_raw}\n"))
-    else:
-        lines.append(("class:label", "Temperatura: "))
-        lines.append(("class:error", "N/A\n"))
-    lines.append(("", ""))
-    
     # Tensão
     lines.extend(format_section_header("TENSÃO"))
     voltage_valid = a2.get("voltage_valid", False)
     if voltage_valid:
         voltage_v = a2.get("voltage_v")
-        voltage_raw = a2.get("voltage_raw")
         lines.append(("class:label", "Tensão: "))
         lines.append(("class:value", f"{format_float(voltage_v, 3, ' V')}\n"))
     else:
         lines.append(("class:label", "Tensão: "))
-        lines.append(("class:error", "N/A\n"))
-    lines.append(("", ""))
-    
-    # Corrente de Bias
-    lines.extend(format_section_header("CORRENTE DE BIAS"))
-    bias_valid = a2.get("bias_current_valid", False)
-    if bias_valid:
-        bias_ma = a2.get("bias_current_ma")
-        bias_raw = a2.get("bias_current_raw")
-        lines.append(("class:label", "Corrente de Bias: "))
-        lines.append(("class:value", f"{format_float(bias_ma, 2, ' mA')}\n"))
-        lines.append(("class:label", "Valor Raw: "))
-        lines.append(("class:value", f"{bias_raw}\n"))
-    else:
-        lines.append(("class:label", "Corrente de Bias: "))
-        lines.append(("class:error", "N/A\n"))
-    lines.append(("", ""))
-    
-    # Potência TX
-    lines.extend(format_section_header("POTÊNCIA DE TRANSMISSÃO (TX)"))
-    tx_valid = a2.get("tx_power_valid", False)
-    if tx_valid:
-        tx_dbm = a2.get("tx_power_dbm")
-        tx_mw = a2.get("tx_power_mw")
-        tx_raw = a2.get("tx_power_raw")
-        lines.append(("class:label", "Potência TX: "))
-        lines.append(("class:value", f"{format_float(tx_dbm, 2, ' dBm')} ({format_float(tx_mw, 3, ' mW')})\n"))
-        lines.append(("class:label", "Valor Raw: "))
-        lines.append(("class:value", f"{tx_raw}\n"))
-    else:
-        lines.append(("class:label", "Potência TX: "))
         lines.append(("class:error", "N/A\n"))
     lines.append(("", ""))
     
@@ -294,11 +247,8 @@ def format_dynamic_values_only(data: Dict[str, Any]) -> List[Tuple[str, str]]:
     if rx_valid:
         rx_dbm = a2.get("rx_power_dbm")
         rx_mw = a2.get("rx_power_mw")
-        rx_raw = a2.get("rx_power_raw")
         lines.append(("class:label", "Potência RX: "))
         lines.append(("class:value", f"{format_float(rx_dbm, 2, ' dBm')} ({format_float(rx_mw, 3, ' mW')})\n"))
-        lines.append(("class:label", "Valor Raw: "))
-        lines.append(("class:value", f"{rx_raw}\n"))
     else:
         lines.append(("class:label", "Potência RX: "))
         lines.append(("class:error", "N/A\n"))

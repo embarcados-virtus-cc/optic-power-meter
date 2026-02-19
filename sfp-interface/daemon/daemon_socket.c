@@ -697,10 +697,16 @@ static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_t *a2)
     cJSON_AddBoolToObject(a2_obj, "voltage_valid", true);
     cJSON_AddNumberToObject(a2_obj, "voltage_v", a2->vcc_realtime);
 
+    /* RX Power */
+    cJSON_AddBoolToObject(a2_obj, "rx_power_valid", true);
+    float rx_uw = sfp_a2h_get_rx_power(a2);
+    float rx_dbm = sfp_a2h_get_rx_power_dbm(a2);
+    cJSON_AddNumberToObject(a2_obj, "rx_power_uw", rx_uw);
+    cJSON_AddNumberToObject(a2_obj, "rx_power_mw", rx_uw / 1000.0);
+    cJSON_AddNumberToObject(a2_obj, "rx_power_dbm", rx_dbm);
+
     /* Data Ready */
     cJSON_AddBoolToObject(a2_obj, "data_ready", a2->data_ready);
-
-    /* Omit unrequested fields for now as per user request */
 }
 
 /* ============================================
