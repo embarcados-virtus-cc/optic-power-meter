@@ -13,6 +13,8 @@ services:
       - optic_net
 
   api:
+    build:
+      context: ./api
     image: optic-api:latest
     container_name: optic-api
     restart: unless-stopped
@@ -22,18 +24,26 @@ services:
       - SFP_SOCKET_TIMEOUT=3
     volumes:
       - type: bind
-        source: /run/sfp-daemon/sfp.sock
-        target: /run/sfp-daemon/sfp.sock
-        read_only: true
+        source: /run/sfp-daemon
+        target: /run/sfp-daemon
+        read_only: false
+    ports:
+      - "8001:8000"
     networks:
       - optic_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   gui:
     image: optic-gui:latest
     container_name: optic-gui
     restart: unless-stopped
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     ports:
       - "8080:80"
     networks:

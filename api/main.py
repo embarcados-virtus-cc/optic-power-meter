@@ -140,20 +140,38 @@ def api_static() -> Dict[str, Any]:
     return a0
 
 
+@app.get("/api/v1/a0h")
+def api_a0h() -> Dict[str, Any]:
+    payload = send_command("GET STATIC")
+    a0 = payload.get("a0", {}) or {}
+    return a0
+
+
+@app.get("/api/v1/a2h")
+def api_a2h() -> Dict[str, Any]:
+    payload = send_command("GET DYNAMIC")
+    a2 = payload.get("a2", {}) or {}
+    return a2
+
+
+@app.get("/api/v1/raw")
+def api_raw() -> Dict[str, Any]:
+    payload = send_command("GET CURRENT")
+    return payload
+
+
 @app.get("/api/v1/history")
 def api_history(limit: int = 30) -> List[HistoryPoint]:
     if not mongo_coll:
         return []
     try:
+    uvicorn.run(app, host="0.0.0.0", port=8000)
         cur = mongo_coll.find({}, {"timestamp": 1, "rx_power_dbm": 1}).sort([("_id", DESCENDING)]).limit(limit)
+    import uvicorn
+
         items = list(cur)
         items.reverse()
+if __name__ == "__main__":
         return [HistoryPoint(timestamp=str(i.get("timestamp", "")), rx_power_dbm=i.get("rx_power_dbm")) for i in items]
     except PyMongoError:
         return []
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
