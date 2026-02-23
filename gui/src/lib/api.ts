@@ -24,33 +24,13 @@ export type HistoryPoint = {
   rx_power_dbm?: number | null
 }
 
-import { mocks } from '@/mocks'
-
 async function http<T>(path: string): Promise<T> {
-  try {
-    const res = await fetch(path, { headers: { Accept: 'application/json' } })
-    if (!res.ok) {
-      const text = await res.text().catch(() => '')
-      throw new Error(`HTTP ${res.status} ${res.statusText} em ${path}: ${text}`)
-    }
-    return (await res.json()) as T
-  } catch (error) {
-    // Fallback para mocks quando habilitado ou em DEV
-    const useMocks = import.meta.env.DEV || import.meta.env.VITE_MOCKS_ALWAYS === 'true'
-    if (useMocks) {
-      console.warn(`API call to ${path} failed. Falling back to mock data...`, error)
-      if (path.includes('/api/v1/current')) {
-        return mocks.current as unknown as T
-      }
-      if (path.includes('/api/v1/history')) {
-        return mocks.history as unknown as T
-      }
-      if (path.includes('/api/static')) {
-        return {} as unknown as T
-      }
-    }
-    throw error
+  const res = await fetch(path, { headers: { Accept: 'application/json' } })
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new Error(`HTTP ${res.status} ${res.statusText} em ${path}: ${text}`)
   }
+  return (await res.json()) as T
 }
 
 // Tipos para os dados estáticos (A0h)

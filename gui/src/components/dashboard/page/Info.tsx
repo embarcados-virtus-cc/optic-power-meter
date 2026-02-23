@@ -3,34 +3,58 @@ import { Skeleton } from '../../ui/skeleton'
 import { Label } from '../../ui/label'
 import { Badge } from '../../ui/badge'
 import { Button } from '../../ui/button'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { StaticInfoModal } from '../modal/StaticInfoModal'
 import {
   CardComponent,
   CardContentComponent,
   CardHeaderComponent,
 } from '@/components/ui/card'
+import { api, type SfpStaticData } from '@/lib/api'
 
 export function Info({ isLoading }: { isLoading: boolean }) {
   const [modalOpen, setModalOpen] = useState(false)
+  const [data, setData] = useState<SfpStaticData | null>(null)
+  const [loadingStatic, setLoadingStatic] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    async function load() {
+      try {
+        setLoadingStatic(true)
+        const res = await api.static()
+        if (mounted) setData(res)
+      } catch {
+      } finally {
+        if (mounted) setLoadingStatic(false)
+      }
+    }
+    void load()
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   const firstSection = [
-    { label: 'Vendor', value: 'FINISAR CORP' },
-    { label: 'Serial Number', value: 'UVW2024ABC' },
-    { label: 'Connector', value: 'LC' },
-    { label: 'Part Number', value: 'FTLX8574D3BCL' },
+    { label: 'Vendor', value: data?.vendor_name ?? 'N/A' },
+    { label: 'Serial Number', value: 'N/A' },
+    { label: 'Connector', value: (data?.connector_type ?? data?.connector ?? 'N/A') as any },
+    { label: 'Part Number', value: data?.vendor_pn ?? 'N/A' },
   ]
 
   const secondSection = [
-    { label: 'Comprimento de Onda', value: '850 nm' },
-    { label: 'Tipo', value: '10GBASE-SR' },
+    {
+      label: 'Comprimento de Onda',
+      value: data?.wavelength_nm !== undefined ? `${data.wavelength_nm} nm` : 'N/A',
+    },
+    { label: 'Tipo', value: data?.ext_compliance_desc ?? 'N/A' },
   ]
 
   return (
     <CardComponent className="w-full flex flex-col">
       <CardHeaderComponent>
         <div className="flex items-center gap-3">
-          {isLoading ? (
+          {(isLoading || loadingStatic) ? (
             <>
               <Skeleton className="w-6 h-6 bg-muted rounded-md" />
               <Skeleton className="w-64 h-6 bg-muted rounded-md" />
@@ -55,7 +79,7 @@ export function Info({ isLoading }: { isLoading: boolean }) {
       <StaticInfoModal open={modalOpen} onOpenChange={setModalOpen} />
 
       <CardContentComponent className="min-h-59 2xl:min-h-66 flex-1 flex flex-col">
-        {isLoading ? (
+        {(isLoading || loadingStatic) ? (
           <div className="space-y-4 flex-1">
             {/* Primeira Seção */}
             <div className="grid grid-cols-2 gap-4">
