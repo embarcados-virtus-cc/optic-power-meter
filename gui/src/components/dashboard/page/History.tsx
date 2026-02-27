@@ -1,8 +1,9 @@
 import { useStore } from '@tanstack/react-store'
-import { FolderClock } from 'lucide-react'
+import { FolderClock, Download } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { Skeleton } from '../../ui/skeleton'
 import { Label } from '../../ui/label'
+import { Button } from '../../ui/button'
 import {
   CardComponent,
   CardContentComponent,
@@ -24,6 +25,10 @@ const chartConfig = {
 
 export function History({ isLoading }: { isLoading: boolean }) {
   const historyData = useStore(historyStore)
+
+  const handleExport = () => {
+    window.open('/api/v1/export/csv', '_blank')
+  }
 
   // Criar dados do gráfico com tempo em segundos (cada ponto = 2 segundos)
   const chartData = historyData.map((value, index) => {
@@ -67,18 +72,29 @@ export function History({ isLoading }: { isLoading: boolean }) {
   return (
     <CardComponent>
       <CardHeaderComponent>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-3">
           {isLoading ? (
-            <>
+            <div className="flex items-center gap-3">
               <Skeleton className="w-6 h-6 bg-muted rounded-md" />
               <Skeleton className="w-64 h-6 bg-muted rounded-md" />
-            </>
+            </div>
           ) : (
             <>
-              <FolderClock className="text-foreground" size={24} />
-              <Label className="text-lg font-bold uppercase tracking-wider text-foreground">
-                Histórico de Potência Óptica Recebida (RX)
-              </Label>
+              <div className="flex items-center gap-3">
+                <FolderClock className="text-foreground" size={24} />
+                <Label className="text-lg font-bold uppercase tracking-wider text-foreground">
+                  Histórico de Potência Óptica Recebida (RX)
+                </Label>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2 h-8"
+                onClick={handleExport}
+              >
+                <Download size={16} />
+                <span className="hidden sm:inline">Exportar CSV</span>
+              </Button>
             </>
           )}
         </div>
