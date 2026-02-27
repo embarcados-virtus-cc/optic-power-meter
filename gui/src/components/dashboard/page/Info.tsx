@@ -10,20 +10,26 @@ import {
   CardContentComponent,
   CardHeaderComponent,
 } from '@/components/ui/card'
+import { useStore } from '@tanstack/react-store'
+import { parametersStore } from '@/stores/dataStores'
 
 export function Info({ isLoading }: { isLoading: boolean }) {
   const [modalOpen, setModalOpen] = useState(false)
+  const { module: data } = useStore(parametersStore)
 
   const firstSection = [
-    { label: 'Vendor', value: 'FINISAR CORP' },
-    { label: 'Serial Number', value: 'UVW2024ABC' },
-    { label: 'Connector', value: 'LC' },
-    { label: 'Part Number', value: 'FTLX8574D3BCL' },
+    { label: 'Vendor', value: data?.vendor_name || 'N/A' },
+    { label: 'Serial Number', value: data?.vendor_sn || 'N/A' },
+    { label: 'Connector', value: data?.connector_type || 'N/A' },
+    { label: 'Part Number', value: data?.vendor_pn || 'N/A' },
   ]
 
   const secondSection = [
-    { label: 'Comprimento de Onda', value: '850 nm' },
-    { label: 'Tipo', value: '10GBASE-SR' },
+    {
+      label: 'Comprimento de Onda',
+      value: data?.wavelength_nm !== undefined && data?.wavelength_nm !== null ? `${data.wavelength_nm} nm` : 'N/A',
+    },
+    { label: 'Tipo', value: data?.ext_compliance_desc || 'N/A' },
   ]
 
   return (

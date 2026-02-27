@@ -10,10 +10,13 @@ export const parametersStore = new Store({
   tensao: 0,
   temperatura: '—',
   qualidadeSinal: '—',
+  module: {} as any,
 })
 
 // Store para History (array de valores em dBm) - começa vazio e vai adicionando
 export const historyStore = new Store<Array<number>>([])
+
+export const statusStore = new Store({ online: true, lastError: null as string | null })
 
 // Limite máximo de pontos no histórico (30 pontos = 60 segundos de dados a cada 2s)
 const MAX_HISTORY_POINTS = 30
@@ -41,15 +44,20 @@ async function refresh() {
       temperatura:
         current.temperature_c != null ? String(Math.round(current.temperature_c)) : '—',
       qualidadeSinal: current.signal_quality ?? '—',
+      module: current.module,
     })
 
-    // Mantém histórico rolando no frontend (alimenta o gráfico imediatamente)
     const currentHistory = historyStore.state
     const updatedHistory = [...currentHistory, Number(current.rx_power_dbm.toFixed(2))]
     if (updatedHistory.length > MAX_HISTORY_POINTS) updatedHistory.shift()
     historyStore.setState(updatedHistory)
-  } catch {
-    // Silencioso: UI continua mostrando último valor.
+
+    statusStore.setState({ online: true, lastError: null })
+  } catch (err) {
+    statusStore.setState({
+      online: false,
+      lastError: err instanceof Error ? err.message : String(err),
+    })
   }
 }
 

@@ -21,8 +21,8 @@ export default defineConfig({
     open: true,
     proxy: {
       // Backend FastAPI
-      '/api': 'http://localhost:8000',
-      '/health': 'http://localhost:8000',
+      '/api': 'http://localhost:8001',
+      '/health': 'http://localhost:8001',
     },
   },
   resolve: {

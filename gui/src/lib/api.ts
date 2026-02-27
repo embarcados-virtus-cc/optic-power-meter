@@ -1,11 +1,16 @@
 export type ModuleInfo = {
   identifier?: number | null
+  identifier_type?: string | null
   ext_identifier?: number | null
   connector?: number | null
+  connector_type?: string | null
   encoding?: number | null
   vendor_name?: string | null
   vendor_pn?: string | null
+  vendor_sn?: string | null
   vendor_rev?: string | null
+  wavelength_nm?: number | null
+  ext_compliance_desc?: string | null
   cc_base_valid?: boolean | null
 }
 
@@ -24,29 +29,13 @@ export type HistoryPoint = {
   rx_power_dbm?: number | null
 }
 
-import { mocks } from '@/mocks'
-
 async function http<T>(path: string): Promise<T> {
-  try {
-    const res = await fetch(path, { headers: { Accept: 'application/json' } })
-    if (!res.ok) {
-      const text = await res.text().catch(() => '')
-      throw new Error(`HTTP ${res.status} ${res.statusText} em ${path}: ${text}`)
-    }
-    return (await res.json()) as T
-  } catch (error) {
-    // Se estiver em desenvolvimento, tenta carregar dos mocks em caso de erro na API
-    if (import.meta.env.DEV) {
-      console.warn(`API call to ${path} failed. Falling back to mock data...`, error)
-      if (path.includes('/api/v1/current')) {
-        return mocks.current as unknown as T
-      }
-      if (path.includes('/api/v1/history')) {
-        return mocks.history as unknown as T
-      }
-    }
-    throw error
+  const res = await fetch(path, { headers: { Accept: 'application/json' } })
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new Error(`HTTP ${res.status} ${res.statusText} em ${path}: ${text}`)
   }
+  return (await res.json()) as T
 }
 
 // Tipos para os dados estáticos (A0h)
@@ -94,6 +83,7 @@ export type SfpStaticData = {
   vendor_oui_valid?: boolean
   vendor_pn?: string
   vendor_pn_valid?: boolean
+  vendor_sn?: string
   vendor_rev?: string
   ext_compliance_code?: number
   ext_compliance_desc?: string

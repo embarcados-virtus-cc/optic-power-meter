@@ -24,6 +24,15 @@ class HistoryPoint(BaseModel):
     rx_power_dbm: Optional[float] = None
 
 
+class DynamicReading(BaseModel):
+    timestamp: str
+    rx_power_dbm: Optional[float] = None
+    temperature_c: Optional[float] = None
+    voltage_v: Optional[float] = None
+    bias_ma: Optional[float] = None
+    data_ready: Optional[bool] = None
+
+
 def get_mongo_client() -> Optional[MongoClient]:
     uri = os.getenv("MONGO_URI")
     if not uri:
@@ -36,6 +45,17 @@ def get_mongo_client() -> Optional[MongoClient]:
 
 def sfp_socket_path() -> str:
     return os.getenv("SFP_DAEMON_SOCKET", "/run/sfp-daemon/sfp.sock")
+
+
+def first_numeric(d: Dict[str, Any], keys: List[str]) -> Optional[float]:
+    for k in keys:
+        v = d.get(k)
+        if isinstance(v, (int, float)):
+            try:
+                return float(v)
+            except Exception:
+                continue
+    return None
 
 
 def send_command(command: str) -> Dict[str, Any]:
@@ -72,12 +92,21 @@ def send_command(command: str) -> Dict[str, Any]:
     return payload
 
 
-def map_current(payload: Dict[str, Any]) -> CurrentReading:
+def map_current(payload: Dict[str, Any], dynamic_payload: Optional[Dict[str, Any]] = None) -> CurrentReading:
     ts = payload.get("timestamps", {})
     a0 = payload.get("a0", {}) or {}
-    a2 = payload.get("a2", {}) or {}
-    voltage = a2.get("voltage_v")
-    rx_power = payload.get("rx_power_dbm")
+    a2_current = payload.get("a2", {}) or {}
+    if not isinstance(a2_current, dict):
+        a2_current = {}
+    a2_dyn: Dict[str, Any] = {}
+    if dynamic_payload and isinstance(dynamic_payload, dict):
+        candidate = dynamic_payload.get("a2", {}) or {}
+        if isinstance(candidate, dict):
+            a2_dyn = candidate
+    voltage = first_numeric(a2_current, ["voltage_v", "vcc_realtime"])
+    rx_power = first_numeric(a2_current, ["rx_power_dbm"])
+    temp = first_numeric(a2_dyn or a2_current, ["temperature_c", "temp_realtime"])
+    bias = first_numeric(a2_dyn or a2_current, ["tx_bias_ma", "tx_bias_realtime"])
     if rx_power is None:
         rx_power = -8.0
     sq: Optional[str] = None
@@ -90,22 +119,52 @@ def map_current(payload: Dict[str, Any]) -> CurrentReading:
             sq = "Ruim"
     module = {
         "identifier": a0.get("identifier"),
+        "identifier_type": a0.get("identifier_type"),
         "ext_identifier": a0.get("ext_identifier"),
         "connector": a0.get("connector"),
+        "connector_type": a0.get("connector_type"),
         "encoding": a0.get("encoding"),
         "vendor_name": a0.get("vendor_name"),
         "vendor_pn": a0.get("vendor_pn"),
+        "vendor_sn": a0.get("vendor_sn"),
         "vendor_rev": a0.get("vendor_rev"),
+        "wavelength_nm": a0.get("wavelength_nm"),
+        "ext_compliance_desc": a0.get("ext_compliance_desc"),
         "cc_base_valid": a0.get("cc_base_valid"),
     }
     return CurrentReading(
         timestamp=str(ts.get("last_a2_read") or ts.get("last_a0_read") or ""),
         rx_power_dbm=float(rx_power),
-        temperature_c=None,
-        voltage_v=voltage if isinstance(voltage, (int, float)) else None,
-        bias_ma=None,
+        temperature_c=temp,
+        voltage_v=voltage,
+        bias_ma=bias,
         signal_quality=sq,
         module=module,
+    )
+
+
+def map_dynamic(payload: Dict[str, Any]) -> DynamicReading:
+    a2 = payload.get("a2", {}) or {}
+    if not isinstance(a2, dict):
+        a2 = {}
+    rx_power = first_numeric(a2, ["rx_power_dbm"])
+    temp = first_numeric(a2, ["temperature_c", "temp_realtime"])
+    voltage = first_numeric(a2, ["voltage_v", "vcc_realtime"])
+    bias = first_numeric(a2, ["tx_bias_ma", "tx_bias_realtime"])
+    ts = payload.get("last_a2_read")
+    data_ready_val = a2.get("data_ready")
+    data_ready: Optional[bool]
+    if isinstance(data_ready_val, bool):
+        data_ready = data_ready_val
+    else:
+        data_ready = None
+    return DynamicReading(
+        timestamp=str(ts or ""),
+        rx_power_dbm=rx_power,
+        temperature_c=temp,
+        voltage_v=voltage,
+        bias_ma=bias,
+        data_ready=data_ready,
     )
 
 
@@ -123,7 +182,12 @@ def health() -> JSONResponse:
 @app.get("/api/v1/current")
 def api_current() -> CurrentReading:
     payload = send_command("GET CURRENT")
-    current = map_current(payload)
+    dynamic_payload: Optional[Dict[str, Any]] = None
+    try:
+        dynamic_payload = send_command("GET DYNAMIC")
+    except HTTPException:
+        dynamic_payload = None
+    current = map_current(payload, dynamic_payload)
     if mongo_coll:
         doc = current.model_dump()
         try:
@@ -135,9 +199,93 @@ def api_current() -> CurrentReading:
 
 @app.get("/api/static")
 def api_static() -> Dict[str, Any]:
-    payload = send_command("GET STATIC")
-    a0 = payload.get("a0", {}) or {}
-    return a0
+    def fetch_a0(cmd: str) -> Optional[Dict[str, Any]]:
+        try:
+            payload = send_command(cmd)
+            a0 = payload.get("a0", {}) or {}
+            if not isinstance(a0, dict) or not a0 or a0.get("valid") is False:
+                return None
+            return a0
+        except HTTPException:
+            return None
+        except Exception:
+            return None
+
+    # Tenta estático, depois current, sem lançar erro para o frontend
+    for cmd in ("GET STATIC", "GET CURRENT"):
+        a0 = fetch_a0(cmd)
+        if a0:
+            return a0
+    # Retorna objeto vazio (200) para evitar "Offline" no modal
+    return {}
+
+
+@app.get("/api/v1/a0h")
+def api_a0h() -> Dict[str, Any]:
+    # Reutiliza a mesma lógica do /api/static
+    return api_static()
+
+
+@app.get("/api/v1/a2h")
+def api_a2h() -> Dict[str, Any]:
+    payload = send_command("GET DYNAMIC")
+    a2 = payload.get("a2", {}) or {}
+    return a2
+
+
+@app.get("/api/dynamic")
+def api_dynamic() -> DynamicReading:
+    payload = send_command("GET DYNAMIC")
+    return map_dynamic(payload)
+
+
+@app.get("/api/v1/raw")
+def api_raw() -> Dict[str, Any]:
+    payload = send_command("GET CURRENT")
+    return payload
+
+
+def _cmd_from_alias(alias: str) -> Optional[str]:
+    a = alias.strip().lower()
+    if a in ("current", "curr"):
+        return "GET CURRENT"
+    if a in ("static", "a0", "a0h"):
+        return "GET STATIC"
+    if a in ("dynamic", "a2", "a2h"):
+        return "GET DYNAMIC"
+    if a in ("state",):
+        return "GET STATE"
+    return None
+
+
+@app.get("/api/v1/raw/{cmd}")
+def api_raw_cmd(cmd: str) -> Dict[str, Any]:
+    mapped = _cmd_from_alias(cmd)
+    if not mapped:
+        raise HTTPException(status_code=400, detail="Invalid cmd. Use: current|static|dynamic|state")
+    return send_command(mapped)
+
+
+@app.get("/api/v1/debug/all")
+def api_debug_all() -> Dict[str, Any]:
+    result: Dict[str, Any] = {}
+    for key, alias in (
+        ("current", "current"),
+        ("static", "static"),
+        ("dynamic", "dynamic"),
+        ("state", "state"),
+    ):
+        try:
+            mapped = _cmd_from_alias(alias)
+            if mapped:
+                result[key] = send_command(mapped)
+            else:
+                result[key] = {"error": "invalid"}
+        except HTTPException as he:
+            result[key] = {"error": he.detail}
+        except Exception as e:
+            result[key] = {"error": str(e)}
+    return result
 
 
 @app.get("/api/v1/history")
