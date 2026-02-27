@@ -199,7 +199,7 @@ typedef enum {
 #define TEMP_TO_DEGC(raw)    (((int16_t)(raw)) / 256.0f)   /* q8.8 para °C */
 #define VCC_TO_VOLTS(raw)    ((raw) * 0.0001)             /* 100uV/LSB para Volts */
 #define TX_BIAS_TO_MA(raw)      ((raw) * 2.0)                /* 2µA/LSB para mA */
-#define POWER_TO_UW(raw)     ((raw) * 0.1)                /* 0.1µW/LSB para µW */
+#define POWER_TO_UW(raw)     ((raw) * 1.0f)                /* 0.1µW/LSB para µW */
 
 
 #endif /* DEFS_H */

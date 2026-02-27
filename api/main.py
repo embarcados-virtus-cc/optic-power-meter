@@ -1,12 +1,17 @@
 import os
 import json
 import socket
+import asyncio
+import io
+import csv
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from pymongo import MongoClient, ASCENDING, DESCENDING
-from pymongo.errors import PyMongoError
+from pymongo.errors import PyMongoError, ConnectionFailure
 
 
 class CurrentReading(BaseModel):
@@ -36,11 +41,33 @@ class DynamicReading(BaseModel):
 def get_mongo_client() -> Optional[MongoClient]:
     uri = os.getenv("MONGO_URI")
     if not uri:
+        print("MONGO_URI not set. Database persistence disabled.")
         return None
     try:
-        return MongoClient(uri, serverSelectionTimeoutMS=2000)
-    except Exception:
+        client = MongoClient(uri, serverSelectionTimeoutMS=2000)
+        client.admin.command('ping')
+        return client
+    except Exception as e:
+        print(f"Failed to connect to MongoDB: {e}")
         return None
+
+
+def init_db(coll):
+    """
+    Simula migrações garantindo que os índices necessários existam.
+    """
+    if coll is None:
+        return
+    try:
+        # Índice para busca rápida de histórico por tempo (decrescente)
+        coll.create_index([("timestamp", DESCENDING)])
+        
+        # TTL Index: Remove registros mais velhos que 7 dias para não lotar o disco da Raspberry
+        # O timestamp deve estar no formato ISO ou Date para o TTL funcionar,
+        # mas como estamos salvando como string, vamos apenas garantir o índice de busca.
+        print("Database indexes initialized successfully.")
+    except Exception as e:
+        print(f"Error initializing database indexes: {e}")
 
 
 def sfp_socket_path() -> str:
@@ -132,8 +159,18 @@ def map_current(payload: Dict[str, Any], dynamic_payload: Optional[Dict[str, Any
         "ext_compliance_desc": a0.get("ext_compliance_desc"),
         "cc_base_valid": a0.get("cc_base_valid"),
     }
+    
+    # Se não houver timestamp do daemon, usamos o local
+    last_read = ts.get("last_a2_read") or ts.get("last_a0_read")
+    if not last_read:
+        last_read = datetime.now(timezone.utc).isoformat()
+    else:
+        # Daemon envia epoch, convertemos para ISO string para o banco
+        if isinstance(last_read, (int, float)):
+            last_read = datetime.fromtimestamp(last_read, tz=timezone.utc).isoformat()
+
     return CurrentReading(
-        timestamp=str(ts.get("last_a2_read") or ts.get("last_a0_read") or ""),
+        timestamp=str(last_read),
         rx_power_dbm=float(rx_power),
         temperature_c=temp,
         voltage_v=voltage,
@@ -152,6 +189,13 @@ def map_dynamic(payload: Dict[str, Any]) -> DynamicReading:
     voltage = first_numeric(a2, ["voltage_v", "vcc_realtime"])
     bias = first_numeric(a2, ["tx_bias_ma", "tx_bias_realtime"])
     ts = payload.get("last_a2_read")
+    
+    if not ts:
+        ts = datetime.now(timezone.utc).isoformat()
+    else:
+        if isinstance(ts, (int, float)):
+            ts = datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
+
     data_ready_val = a2.get("data_ready")
     data_ready: Optional[bool]
     if isinstance(data_ready_val, bool):
@@ -159,7 +203,7 @@ def map_dynamic(payload: Dict[str, Any]) -> DynamicReading:
     else:
         data_ready = None
     return DynamicReading(
-        timestamp=str(ts or ""),
+        timestamp=str(ts),
         rx_power_dbm=rx_power,
         temperature_c=temp,
         voltage_v=voltage,
@@ -168,15 +212,54 @@ def map_dynamic(payload: Dict[str, Any]) -> DynamicReading:
     )
 
 
-app = FastAPI()
 mongo_client = get_mongo_client()
 mongo_db = mongo_client["optic_power_meter"] if mongo_client else None
 mongo_coll = mongo_db["readings"] if mongo_db else None
 
+# Migração inicial (índices)
+init_db(mongo_coll)
+
+
+async def background_sampler():
+    """
+    Coleta dados a cada 5 segundos para persistir histórico,
+    mesmo que ninguém esteja olhando o frontend.
+    """
+    while True:
+        try:
+            if mongo_coll:
+                payload = send_command("GET CURRENT")
+                try:
+                    dynamic_payload = send_command("GET DYNAMIC")
+                except:
+                    dynamic_payload = None
+                
+                current = map_current(payload, dynamic_payload)
+                doc = current.model_dump()
+                mongo_coll.insert_one(doc)
+        except Exception as e:
+            # Silently fail sampler to avoid crashing the app
+            pass
+        await asyncio.sleep(5)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Inicializa o sampler em background
+    sampler_task = asyncio.create_task(background_sampler())
+    yield
+    # Cancela o sampler ao fechar o app
+    sampler_task.cancel()
+    if mongo_client:
+        mongo_client.close()
+
+
+app = FastAPI(lifespan=lifespan)
+
 
 @app.get("/health")
 def health() -> JSONResponse:
-    return JSONResponse({"status": "ok"})
+    return JSONResponse({"status": "ok", "db_connected": mongo_coll is not None})
 
 
 @app.get("/api/v1/current")
@@ -187,7 +270,11 @@ def api_current() -> CurrentReading:
         dynamic_payload = send_command("GET DYNAMIC")
     except HTTPException:
         dynamic_payload = None
+    
     current = map_current(payload, dynamic_payload)
+    
+    # Inserção pontual ao requisitar (o sampler já faz isso, 
+    # mas mantemos para garantir que a leitura atual esteja no banco)
     if mongo_coll:
         doc = current.model_dump()
         try:
@@ -211,18 +298,15 @@ def api_static() -> Dict[str, Any]:
         except Exception:
             return None
 
-    # Tenta estático, depois current, sem lançar erro para o frontend
     for cmd in ("GET STATIC", "GET CURRENT"):
         a0 = fetch_a0(cmd)
         if a0:
             return a0
-    # Retorna objeto vazio (200) para evitar "Offline" no modal
     return {}
 
 
 @app.get("/api/v1/a0h")
 def api_a0h() -> Dict[str, Any]:
-    # Reutiliza a mesma lógica do /api/static
     return api_static()
 
 
@@ -293,12 +377,68 @@ def api_history(limit: int = 30) -> List[HistoryPoint]:
     if not mongo_coll:
         return []
     try:
-        cur = mongo_coll.find({}, {"timestamp": 1, "rx_power_dbm": 1}).sort([("_id", DESCENDING)]).limit(limit)
+        cur = mongo_coll.find({}, {"timestamp": 1, "rx_power_dbm": 1}).sort([("timestamp", DESCENDING)]).limit(limit)
         items = list(cur)
         items.reverse()
         return [HistoryPoint(timestamp=str(i.get("timestamp", "")), rx_power_dbm=i.get("rx_power_dbm")) for i in items]
     except PyMongoError:
         return []
+
+
+@app.get("/api/v1/export/csv")
+def export_csv():
+    if not mongo_coll:
+        raise HTTPException(status_code=503, detail="Database not connected")
+    
+    try:
+        # Busca todos os dados (estáticos + dinâmicos)
+        cur = mongo_coll.find({}).sort([("timestamp", ASCENDING)])
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Header
+        writer.writerow([
+            "Data/Hora (UTC)", 
+            "RX Power (dBm)", 
+            "Temp (C)", 
+            "VCC (V)", 
+            "Bias (mA)", 
+            "Signal Quality",
+            "Vendor",
+            "Part Number",
+            "Serial Number",
+            "Connector",
+            "Wavelength (nm)",
+            "Type"
+        ])
+        
+        for doc in cur:
+            mod = doc.get("module", {})
+            writer.writerow([
+                doc.get("timestamp", ""),
+                doc.get("rx_power_dbm", ""),
+                doc.get("temperature_c", ""),
+                doc.get("voltage_v", ""),
+                doc.get("bias_ma", ""),
+                doc.get("signal_quality", ""),
+                mod.get("vendor_name", ""),
+                mod.get("vendor_pn", ""),
+                mod.get("vendor_sn", ""),
+                mod.get("connector_type", ""),
+                mod.get("wavelength_nm", ""),
+                mod.get("ext_compliance_desc", "")
+            ])
+        
+        output.seek(0)
+        filename = f"sfp_readings_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        return StreamingResponse(
+            output,
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Export error: {e}")
 
 
 if __name__ == "__main__":

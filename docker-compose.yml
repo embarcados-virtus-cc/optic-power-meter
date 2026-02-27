@@ -5,23 +5,23 @@ services:
     container_name: optic-mongo
     restart: unless-stopped
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-admin123}
     volumes:
       - mongo_data:/data/db
+    ports:
+      - "27017:27017"
     networks:
       - optic_net
 
   api:
-    build:
-      context: ./api
     image: optic-api:latest
     container_name: optic-api
     restart: unless-stopped
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - MONGO_URI=${MONGO_URI:-mongodb://admin:admin123@mongo:27017/optic_power_meter?authSource=admin}
       - SFP_DAEMON_SOCKET=/run/sfp-daemon/sfp.sock
-      - SFP_SOCKET_TIMEOUT=3
+      - SFP_SOCKET_TIMEOUT=${SFP_SOCKET_TIMEOUT:-10}
     volumes:
       - type: bind
         source: /run/sfp-daemon
