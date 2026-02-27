@@ -1,11 +1,16 @@
 export type ModuleInfo = {
   identifier?: number | null
+  identifier_type?: string | null
   ext_identifier?: number | null
   connector?: number | null
+  connector_type?: string | null
   encoding?: number | null
   vendor_name?: string | null
   vendor_pn?: string | null
+  vendor_sn?: string | null
   vendor_rev?: string | null
+  wavelength_nm?: number | null
+  ext_compliance_desc?: string | null
   cc_base_valid?: boolean | null
 }
 
@@ -78,6 +83,7 @@ export type SfpStaticData = {
   vendor_oui_valid?: boolean
   vendor_pn?: string
   vendor_pn_valid?: boolean
+  vendor_sn?: string
   vendor_rev?: string
   ext_compliance_code?: number
   ext_compliance_desc?: string

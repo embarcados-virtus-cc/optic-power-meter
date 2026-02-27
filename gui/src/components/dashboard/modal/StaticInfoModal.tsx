@@ -128,6 +128,7 @@ export function StaticInfoModal({ open, onOpenChange }: StaticInfoModalProps) {
                             <Grid>
                                 <Item label="Vendor Name" value={displayData.vendor_name} valid={displayData.vendor_name_valid} />
                                 <Item label="Vendor P/N" value={displayData.vendor_pn} valid={displayData.vendor_pn_valid} />
+                                <Item label="Vendor S/N" value={displayData.vendor_sn} />
                                 <Item label="Vendor Rev" value={displayData.vendor_rev} />
                                 <Item label="Vendor OUI" value={displayData.vendor_oui?.map((x: number) => x.toString(16).padStart(2, '0')).join(':').toUpperCase()} valid={displayData.vendor_oui_valid} />
                                 <Item label="OUI (UInt32)" value={displayData.vendor_oui_u32} />

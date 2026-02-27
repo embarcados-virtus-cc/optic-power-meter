@@ -119,12 +119,17 @@ def map_current(payload: Dict[str, Any], dynamic_payload: Optional[Dict[str, Any
             sq = "Ruim"
     module = {
         "identifier": a0.get("identifier"),
+        "identifier_type": a0.get("identifier_type"),
         "ext_identifier": a0.get("ext_identifier"),
         "connector": a0.get("connector"),
+        "connector_type": a0.get("connector_type"),
         "encoding": a0.get("encoding"),
         "vendor_name": a0.get("vendor_name"),
         "vendor_pn": a0.get("vendor_pn"),
+        "vendor_sn": a0.get("vendor_sn"),
         "vendor_rev": a0.get("vendor_rev"),
+        "wavelength_nm": a0.get("wavelength_nm"),
+        "ext_compliance_desc": a0.get("ext_compliance_desc"),
         "cc_base_valid": a0.get("cc_base_valid"),
     }
     return CurrentReading(

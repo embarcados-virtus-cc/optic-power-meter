@@ -10,6 +10,7 @@ export const parametersStore = new Store({
   tensao: 0,
   temperatura: '—',
   qualidadeSinal: '—',
+  module: {} as any,
 })
 
 // Store para History (array de valores em dBm) - começa vazio e vai adicionando
@@ -43,6 +44,7 @@ async function refresh() {
       temperatura:
         current.temperature_c != null ? String(Math.round(current.temperature_c)) : '—',
       qualidadeSinal: current.signal_quality ?? '—',
+      module: current.module,
     })
 
     const currentHistory = historyStore.state
