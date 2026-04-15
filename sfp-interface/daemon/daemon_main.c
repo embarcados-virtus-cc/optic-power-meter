@@ -21,6 +21,7 @@
 #include "daemon_i2c.h"
 #include "daemon_socket.h"
 #include "../sfp_init.h"
+#include "../defs.h"
 
 /* ============================================
  * Função Auxiliar: Sleep em Milissegundos
@@ -204,10 +205,28 @@ static void main_loop(void)
                         pthread_mutex_lock(&g_state.mutex);
 
                         memcpy(g_state.a2_raw, a2_raw, SFP_A2_SIZE);
+
+                        /* Parse tempo real A2h: temp, vcc, tx_bias, tx_power, rx_power */
                         float vcc;
                         if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
                             g_state.a2_parsed.vcc_realtime = vcc;
                         }
+
+                        /* Temperatura interna (Bytes 96-97, formato q8.8) */
+                        uint16_t raw_temp = (uint16_t)(g_state.a2_raw[A2_TEMP_CURR] << 8)
+                                          | g_state.a2_raw[A2_TEMP_CURR + 1];
+                        g_state.a2_parsed.temp_realtime = TEMP_TO_DEGC(raw_temp);
+
+                        /* Corrente de bias TX (Bytes 100-101) */
+                        uint16_t raw_bias = (uint16_t)(g_state.a2_raw[A2_TX_BIAS_CURR] << 8)
+                                          | g_state.a2_raw[A2_TX_BIAS_CURR + 1];
+                        g_state.a2_parsed.tx_bias_realtime = BIAS_TO_MA(raw_bias);
+
+                        /* Potência TX (Bytes 102-103) */
+                        uint16_t raw_tx_pwr = (uint16_t)(g_state.a2_raw[A2_TX_POWER_CURR] << 8)
+                                            | g_state.a2_raw[A2_TX_POWER_CURR + 1];
+                        g_state.a2_parsed.tx_power_realtime = POWER_TO_UW(raw_tx_pwr);
+
                         sfp_parse_a2h_rx_power(g_state.a2_raw, &g_state.a2_parsed);
                         sfp_parse_a2h_data_ready(g_state.a2_raw, &g_state.a2_parsed);
 
@@ -253,11 +272,27 @@ static void main_loop(void)
                     if (daemon_i2c_read_a2h(g_i2c_fd, a2_raw)) {
                         pthread_mutex_lock(&g_state.mutex);
 
-                        memcpy(g_state.a2_raw, a2_raw, SFP_A2_SIZE);
+                        /* Parse tempo real A2h: temp, vcc, tx_bias, tx_power, rx_power */
                         float vcc;
                         if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
                             g_state.a2_parsed.vcc_realtime = vcc;
                         }
+
+                        /* Temperatura interna */
+                        uint16_t raw_temp = (uint16_t)(g_state.a2_raw[A2_TEMP_CURR] << 8)
+                                          | g_state.a2_raw[A2_TEMP_CURR + 1];
+                        g_state.a2_parsed.temp_realtime = TEMP_TO_DEGC(raw_temp);
+
+                        /* Corrente de bias TX */
+                        uint16_t raw_bias = (uint16_t)(g_state.a2_raw[A2_TX_BIAS_CURR] << 8)
+                                          | g_state.a2_raw[A2_TX_BIAS_CURR + 1];
+                        g_state.a2_parsed.tx_bias_realtime = BIAS_TO_MA(raw_bias);
+
+                        /* Potência TX */
+                        uint16_t raw_tx_pwr = (uint16_t)(g_state.a2_raw[A2_TX_POWER_CURR] << 8)
+                                            | g_state.a2_raw[A2_TX_POWER_CURR + 1];
+                        g_state.a2_parsed.tx_power_realtime = POWER_TO_UW(raw_tx_pwr);
+
                         sfp_parse_a2h_rx_power(g_state.a2_raw, &g_state.a2_parsed);
                         sfp_parse_a2h_data_ready(g_state.a2_raw, &g_state.a2_parsed);
 

@@ -65,7 +65,7 @@ typedef struct {
     double vcc_realtime;          // Bytes 98-99
     double tx_bias_realtime;      // Bytes 100-101
     double tx_power_realtime;     // Bytes 102-103
-    double rx_power;              // Bytes 104-105
+    double rx_power_realtime;     // Bytes 104-105
     double laser_temp_wave_opt;   // Bytes 106-107 (Opcional)
     double tec_current_opt;       // Bytes 108-109 (Opcional)
 
