@@ -11,6 +11,7 @@
 #include <cjson/cJSON.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -693,9 +694,27 @@ static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_t *a2)
 {
     if (!a2_obj || !a2) return;
 
+    /* Temperature */
+    cJSON_AddBoolToObject(a2_obj, "temp_valid", true);
+    cJSON_AddNumberToObject(a2_obj, "temp_c", a2->temp_realtime);
+
     /* Voltage */
     cJSON_AddBoolToObject(a2_obj, "voltage_valid", true);
     cJSON_AddNumberToObject(a2_obj, "voltage_v", a2->vcc_realtime);
+
+    /* TX Bias */
+    cJSON_AddBoolToObject(a2_obj, "tx_bias_valid", true);
+    cJSON_AddNumberToObject(a2_obj, "tx_bias_ma", a2->tx_bias_realtime);
+
+    /* TX Power */
+    cJSON_AddBoolToObject(a2_obj, "tx_power_valid", true);
+    cJSON_AddNumberToObject(a2_obj, "tx_power_uw", a2->tx_power_realtime);
+    double tx_pwr_mw = a2->tx_power_realtime / 1000.0;
+    cJSON_AddNumberToObject(a2_obj, "tx_power_mw", tx_pwr_mw);
+    double tx_dbm = (a2->tx_power_realtime > 0.0)
+        ? 10.0 * log10(a2->tx_power_realtime / 1000.0)
+        : -40.0;
+    cJSON_AddNumberToObject(a2_obj, "tx_power_dbm", tx_dbm);
 
     /* RX Power */
     cJSON_AddBoolToObject(a2_obj, "rx_power_valid", true);

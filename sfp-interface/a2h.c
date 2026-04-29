@@ -583,8 +583,8 @@ void sfp_parse_a2h_rx_power(const uint8_t *a2_data, sfp_a2h_t *a2) {
     raw = (uint16_t)((msb << 8) | lsb);
 
     /* Converte o valor bruto para microwatts (uW).
-       O LSB é definido como 0,1 uW. */
-    a2->rx_power = POWER_TO_UW(raw);
+       O LSB é definido como 0.1 uW. */
+    a2->rx_power_realtime = POWER_TO_UW(raw);
 }
 /* ============================================
  * Função Getter
@@ -600,14 +600,14 @@ float sfp_a2h_get_rx_power(const sfp_a2h_t *a2) {
         return -1; /* Indica um erro */
     }
 
-    return a2->rx_power;
+    return a2->rx_power_realtime;
 }
 
 float sfp_a2h_get_rx_power_dbm(const sfp_a2h_t *a2){
   if (!a2) {
     return -1;
   }
-  float power_uW = a2->rx_power;
+  float power_uW = a2->rx_power_realtime;
   if (power_uW <=0.0f) {
     return -40.0f;/*Piso condizente com a sensibilidade do Módulo*/
   }else {
@@ -620,11 +620,12 @@ float sfp_a2h_get_rx_power_dbm(const sfp_a2h_t *a2){
  * Byte 110 -Data_Not_Ready
  * ============================================ */
 
-void sfp_parse_a2h_data_ready(const uint8_t *a2_data,sfp_a2h_t *a2){
-   if ((a2_data[STATUS_CONTROL]& (1 << SFP_A2_BIT_DATA_NOT_READY)) == 0) {
+void sfp_parse_a2h_data_ready(const uint8_t *a2_data, sfp_a2h_t *a2){
+   if ((a2_data[STATUS_CONTROL] & (1 << SFP_A2_BIT_DATA_NOT_READY)) == 0) {
         a2->data_ready = true;  // Dados prontos para leitura
+    } else {
+        a2->data_ready = false; // Módulo ainda não tem dados válidos
     }
-   a2->data_ready = false;
 }
 
 bool sfp_a2h_get_data_ready(const sfp_a2h_t *a2){
