@@ -125,12 +125,12 @@ def create_image(width, height, ip_address):
     # URL Frontend
     y_start += 50
     draw.text((10, y_start), "Dashboard WEB:", font=font_small, fill=(255, 255, 255))
-    draw.text((10, y_start + 18), f"http://{ip_address}:3000", font=font_small, fill=(255, 255, 255))
+    draw.text((10, y_start + 18), f"http://{ip_address}:8080", font=font_small, fill=(255, 255, 255))
     
     # URL API
     y_start += 50
-    draw.text((10, y_start), "API:", font=font_small, fill=(255, 255, 255))
-    draw.text((10, y_start + 18), f"http://{ip_address}:8000", font=font_small, fill=(255, 255, 255))
+    draw.text((10, y_start), "Portainer.IO:", font=font_small, fill=(255, 255, 255))
+    draw.text((10, y_start + 18), f"http://{ip_address}:9443", font=font_small, fill=(255, 255, 255))
 
     return image
 
