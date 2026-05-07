@@ -10,23 +10,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
-from pymongo import MongoClient, ASCENDING, DESCENDING
-from pymongo.errors import PyMongoError, ConnectionFailure
+from pymongo import ASCENDING, DESCENDING
+from pymongo.errors import PyMongoError
 
-
-class CurrentReading(BaseModel):
-    timestamp: str
-    rx_power_dbm: float
-    temperature_c: Optional[float] = None
-    voltage_v: Optional[float] = None
-    bias_ma: Optional[float] = None
-    signal_quality: Optional[str] = None
-    module: Dict[str, Any]
-
-
-class HistoryPoint(BaseModel):
-    timestamp: str
-    rx_power_dbm: Optional[float] = None
+# Importações do novo pacote de banco de dados
+from database import get_mongo_client, get_database, run_migrations, CurrentReading, HistoryPoint
 
 
 class DynamicReading(BaseModel):
@@ -36,38 +24,6 @@ class DynamicReading(BaseModel):
     voltage_v: Optional[float] = None
     bias_ma: Optional[float] = None
     data_ready: Optional[bool] = None
-
-
-def get_mongo_client() -> Optional[MongoClient]:
-    uri = os.getenv("MONGO_URI")
-    if not uri:
-        print("MONGO_URI not set. Database persistence disabled.")
-        return None
-    try:
-        client = MongoClient(uri, serverSelectionTimeoutMS=2000)
-        client.admin.command('ping')
-        return client
-    except Exception as e:
-        print(f"Failed to connect to MongoDB: {e}")
-        return None
-
-
-def init_db(coll):
-    """
-    Simula migrações garantindo que os índices necessários existam.
-    """
-    if coll is None:
-        return
-    try:
-        # Índice para busca rápida de histórico por tempo (decrescente)
-        coll.create_index([("timestamp", DESCENDING)])
-        
-        # TTL Index: Remove registros mais velhos que 7 dias para não lotar o disco da Raspberry
-        # O timestamp deve estar no formato ISO ou Date para o TTL funcionar,
-        # mas como estamos salvando como string, vamos apenas garantir o índice de busca.
-        print("Database indexes initialized successfully.")
-    except Exception as e:
-        print(f"Error initializing database indexes: {e}")
 
 
 def sfp_socket_path() -> str:
@@ -162,8 +118,10 @@ def map_current(payload: Dict[str, Any], dynamic_payload: Optional[Dict[str, Any
     
     # Se não houver timestamp do daemon, usamos o local
     last_read = ts.get("last_a2_read") or ts.get("last_a0_read")
+    created_at = datetime.now(timezone.utc)
+    
     if not last_read:
-        last_read = datetime.now(timezone.utc).isoformat()
+        last_read = created_at.isoformat()
     else:
         # Daemon envia epoch, convertemos para ISO string para o banco
         if isinstance(last_read, (int, float)):
@@ -171,6 +129,7 @@ def map_current(payload: Dict[str, Any], dynamic_payload: Optional[Dict[str, Any
 
     return CurrentReading(
         timestamp=str(last_read),
+        created_at=created_at,
         rx_power_dbm=float(rx_power),
         temperature_c=temp,
         voltage_v=voltage,
@@ -212,12 +171,13 @@ def map_dynamic(payload: Dict[str, Any]) -> DynamicReading:
     )
 
 
+# Inicialização do Banco de Dados
 mongo_client = get_mongo_client()
-mongo_db = mongo_client["optic_power_meter"] if mongo_client else None
-mongo_coll = mongo_db["readings"] if mongo_db else None
+mongo_db = get_database()
+mongo_coll = mongo_db["readings"] if mongo_db is not None else None
 
-# Migração inicial (índices)
-init_db(mongo_coll)
+# Executa as migrações (índices, etc)
+run_migrations()
 
 
 async def background_sampler():
@@ -252,6 +212,7 @@ async def lifespan(app: FastAPI):
     sampler_task.cancel()
     if mongo_client:
         mongo_client.close()
+    print("MongoDB connection closed.")
 
 
 app = FastAPI(lifespan=lifespan)
