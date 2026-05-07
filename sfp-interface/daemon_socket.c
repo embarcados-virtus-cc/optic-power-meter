@@ -138,44 +138,35 @@ bool daemon_socket_accept(daemon_socket_server_t *server)
         return false;
     }
 
-    bool accepted_any = false;
+    if (server->num_clients >= DAEMON_MAX_CONNECTIONS) {
+        return false;  /* Limite atingido */
+    }
 
-    /* Loop para aceitar todas as conexões pendentes na fila do kernel */
-    while (server->num_clients < DAEMON_MAX_CONNECTIONS) {
-        int client_fd = accept(server->server_fd, NULL, NULL);
-        
-        if (client_fd < 0) {
-            if (errno != EAGAIN && errno != EWOULDBLOCK) {
-                syslog(LOG_WARNING, "Accept failed: %s", strerror(errno));
-            }
-            break; /* Não há mais conexões pendentes ou erro */
+    int client_fd = accept(server->server_fd, NULL, NULL);
+    if (client_fd < 0) {
+        if (errno != EAGAIN && errno != EWOULDBLOCK) {
+            syslog(LOG_WARNING, "Accept failed: %s", strerror(errno));
         }
+        return false;
+    }
 
-        /* Non-blocking */
-        int flags = fcntl(client_fd, F_GETFL, 0);
-        fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
+    /* Non-blocking */
+    int flags = fcntl(client_fd, F_GETFL, 0);
+    fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
 
-        /* Adiciona à lista */
-        bool added = false;
-        for (int i = 0; i < DAEMON_MAX_CONNECTIONS; i++) {
-            if (server->client_fds[i] < 0) {
-                server->client_fds[i] = client_fd;
-                server->num_clients++;
-                syslog(LOG_DEBUG, "Client connected (fd: %d)", client_fd);
-                added = true;
-                accepted_any = true;
-                break;
-            }
-        }
-
-        if (!added) {
-            /* Teoricamente não deve chegar aqui pelo check do while, mas por segurança: */
-            close(client_fd);
-            break;
+    /* Adiciona à lista */
+    for (int i = 0; i < DAEMON_MAX_CONNECTIONS; i++) {
+        if (server->client_fds[i] < 0) {
+            server->client_fds[i] = client_fd;
+            server->num_clients++;
+            syslog(LOG_DEBUG, "Client connected (fd: %d)", client_fd);
+            return true;
         }
     }
 
-    return accepted_any;
+    /* Não há espaço */
+    close(client_fd);
+    return false;
 }
 
 /* ============================================

@@ -100,10 +100,10 @@ static void main_loop(void)
     time_t last_a2_read = 0;
 
     while (g_running) {
-        uint32_t poll_delay_ms = 100; /* Polling mais rápido para o socket */
+        uint32_t poll_delay_ms = DAEMON_POLL_ABSENT_MS;
 
-        /* Aceita todas as novas conexões socket pendentes */
-        while (daemon_socket_accept(&g_socket_server));
+        /* Aceita novas conexões socket */
+        daemon_socket_accept(&g_socket_server);
 
         /* Processa comandos socket */
         time_t daemon_uptime = time(NULL) - g_start_time;
@@ -126,6 +126,7 @@ static void main_loop(void)
         switch (current_state) {
             case SFP_STATE_INIT:
                 daemon_fsm_init_to_absent(&g_state, presence_detected);
+                poll_delay_ms = DAEMON_POLL_ABSENT_MS;
                 break;
 
             case SFP_STATE_ABSENT:
@@ -183,6 +184,7 @@ static void main_loop(void)
                         }
                     }
                 }
+                poll_delay_ms = g_config.poll_absent_ms;
                 break;
 
             case SFP_STATE_PRESENT:
@@ -190,6 +192,7 @@ static void main_loop(void)
                 if (now - last_presence_check >= (DAEMON_PRESENCE_CHECK_INTERVAL_MS / 1000)) {
                     if (!presence_detected) {
                         daemon_fsm_present_to_absent(&g_state);
+                        poll_delay_ms = g_config.poll_absent_ms;
                         break;
                     }
                     last_presence_check = now;
@@ -202,6 +205,72 @@ static void main_loop(void)
                         pthread_mutex_lock(&g_state.mutex);
 
                         memcpy(g_state.a2_raw, a2_raw, SFP_A2_SIZE);
+
+                        /* Parse tempo real A2h: temp, vcc, tx_bias, tx_power, rx_power */
+                        float vcc;
+                        if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
+                            g_state.a2_parsed.vcc_realtime = vcc;
+                        }
+
+                        /* Temperatura interna (Bytes 96-97, formato q8.8) */
+                        uint16_t raw_temp = (uint16_t)(g_state.a2_raw[A2_TEMP_CURR] << 8)
+                                          | g_state.a2_raw[A2_TEMP_CURR + 1];
+                        g_state.a2_parsed.temp_realtime = TEMP_TO_DEGC(raw_temp);
+
+                        /* Corrente de bias TX (Bytes 100-101) */
+                        uint16_t raw_bias = (uint16_t)(g_state.a2_raw[A2_TX_BIAS_CURR] << 8)
+                                          | g_state.a2_raw[A2_TX_BIAS_CURR + 1];
+                        g_state.a2_parsed.tx_bias_realtime = BIAS_TO_MA(raw_bias);
+
+                        /* Potência TX (Bytes 102-103) */
+                        uint16_t raw_tx_pwr = (uint16_t)(g_state.a2_raw[A2_TX_POWER_CURR] << 8)
+                                            | g_state.a2_raw[A2_TX_POWER_CURR + 1];
+                        g_state.a2_parsed.tx_power_realtime = POWER_TO_UW(raw_tx_pwr);
+
+                        sfp_parse_a2h_rx_power(g_state.a2_raw, &g_state.a2_parsed);
+                        sfp_parse_a2h_data_ready(g_state.a2_raw, &g_state.a2_parsed);
+
+                        g_state.a2_valid = true;
+                        g_state.last_a2_read = now;
+                        g_state.i2c_error_count = 0;
+
+                        pthread_mutex_unlock(&g_state.mutex);
+
+                        last_a2_read = now;
+                    } else {
+                        /* Erro ao ler A2h */
+                        pthread_mutex_lock(&g_state.mutex);
+                        g_state.i2c_error_count++;
+
+                        if (g_state.i2c_error_count >= g_config.max_i2c_errors) {
+                            pthread_mutex_unlock(&g_state.mutex);
+                            daemon_fsm_present_to_error(&g_state);
+                        } else {
+                            pthread_mutex_unlock(&g_state.mutex);
+                        }
+                    }
+                }
+                poll_delay_ms = g_config.poll_present_ms;
+                break;
+
+            case SFP_STATE_ERROR:
+                /* Tenta recuperação */
+                pthread_mutex_lock(&g_state.mutex);
+                g_state.recovery_attempts++;
+
+                if (g_state.recovery_attempts >= g_config.max_recovery_attempts) {
+                    /* Verifica presença após muitas tentativas */
+                    pthread_mutex_unlock(&g_state.mutex);
+                    if (!presence_detected) {
+                        daemon_fsm_error_to_absent(&g_state, false);
+                    }
+                } else {
+                    pthread_mutex_unlock(&g_state.mutex);
+
+                    /* Tenta ler A2h novamente */
+                    uint8_t a2_raw[SFP_A2_SIZE];
+                    if (daemon_i2c_read_a2h(g_i2c_fd, a2_raw)) {
+                        pthread_mutex_lock(&g_state.mutex);
 
                         /* Parse tempo real A2h: temp, vcc, tx_bias, tx_power, rx_power */
                         float vcc;
@@ -233,76 +302,15 @@ static void main_loop(void)
 
                         pthread_mutex_unlock(&g_state.mutex);
 
-                        last_a2_read = now;
-                    } else {
-                        /* Erro ao ler A2h */
-                        pthread_mutex_lock(&g_state.mutex);
-                        g_state.i2c_error_count++;
-
-                        if (g_state.i2c_error_count >= g_config.max_i2c_errors) {
-                            pthread_mutex_unlock(&g_state.mutex);
-                            daemon_fsm_present_to_error(&g_state);
-                        } else {
-                            pthread_mutex_unlock(&g_state.mutex);
-                        }
-                    }
-                }
-                break;
-
-            case SFP_STATE_ERROR:
-                /* Tenta recuperação */
-                pthread_mutex_lock(&g_state.mutex);
-                g_state.recovery_attempts++;
-
-                if (g_state.recovery_attempts >= g_config.max_recovery_attempts) {
-                    /* Verifica presença após muitas tentativas */
-                    pthread_mutex_unlock(&g_state.mutex);
-                    if (!presence_detected) {
-                        daemon_fsm_error_to_absent(&g_state, false);
-                    }
-                } else {
-                    pthread_mutex_unlock(&g_state.mutex);
-
-                    /* Tenta ler A2h novamente */
-                    uint8_t a2_raw[SFP_A2_SIZE];
-                    if (daemon_i2c_read_a2h(g_i2c_fd, a2_raw)) {
-                        pthread_mutex_lock(&g_state.mutex);
-
-                        /* Parse tempo real A2h */
-                        float vcc;
-                        if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
-                            g_state.a2_parsed.vcc_realtime = vcc;
-                        }
-
-                        uint16_t raw_temp = (uint16_t)(g_state.a2_raw[A2_TEMP_CURR] << 8)
-                                          | g_state.a2_raw[A2_TEMP_CURR + 1];
-                        g_state.a2_parsed.temp_realtime = TEMP_TO_DEGC(raw_temp);
-
-                        uint16_t raw_bias = (uint16_t)(g_state.a2_raw[A2_TX_BIAS_CURR] << 8)
-                                          | g_state.a2_raw[A2_TX_BIAS_CURR + 1];
-                        g_state.a2_parsed.tx_bias_realtime = BIAS_TO_MA(raw_bias);
-
-                        uint16_t raw_tx_pwr = (uint16_t)(g_state.a2_raw[A2_TX_POWER_CURR] << 8)
-                                            | g_state.a2_raw[A2_TX_POWER_CURR + 1];
-                        g_state.a2_parsed.tx_power_realtime = POWER_TO_UW(raw_tx_pwr);
-
-                        sfp_parse_a2h_rx_power(g_state.a2_raw, &g_state.a2_parsed);
-                        sfp_parse_a2h_data_ready(g_state.a2_raw, &g_state.a2_parsed);
-
-                        g_state.a2_valid = true;
-                        g_state.last_a2_read = now;
-                        g_state.i2c_error_count = 0;
-
-                        pthread_mutex_unlock(&g_state.mutex);
-
                         daemon_fsm_error_to_present(&g_state);
                         last_a2_read = now;
                     }
                 }
+                poll_delay_ms = g_config.poll_error_ms;
                 break;
         }
 
-        /* Sleep curto para responsividade do socket */
+        /* Sleep */
         msleep(poll_delay_ms);
     }
 }
