@@ -46,7 +46,7 @@ def log_migration(version: int, description: str):
     Registra uma migração concluída.
     """
     db = get_database()
-    if db:
+    if db is not None:
         db["migrations"].update_one(
             {"version": version},
             {"$set": {

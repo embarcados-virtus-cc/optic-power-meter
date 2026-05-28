@@ -187,7 +187,7 @@ async def background_sampler():
     """
     while True:
         try:
-            if mongo_coll:
+            if mongo_coll is not None:
                 payload = send_command("GET CURRENT")
                 try:
                     dynamic_payload = send_command("GET DYNAMIC")
@@ -236,7 +236,7 @@ def api_current() -> CurrentReading:
     
     # Inserção pontual ao requisitar (o sampler já faz isso, 
     # mas mantemos para garantir que a leitura atual esteja no banco)
-    if mongo_coll:
+    if mongo_coll is not None:
         doc = current.model_dump()
         try:
             mongo_coll.insert_one(doc)
@@ -335,7 +335,7 @@ def api_debug_all() -> Dict[str, Any]:
 
 @app.get("/api/v1/history")
 def api_history(limit: int = 30) -> List[HistoryPoint]:
-    if not mongo_coll:
+    if mongo_coll is None:
         return []
     try:
         cur = mongo_coll.find({}, {"timestamp": 1, "rx_power_dbm": 1}).sort([("timestamp", DESCENDING)]).limit(limit)
@@ -348,7 +348,7 @@ def api_history(limit: int = 30) -> List[HistoryPoint]:
 
 @app.get("/api/v1/export/csv")
 def export_csv():
-    if not mongo_coll:
+    if mongo_coll is None:
         raise HTTPException(status_code=503, detail="Database not connected")
     
     try:
