@@ -22,6 +22,9 @@
 #include <time.h>
 #include <sys/stat.h>
 
+/* Offset de calibração lido do env RX_POWER_OFFSET_DBM na inicialização */
+static float g_rx_power_offset_dbm = 0.0f;
+
 /* ============================================
  * Inicializa Servidor Socket
  * ============================================ */
@@ -95,6 +98,13 @@ bool daemon_socket_init(daemon_socket_server_t *server, const daemon_config_t *c
     /* Non-blocking */
     int flags = fcntl(server->server_fd, F_GETFL, 0);
     fcntl(server->server_fd, F_SETFL, flags | O_NONBLOCK);
+
+    /* Lê offset de calibração de RX power do ambiente */
+    const char *offset_env = getenv("RX_POWER_OFFSET_DBM");
+    if (offset_env) {
+        g_rx_power_offset_dbm = (float)atof(offset_env);
+        syslog(LOG_INFO, "RX power offset: %.2f dBm", g_rx_power_offset_dbm);
+    }
 
     syslog(LOG_INFO, "Socket server initialized: %s", server->socket_path);
     return true;
@@ -728,7 +738,7 @@ static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_t *a2)
     /* RX Power */
     cJSON_AddBoolToObject(a2_obj, "rx_power_valid", true);
     float rx_uw = sfp_a2h_get_rx_power(a2);
-    float rx_dbm = sfp_a2h_get_rx_power_dbm(a2);
+    float rx_dbm = sfp_a2h_get_rx_power_dbm(a2) + g_rx_power_offset_dbm;
     cJSON_AddNumberToObject(a2_obj, "rx_power_uw", rx_uw);
     cJSON_AddNumberToObject(a2_obj, "rx_power_mw", rx_uw / 1000.0);
     cJSON_AddNumberToObject(a2_obj, "rx_power_dbm", rx_dbm);

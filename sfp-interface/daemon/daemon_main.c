@@ -268,6 +268,8 @@ static void main_loop(void)
                     if (daemon_i2c_read_a2h(g_i2c_fd, a2_raw)) {
                         pthread_mutex_lock(&g_state.mutex);
 
+                        memcpy(g_state.a2_raw, a2_raw, SFP_A2_SIZE);
+
                         /* Parse tempo real A2h */
                         float vcc;
                         if (get_sfp_vcc(g_state.a2_raw, &vcc)) {
