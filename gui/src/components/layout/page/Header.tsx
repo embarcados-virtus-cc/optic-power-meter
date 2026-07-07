@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Activity, AlarmClock, Toolbox, Users } from 'lucide-react'
+import { Activity, AlarmClock, Toolbox, Users, Server } from 'lucide-react'
 import { Link, useLocation } from '@tanstack/react-router'
 
 import {
@@ -86,6 +86,13 @@ export function Header() {
                       <Link to="/tuning" className={` flex flex-row items-center justify-start gap-2 text-left cursor-pointer ${isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground'} transition-colors px-3 py-2 rounded-md `}>
                         <Toolbox className={ isActive('/tuning') ? 'text-muted-foreground' : 'text-foreground' } size={20} />
                         Calibração
+                      </Link>
+                    </NavigationMenuItem>
+
+                    <NavigationMenuItem>
+                      <Link to="/system" className={` flex flex-row items-center justify-start gap-2 text-left cursor-pointer ${isActive('/system') ? 'text-muted-foreground' : 'text-foreground'} transition-colors px-3 py-2 rounded-md `}>
+                        <Server className={ isActive('/system') ? 'text-muted-foreground' : 'text-foreground' } size={20} />
+                        Sistema
                       </Link>
                     </NavigationMenuItem>
 

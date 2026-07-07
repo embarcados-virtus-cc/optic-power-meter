@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   mongo:
     image: mongo:4.4.18
@@ -13,22 +12,38 @@ services:
       - "27017:27017"
     networks:
       - optic_net
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
     image: optic-api:latest
     container_name: optic-api
     restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
     environment:
       - MONGO_URI=${MONGO_URI:-mongodb://admin:admin123@mongo:27017/optic_power_meter?authSource=admin}
       - SFP_DAEMON_SOCKET=/run/sfp-daemon/sfp.sock
-      - SFP_SOCKET_TIMEOUT=${SFP_SOCKET_TIMEOUT:-10}
+      - SFP_SOCKET_TIMEOUT=${SFP_SOCKET_TIMEOUT:-3}
     volumes:
       - type: bind
         source: /run/sfp-daemon
         target: /run/sfp-daemon
         read_only: false
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: false
     ports:
-      - "8001:8000"
+      - "127.0.0.1:8001:8000"
     networks:
       - optic_net
     healthcheck:
@@ -36,8 +51,12 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+      start_period: 15s
 
   gui:
+    build:
+      context: ./gui
+      dockerfile: Dockerfile
     image: optic-gui:latest
     container_name: optic-gui
     restart: unless-stopped

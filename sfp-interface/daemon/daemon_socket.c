@@ -22,6 +22,9 @@
 #include <time.h>
 #include <sys/stat.h>
 
+/* Offset de calibração lido do env RX_POWER_OFFSET_DBM na inicialização */
+static float g_rx_power_offset_dbm = 0.0f;
+
 /* ============================================
  * Inicializa Servidor Socket
  * ============================================ */
@@ -96,6 +99,13 @@ bool daemon_socket_init(daemon_socket_server_t *server, const daemon_config_t *c
     int flags = fcntl(server->server_fd, F_GETFL, 0);
     fcntl(server->server_fd, F_SETFL, flags | O_NONBLOCK);
 
+    /* Lê offset de calibração de RX power do ambiente */
+    const char *offset_env = getenv("RX_POWER_OFFSET_DBM");
+    if (offset_env) {
+        g_rx_power_offset_dbm = (float)atof(offset_env);
+        syslog(LOG_INFO, "RX power offset: %.2f dBm", g_rx_power_offset_dbm);
+    }
+
     syslog(LOG_INFO, "Socket server initialized: %s", server->socket_path);
     return true;
 }
@@ -138,35 +148,44 @@ bool daemon_socket_accept(daemon_socket_server_t *server)
         return false;
     }
 
-    if (server->num_clients >= DAEMON_MAX_CONNECTIONS) {
-        return false;  /* Limite atingido */
-    }
+    bool accepted_any = false;
 
-    int client_fd = accept(server->server_fd, NULL, NULL);
-    if (client_fd < 0) {
-        if (errno != EAGAIN && errno != EWOULDBLOCK) {
-            syslog(LOG_WARNING, "Accept failed: %s", strerror(errno));
+    /* Loop para aceitar todas as conexões pendentes na fila do kernel */
+    while (server->num_clients < DAEMON_MAX_CONNECTIONS) {
+        int client_fd = accept(server->server_fd, NULL, NULL);
+        
+        if (client_fd < 0) {
+            if (errno != EAGAIN && errno != EWOULDBLOCK) {
+                syslog(LOG_WARNING, "Accept failed: %s", strerror(errno));
+            }
+            break; /* Não há mais conexões pendentes ou erro */
         }
-        return false;
-    }
 
-    /* Non-blocking */
-    int flags = fcntl(client_fd, F_GETFL, 0);
-    fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
+        /* Non-blocking */
+        int flags = fcntl(client_fd, F_GETFL, 0);
+        fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
 
-    /* Adiciona à lista */
-    for (int i = 0; i < DAEMON_MAX_CONNECTIONS; i++) {
-        if (server->client_fds[i] < 0) {
-            server->client_fds[i] = client_fd;
-            server->num_clients++;
-            syslog(LOG_DEBUG, "Client connected (fd: %d)", client_fd);
-            return true;
+        /* Adiciona à lista */
+        bool added = false;
+        for (int i = 0; i < DAEMON_MAX_CONNECTIONS; i++) {
+            if (server->client_fds[i] < 0) {
+                server->client_fds[i] = client_fd;
+                server->num_clients++;
+                syslog(LOG_DEBUG, "Client connected (fd: %d)", client_fd);
+                added = true;
+                accepted_any = true;
+                break;
+            }
+        }
+
+        if (!added) {
+            /* Teoricamente não deve chegar aqui pelo check do while, mas por segurança: */
+            close(client_fd);
+            break;
         }
     }
 
-    /* Não há espaço */
-    close(client_fd);
-    return false;
+    return accepted_any;
 }
 
 /* ============================================
@@ -719,7 +738,7 @@ static void serialize_a2h_complete(cJSON *a2_obj, const sfp_a2h_t *a2)
     /* RX Power */
     cJSON_AddBoolToObject(a2_obj, "rx_power_valid", true);
     float rx_uw = sfp_a2h_get_rx_power(a2);
-    float rx_dbm = sfp_a2h_get_rx_power_dbm(a2);
+    float rx_dbm = sfp_a2h_get_rx_power_dbm(a2) + g_rx_power_offset_dbm;
     cJSON_AddNumberToObject(a2_obj, "rx_power_uw", rx_uw);
     cJSON_AddNumberToObject(a2_obj, "rx_power_mw", rx_uw / 1000.0);
     cJSON_AddNumberToObject(a2_obj, "rx_power_dbm", rx_dbm);

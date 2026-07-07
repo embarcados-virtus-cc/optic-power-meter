@@ -9,6 +9,7 @@ export const parametersStore = new Store({
   corrente: 0,
   tensao: 0,
   temperatura: '—',
+  txPower: '—',
   qualidadeSinal: '—',
   module: {} as any,
 })
@@ -25,8 +26,10 @@ let didLoadInitialHistory = false
 
 async function refresh() {
   try {
+    let skipHistoryAppend = false
     if (!didLoadInitialHistory) {
       didLoadInitialHistory = true
+      skipHistoryAppend = true
       const hist = await api.history(MAX_HISTORY_POINTS)
       const values = hist
         .map((p) => p.rx_power_dbm)
@@ -43,14 +46,18 @@ async function refresh() {
       tensao: Number((current.voltage_v ?? 0).toFixed(2)),
       temperatura:
         current.temperature_c != null ? String(Math.round(current.temperature_c)) : '—',
+      txPower:
+        current.tx_power_dbm != null ? Number(current.tx_power_dbm.toFixed(2)).toString() : '—',
       qualidadeSinal: current.signal_quality ?? '—',
       module: current.module,
     })
 
-    const currentHistory = historyStore.state
-    const updatedHistory = [...currentHistory, Number(current.rx_power_dbm.toFixed(2))]
-    if (updatedHistory.length > MAX_HISTORY_POINTS) updatedHistory.shift()
-    historyStore.setState(updatedHistory)
+    if (!skipHistoryAppend) {
+      const currentHistory = historyStore.state
+      const updatedHistory = [...currentHistory, Number(current.rx_power_dbm.toFixed(2))]
+      if (updatedHistory.length > MAX_HISTORY_POINTS) updatedHistory.shift()
+      historyStore.setState(updatedHistory)
+    }
 
     statusStore.setState({ online: true, lastError: null })
   } catch (err) {

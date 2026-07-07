@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TuningIndexRouteImport } from './routes/tuning/index'
 import { Route as AlarmsIndexRouteImport } from './routes/alarms/index'
+import { Route as SystemIndexRouteImport } from './routes/system/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const AlarmsIndexRoute = AlarmsIndexRouteImport.update({
   path: '/alarms/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SystemIndexRoute = SystemIndexRouteImport.update({
+  id: '/system/',
+  path: '/system/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alarms': typeof AlarmsIndexRoute
   '/tuning': typeof TuningIndexRoute
+  '/system': typeof SystemIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alarms': typeof AlarmsIndexRoute
   '/tuning': typeof TuningIndexRoute
+  '/system': typeof SystemIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/alarms/': typeof AlarmsIndexRoute
   '/tuning/': typeof TuningIndexRoute
+  '/system/': typeof SystemIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/alarms' | '/tuning'
+  fullPaths: '/' | '/alarms' | '/tuning' | '/system'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/alarms' | '/tuning'
-  id: '__root__' | '/' | '/alarms/' | '/tuning/'
+  to: '/' | '/alarms' | '/tuning' | '/system'
+  id: '__root__' | '/' | '/alarms/' | '/tuning/' | '/system/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlarmsIndexRoute: typeof AlarmsIndexRoute
   TuningIndexRoute: typeof TuningIndexRoute
+  SystemIndexRoute: typeof SystemIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlarmsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/system/': {
+      id: '/system/'
+      path: '/system'
+      fullPath: '/system'
+      preLoaderRoute: typeof SystemIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlarmsIndexRoute: AlarmsIndexRoute,
   TuningIndexRoute: TuningIndexRoute,
+  SystemIndexRoute: SystemIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

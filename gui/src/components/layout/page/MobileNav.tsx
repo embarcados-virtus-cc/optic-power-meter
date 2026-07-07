@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
-import { Menu, Activity, AlarmClock, Toolbox, Users } from 'lucide-react'
+import { Menu, Activity, AlarmClock, Toolbox, Users, Server } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
     Sheet,
@@ -52,6 +52,11 @@ export function MobileNav() {
                         <Link to="/tuning" onClick={handleLinkClick} className={` flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${isActive('/tuning') ? 'bg-secondary text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50' } `}>
                             <Toolbox size={20} />
                             Calibração
+                        </Link>
+
+                        <Link to="/system" onClick={handleLinkClick} className={` flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${isActive('/system') ? 'bg-secondary text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50' } `}>
+                            <Server size={20} />
+                            Sistema
                         </Link>
 
                         <button onClick={() => {

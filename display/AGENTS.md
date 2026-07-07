@@ -24,7 +24,7 @@ Para conectar o display à Raspberry Pi, utilize a seguinte configuração de pi
 | **SDA**      | Data   | 19              | GPIO 10    | SPI MOSI  |
 | **RES**      | Reset  | 13              | GPIO 27    | Reset     |
 | **DC**       | Data/Cmd| 22             | GPIO 25    | Data/Command Select |
-| **BLK**      | Backlight| 18            | GPIO 24    | Controle de Brilho |
+| **BLK**      | Backlight| 17            | GPIO 24    | Controle de Brilho |
 
 > **Nota**: O pino CS não é usado (o driver assume Hardware SPI Port 0 Device 0).
 

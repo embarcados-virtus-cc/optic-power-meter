@@ -1,6 +1,22 @@
 #include "i2c.h"
 #include <stdint.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <linux/i2c-dev.h>
+
+/* ============================================
+ * Prevenção de SIGPIPE
+ * ============================================ */
+__attribute__((constructor))
+static void sfp_ignore_sigpipe(void)
+{
+    /* Ignora SIGPIPE para evitar que o processo morra se um cliente 
+       fechar a conexão socket enquanto o daemon está enviando dados. */
+    signal(SIGPIPE, SIG_IGN);
+}
 
 /* ============================================
  * I2C Initialization and Control
