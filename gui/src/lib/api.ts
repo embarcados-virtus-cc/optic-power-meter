@@ -17,6 +17,7 @@ export type ModuleInfo = {
 export type CurrentReading = {
   timestamp: string
   rx_power_dbm: number
+  tx_power_dbm?: number | null
   temperature_c?: number | null
   voltage_v?: number | null
   bias_ma?: number | null
@@ -99,10 +100,33 @@ export type SfpStaticData = {
 }
 
 
+export type ContainerInfo = {
+  id: string
+  name: string
+  status: string
+  image: string
+}
+
+export type ContainerStats = {
+  cpu_percent: number
+  memory_mb: number
+  memory_percent: number
+}
+
 export const api = {
   current: () => http<CurrentReading>('/api/v1/current'),
   history: (limit = 30) => http<HistoryPoint[]>(`/api/v1/history?limit=${limit}`),
   static: () => http<SfpStaticData>('/api/static'),
+  containers: () => http<ContainerInfo[]>('/api/v1/containers'),
+  containerStats: (name: string) => http<ContainerStats>(`/api/v1/containers/${name}/stats`),
+  containerLogs: (name: string, lines = 100) =>
+    http<{ logs: string }>(`/api/v1/containers/${name}/logs?lines=${lines}`),
+  containerStart: (name: string) =>
+    fetch(`/api/v1/containers/${name}/start`, { method: 'POST' }),
+  containerStop: (name: string) =>
+    fetch(`/api/v1/containers/${name}/stop`, { method: 'POST' }),
+  containerRestart: (name: string) =>
+    fetch(`/api/v1/containers/${name}/restart`, { method: 'POST' }),
 }
 
 

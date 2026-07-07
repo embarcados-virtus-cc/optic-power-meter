@@ -115,7 +115,7 @@ export function RxPower({ isLoading }: { isLoading: boolean }) {
                 <div className="relative w-64 flex items-center justify-center">
                   <svg className="w-56 -rotate-90" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" className="text-zinc-200 dark:text-zinc-800" strokeWidth="6" strokeDasharray="1 2" />
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" className="text-foreground" strokeWidth="6" strokeDasharray={`${(Math.max(0, 20 + powerValue) / 20) * 263.89} 263.89`} />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" className="text-foreground" strokeWidth="6" strokeDasharray={`${Math.min(1, Math.max(0, (20 + powerValue) / 20)) * 263.89} 263.89`} />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-4xl font-bold text-foreground tracking-tighter">

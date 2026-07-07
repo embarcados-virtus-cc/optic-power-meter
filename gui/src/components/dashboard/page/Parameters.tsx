@@ -1,4 +1,4 @@
-import { BarChart3, FileText, Plug, Thermometer, Zap } from 'lucide-react'
+import { BarChart3, FileText, Plug, Thermometer, Zap, Radio } from 'lucide-react'
 import { useStore } from '@tanstack/react-store'
 import { Skeleton } from '../../ui/skeleton'
 import { Label } from '../../ui/label'
@@ -30,6 +30,12 @@ export function Parameters({ isLoading }: { isLoading: boolean }) {
       value: paramsData.temperatura,
       unit: '°C',
       icon: Thermometer,
+    },
+    {
+      label: 'TX Power',
+      value: paramsData.txPower,
+      unit: 'dBm',
+      icon: Radio,
     },
     {
       label: 'Qualidade do Sinal',
