@@ -4,10 +4,13 @@ import socket
 import asyncio
 import io
 import csv
+import time
+import threading
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends
+from fastapi.security import APIKeyHeader
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from pymongo import ASCENDING, DESCENDING
@@ -16,10 +19,24 @@ from pymongo.errors import PyMongoError
 # Importações do novo pacote de banco de dados
 from database import get_mongo_client, get_database, run_migrations, CurrentReading, HistoryPoint
 
+try:
+    import docker as docker_sdk
+    _docker_client = docker_sdk.from_env()
+except Exception:
+    _docker_client = None
+
+_container_api_key = os.getenv("CONTAINER_API_KEY", "")
+_api_key_header = APIKeyHeader(name="X-Api-Key", auto_error=False)
+
+def _require_container_key(key: Optional[str] = Depends(_api_key_header)):
+    if _container_api_key and key != _container_api_key:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
 
 class DynamicReading(BaseModel):
     timestamp: str
     rx_power_dbm: Optional[float] = None
+    tx_power_dbm: Optional[float] = None
     temperature_c: Optional[float] = None
     voltage_v: Optional[float] = None
     bias_ma: Optional[float] = None
@@ -28,6 +45,11 @@ class DynamicReading(BaseModel):
 
 def sfp_socket_path() -> str:
     return os.getenv("SFP_DAEMON_SOCKET", "/run/sfp-daemon/sfp.sock")
+
+
+_socket_lock = threading.Lock()
+_socket_cache: Dict[str, Tuple[float, Any]] = {}
+_SOCKET_CACHE_TTL = 5.0
 
 
 def first_numeric(d: Dict[str, Any], keys: List[str]) -> Optional[float]:
@@ -42,37 +64,56 @@ def first_numeric(d: Dict[str, Any], keys: List[str]) -> Optional[float]:
 
 
 def send_command(command: str) -> Dict[str, Any]:
-    path = sfp_socket_path()
-    try:
-        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
-            s.settimeout(float(os.getenv("SFP_SOCKET_TIMEOUT", "3")))
-            s.connect(path)
-            s.sendall((command + "\n").encode("utf-8"))
-            chunks: List[bytes] = []
-            while True:
-                b = s.recv(4096)
-                if not b:
-                    break
-                chunks.append(b)
-                if b.endswith(b"\n"):
-                    break
-            data = b"".join(chunks).decode("utf-8", errors="replace")
-    except (FileNotFoundError, ConnectionRefusedError, TimeoutError, socket.error) as e:
-        raise HTTPException(status_code=503, detail=f"Socket error: {e}")
-    lines = data.split("\n", 1)
-    if not lines:
-        raise HTTPException(status_code=502, detail="Empty daemon response")
-    status_line = lines[0].strip()
-    body = lines[1] if len(lines) > 1 else ""
-    if not body.strip():
-        raise HTTPException(status_code=502, detail="Missing JSON body")
-    try:
-        payload = json.loads(body)
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=502, detail="Invalid JSON from daemon")
-    if not status_line.startswith("STATUS"):
-        raise HTTPException(status_code=502, detail="Invalid status line")
-    return payload
+    with _socket_lock:
+        now = time.time()
+        if command in _socket_cache:
+            ts, cached = _socket_cache[command]
+            if now - ts < _SOCKET_CACHE_TTL:
+                return cached
+
+        path = sfp_socket_path()
+        timeout = float(os.getenv("SFP_SOCKET_TIMEOUT", "3"))
+        last_exc: Exception = RuntimeError("no attempts")
+        data = ""
+        for attempt in range(3):
+            try:
+                with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+                    s.settimeout(timeout)
+                    s.connect(path)
+                    s.sendall((command + "\n").encode("utf-8"))
+                    chunks: List[bytes] = []
+                    while True:
+                        b = s.recv(4096)
+                        if not b:
+                            break
+                        chunks.append(b)
+                        if b.endswith(b"\n"):
+                            break
+                    data = b"".join(chunks).decode("utf-8", errors="replace")
+                break
+            except (FileNotFoundError, ConnectionRefusedError, TimeoutError, socket.error, BlockingIOError) as e:
+                last_exc = e
+                if attempt < 2:
+                    time.sleep(0.3 * (attempt + 1))
+        else:
+            raise HTTPException(status_code=503, detail=f"Socket error: {last_exc}")
+
+        lines = data.split("\n", 1)
+        if not lines:
+            raise HTTPException(status_code=502, detail="Empty daemon response")
+        status_line = lines[0].strip()
+        body = lines[1] if len(lines) > 1 else ""
+        if not body.strip():
+            raise HTTPException(status_code=502, detail="Missing JSON body")
+        try:
+            payload = json.loads(body)
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=502, detail="Invalid JSON from daemon")
+        if not status_line.startswith("STATUS"):
+            raise HTTPException(status_code=502, detail="Invalid status line")
+
+        _socket_cache[command] = (time.time(), payload)
+        return payload
 
 
 def map_current(payload: Dict[str, Any], dynamic_payload: Optional[Dict[str, Any]] = None) -> CurrentReading:
@@ -88,7 +129,8 @@ def map_current(payload: Dict[str, Any], dynamic_payload: Optional[Dict[str, Any
             a2_dyn = candidate
     voltage = first_numeric(a2_current, ["voltage_v", "vcc_realtime"])
     rx_power = first_numeric(a2_current, ["rx_power_dbm"])
-    temp = first_numeric(a2_dyn or a2_current, ["temperature_c", "temp_realtime"])
+    tx_power = first_numeric(a2_dyn or a2_current, ["tx_power_dbm"])
+    temp = first_numeric(a2_dyn or a2_current, ["temperature_c", "temp_c", "temp_realtime"])
     bias = first_numeric(a2_dyn or a2_current, ["tx_bias_ma", "tx_bias_realtime"])
     if rx_power is None:
         rx_power = -8.0
@@ -131,6 +173,7 @@ def map_current(payload: Dict[str, Any], dynamic_payload: Optional[Dict[str, Any
         timestamp=str(last_read),
         created_at=created_at,
         rx_power_dbm=float(rx_power),
+        tx_power_dbm=tx_power,
         temperature_c=temp,
         voltage_v=voltage,
         bias_ma=bias,
@@ -144,7 +187,8 @@ def map_dynamic(payload: Dict[str, Any]) -> DynamicReading:
     if not isinstance(a2, dict):
         a2 = {}
     rx_power = first_numeric(a2, ["rx_power_dbm"])
-    temp = first_numeric(a2, ["temperature_c", "temp_realtime"])
+    tx_power = first_numeric(a2, ["tx_power_dbm"])
+    temp = first_numeric(a2, ["temperature_c", "temp_c", "temp_realtime"])
     voltage = first_numeric(a2, ["voltage_v", "vcc_realtime"])
     bias = first_numeric(a2, ["tx_bias_ma", "tx_bias_realtime"])
     ts = payload.get("last_a2_read")
@@ -164,6 +208,7 @@ def map_dynamic(payload: Dict[str, Any]) -> DynamicReading:
     return DynamicReading(
         timestamp=str(ts),
         rx_power_dbm=rx_power,
+        tx_power_dbm=tx_power,
         temperature_c=temp,
         voltage_v=voltage,
         bias_ma=bias,
@@ -188,17 +233,19 @@ async def background_sampler():
     while True:
         try:
             if mongo_coll is not None:
-                payload = send_command("GET CURRENT")
+                payload = await asyncio.to_thread(send_command, "GET CURRENT")
+                if payload.get("status") in ("not_found", "error"):
+                    await asyncio.sleep(5)
+                    continue
                 try:
-                    dynamic_payload = send_command("GET DYNAMIC")
-                except:
+                    dynamic_payload = await asyncio.to_thread(send_command, "GET DYNAMIC")
+                except Exception:
                     dynamic_payload = None
-                
+
                 current = map_current(payload, dynamic_payload)
                 doc = current.model_dump()
                 mongo_coll.insert_one(doc)
-        except Exception as e:
-            # Silently fail sampler to avoid crashing the app
+        except Exception:
             pass
         await asyncio.sleep(5)
 
@@ -220,7 +267,22 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/health")
 def health() -> JSONResponse:
-    return JSONResponse({"status": "ok", "db_connected": mongo_coll is not None})
+    import os as _os
+    daemon_ok = _os.path.exists(sfp_socket_path())
+    return JSONResponse({
+        "status": "ok",
+        "db_connected": mongo_coll is not None,
+        "daemon_ok": daemon_ok,
+    })
+
+
+@app.get("/api/v1/ping")
+def daemon_ping() -> JSONResponse:
+    try:
+        result = send_command("PING")
+        return JSONResponse(result)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=str(e))
 
 
 @app.get("/api/v1/current")
@@ -233,15 +295,6 @@ def api_current() -> CurrentReading:
         dynamic_payload = None
     
     current = map_current(payload, dynamic_payload)
-    
-    # Inserção pontual ao requisitar (o sampler já faz isso, 
-    # mas mantemos para garantir que a leitura atual esteja no banco)
-    if mongo_coll is not None:
-        doc = current.model_dump()
-        try:
-            mongo_coll.insert_one(doc)
-        except PyMongoError:
-            pass
     return current
 
 
@@ -400,6 +453,102 @@ def export_csv():
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Export error: {e}")
+
+
+class ContainerInfo(BaseModel):
+    id: str
+    name: str
+    status: str
+    image: str
+
+
+class ContainerStats(BaseModel):
+    cpu_percent: float
+    memory_mb: float
+    memory_percent: float
+
+
+def _get_docker() -> Any:
+    if _docker_client is None:
+        raise HTTPException(status_code=503, detail="Docker socket unavailable")
+    return _docker_client
+
+
+@app.get("/api/v1/containers")
+def list_containers() -> List[ContainerInfo]:
+    dc = _get_docker()
+    result = []
+    for c in dc.containers.list(all=True):
+        tags = c.image.tags
+        image = tags[0] if tags else c.image.short_id
+        result.append(ContainerInfo(id=c.short_id, name=c.name, status=c.status, image=image))
+    return result
+
+
+@app.post("/api/v1/containers/{name}/start", dependencies=[Depends(_require_container_key)])
+def start_container(name: str):
+    dc = _get_docker()
+    try:
+        dc.containers.get(name).start()
+        return {"ok": True}
+    except docker_sdk.errors.NotFound:
+        raise HTTPException(status_code=404, detail="Container not found")
+
+
+@app.post("/api/v1/containers/{name}/stop", dependencies=[Depends(_require_container_key)])
+def stop_container(name: str):
+    dc = _get_docker()
+    try:
+        dc.containers.get(name).stop()
+        return {"ok": True}
+    except docker_sdk.errors.NotFound:
+        raise HTTPException(status_code=404, detail="Container not found")
+
+
+@app.post("/api/v1/containers/{name}/restart", dependencies=[Depends(_require_container_key)])
+def restart_container(name: str):
+    dc = _get_docker()
+    try:
+        dc.containers.get(name).restart()
+        return {"ok": True}
+    except docker_sdk.errors.NotFound:
+        raise HTTPException(status_code=404, detail="Container not found")
+
+
+@app.get("/api/v1/containers/{name}/logs")
+def get_container_logs(name: str, lines: int = 100):
+    dc = _get_docker()
+    try:
+        c = dc.containers.get(name)
+        logs = c.logs(tail=lines, timestamps=True).decode("utf-8", errors="replace")
+        return {"logs": logs}
+    except docker_sdk.errors.NotFound:
+        raise HTTPException(status_code=404, detail="Container not found")
+
+
+@app.get("/api/v1/containers/{name}/stats")
+def get_container_stats(name: str) -> ContainerStats:
+    dc = _get_docker()
+    try:
+        c = dc.containers.get(name)
+        if c.status != "running":
+            return ContainerStats(cpu_percent=0.0, memory_mb=0.0, memory_percent=0.0)
+        s = c.stats(stream=False)
+        cpu_delta = s["cpu_stats"]["cpu_usage"]["total_usage"] - s["precpu_stats"]["cpu_usage"]["total_usage"]
+        sys_delta = s["cpu_stats"]["system_cpu_usage"] - s["precpu_stats"]["system_cpu_usage"]
+        ncpus = s["cpu_stats"].get("online_cpus") or len(s["cpu_stats"]["cpu_usage"].get("percpu_usage", [1]))
+        cpu_pct = (cpu_delta / sys_delta) * ncpus * 100.0 if sys_delta > 0 else 0.0
+        mem_use = s["memory_stats"].get("usage", 0)
+        mem_lim = s["memory_stats"].get("limit", 1)
+        return ContainerStats(
+            cpu_percent=round(cpu_pct, 1),
+            memory_mb=round(mem_use / 1024 / 1024, 1),
+            memory_percent=round(mem_use / mem_lim * 100, 1),
+        )
+    except docker_sdk.errors.NotFound:
+        raise HTTPException(status_code=404, detail="Container not found")
+    except (KeyError, ZeroDivisionError):
+        return ContainerStats(cpu_percent=0.0, memory_mb=0.0, memory_percent=0.0)
 
 
 if __name__ == "__main__":

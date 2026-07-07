@@ -14,6 +14,7 @@ class ReadingBase(BaseModel):
     timestamp: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     rx_power_dbm: float
+    tx_power_dbm: Optional[float] = None
     temperature_c: Optional[float] = None
     voltage_v: Optional[float] = None
     bias_ma: Optional[float] = None
