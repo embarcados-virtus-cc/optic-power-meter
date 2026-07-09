@@ -69,7 +69,7 @@ After=network.target sfp-daemon.service
 
 [Service]
 Type=simple
-WorkingDirectory=/home/pedro/optic-power-meter/display
+WorkingDirectory=/home/<usuario>/optic-power-meter/display
 ExecStart=/usr/bin/python3 main.py
 Restart=always
 RestartSec=3

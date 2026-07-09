@@ -42,16 +42,43 @@ Sistema embarcado de monitoramento de transceptores ópticos SFP/SFP+ para Raspb
 - Módulo SFP/SFP+ com adaptador I²C (endereços `0x50` e `0x51`)
 - Teclado USB (opcional, com suporte a hot-plug)
 
-## Instalação Rápida
+## Instalação Completa (Raspberry Pi do zero)
 
-### 1. Clonar o repositório
+### 0. Atualizar o sistema
+
+```bash
+sudo apt update
+sudo apt full-upgrade -y
+```
+
+### 1. Instalar e configurar o Git
+
+```bash
+sudo apt install git -y
+git --version
+
+git config --global user.name "Seu Nome"
+git config --global user.email "seuemail@exemplo.com"
+```
+
+Se o repositório for privado, gerar chave SSH e cadastrar em `github.com/settings/keys`:
+
+```bash
+ssh-keygen -t ed25519 -C "seuemail@exemplo.com"
+cat ~/.ssh/id_ed25519.pub
+ssh -T git@github.com
+```
+
+### 2. Clonar o repositório
 
 ```bash
 git clone https://github.com/embarcados-virtus-cc/optic-power-meter.git
 cd optic-power-meter
+# ou, com chave SSH configurada:
+git clone git@github.com:embarcados-virtus-cc/optic-power-meter.git
 ```
 
-### 2. Configurar variáveis de ambiente
+### 3. Configurar variáveis de ambiente
 
 ```bash
 cp .env.example .env
@@ -74,11 +101,22 @@ SFP_SOCKET_TIMEOUT=3
 CONTAINER_API_KEY=
 ```
 
-### 3. Compilar e instalar o daemon SFP
+### 4. Instalar dependências de compilação e I²C tools
+
+```bash
+sudo apt update
+sudo apt install -y \
+  build-essential gcc g++ make pkg-config swig \
+  python3-dev python3-venv python3-setuptools python3-wheel \
+  libgpiod-dev libcjson-dev i2c-tools
+
+i2cdetect -V
+```
+
+### 5. Compilar e instalar o daemon SFP
 
 ```bash
 cd sfp-interface
-sudo apt-get install -y build-essential libcjson-dev
 make daemon
 sudo make install-daemon
 cd ..
@@ -106,7 +144,7 @@ sudo systemctl enable --now sfp-daemon
 sudo systemctl status sfp-daemon
 ```
 
-### 4. Habilitar I²C e SPI no Raspberry Pi
+### 6. Habilitar I²C e SPI no Raspberry Pi
 
 ```bash
 sudo raspi-config
@@ -118,26 +156,79 @@ sudo reboot
 Verificar:
 
 ```bash
+ls /dev/i2c*
 sudo i2cdetect -y 1
 # Deve mostrar 50 e 51 quando SFP conectado
 ```
 
-### 5. Subir os containers Docker
+### 7. Instalar Docker
 
 ```bash
-docker compose up -d
+sudo apt install curl -y
+curl -fsSL https://get.docker.com | sh
+
+sudo usermod -aG docker $USER
+sudo reboot
+```
+
+Após o reboot:
+
+```bash
+docker --version
+docker run hello-world
+
+sudo apt install docker-compose-plugin -y
+docker compose version
+```
+
+### 8. Subir os containers Docker
+
+```bash
+docker compose up -d --build
 docker compose ps
 # mongo: healthy, api: healthy, gui: started
 ```
 
+> `--build` é obrigatório na primeira vez: `api` e `gui` não têm imagem publicada em registry, só `build:` local a partir do Dockerfile de cada serviço.
+
 Interface web disponível em: `http://<IP_DO_PI>:8080`
 
-### 6. Instalar e iniciar o display
+#### Build manual / rebuild (após alterar código)
+
+```bash
+# build de todos os serviços que têm Dockerfile (api, gui)
+docker compose build
+
+# build sem cache (força reinstalar dependências)
+docker compose build --no-cache
+
+# build só de um serviço
+docker compose build api
+docker compose build gui
+
+# build + recriar container em seguida
+docker compose up -d --build api
+docker compose up -d --build gui
+
+# build direto com docker (sem compose), fora do host Raspberry Pi
+docker build -t optic-api:latest ./api
+docker build -t optic-gui:latest ./gui
+```
+
+### 9. Instalar e iniciar o display
+
+Dependências Python do display (`Adafruit-GPIO`, `numpy`, `Pillow`, `netifaces`, `spidev`, `lgpio`, `evdev`, `psutil`) instaladas direto no Python do sistema, já que o `systemd` chama `/usr/bin/python3` diretamente (sem venv):
 
 ```bash
 cd display
-pip install -r requirements.txt
+sudo apt install -y python3-pip
+python3 -m pip install --break-system-packages -r requirements.txt
+cd ..
 ```
+
+> Em Debian/Raspberry Pi OS recentes (Python "externally managed"), `pip install` sem `--break-system-packages` falha. Alternativa mais limpa: usar `venv` — mas aí o `ExecStart` do serviço abaixo precisa apontar para `venv/bin/python3` em vez de `/usr/bin/python3`.
+>
+> Se `pip install lgpio` falhar ao compilar, instalar via apt: `sudo apt install python3-lgpio`.
 
 ```ini
 # /etc/systemd/system/display.service
@@ -147,7 +238,7 @@ After=network.target sfp-daemon.service
 
 [Service]
 Type=simple
-WorkingDirectory=/home/pedro/optic-power-meter/display
+WorkingDirectory=/home/<usuario>/optic-power-meter/display
 ExecStart=/usr/bin/python3 main.py
 Restart=always
 RestartSec=3
@@ -157,9 +248,29 @@ Environment=SFP_API_URL=http://localhost:8080/api/v1/raw/current
 WantedBy=multi-user.target
 ```
 
+> Trocar `<usuario>` pelo usuário real (`whoami`) e conferir que o caminho bate com `pwd` dentro de `optic-power-meter/display` — `WorkingDirectory` errado derruba o serviço com `status=200/CHDIR` em loop de restart.
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now display.service
+sudo systemctl status display.service
+```
+
+### 10. Diagnóstico rápido (se algo falhar)
+
+```bash
+cat /etc/os-release
+uname -a
+python3 --version
+which python3
+ls /usr/bin/python3*
+
+sudo systemctl status sfp-daemon --no-pager
+sudo systemctl status display.service --no-pager
+sudo journalctl -u display.service -n 30 --no-pager
+
+docker compose ps
+docker compose logs api --tail 50
 ```
 
 ## Estrutura de Diretórios

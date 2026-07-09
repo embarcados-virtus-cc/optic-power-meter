@@ -4,3 +4,5 @@ Pillow
 netifaces
 spidev
 lgpio
+evdev
+psutil
